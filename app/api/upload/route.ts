@@ -1,6 +1,5 @@
-import { writeFile, mkdir } from "fs/promises";
-import { join } from "path";
 import { NextRequest, NextResponse } from "next/server";
+import { createSupabaseAdmin } from "@/lib/supabase";
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,24 +34,31 @@ export async function POST(request: NextRequest) {
     const ext = file.name.split(".").pop();
     const filename = `image-${timestamp}.${ext}`;
 
-    // Ensure directory exists
-    const uploadDir = join(process.cwd(), "public", "uploads");
-    try {
-      await mkdir(uploadDir, { recursive: true });
-    } catch (error) {
-      // Directory might already exist
+    // Upload to Supabase Storage
+    const supabase = createSupabaseAdmin();
+    const { data, error } = await supabase.storage
+      .from("uploads")
+      .upload(filename, buffer, {
+        contentType: file.type,
+        upsert: false,
+      });
+
+    if (error) {
+      console.error("Supabase storage error:", error);
+      return NextResponse.json(
+        { error: "Failed to upload to storage" },
+        { status: 500 }
+      );
     }
 
-    // Write file
-    const filepath = join(uploadDir, filename);
-    await writeFile(filepath, buffer);
-
-    // Return the public URL
-    const publicUrl = `/uploads/${filename}`;
+    // Get public URL
+    const { data: publicData } = supabase.storage
+      .from("uploads")
+      .getPublicUrl(filename);
 
     return NextResponse.json({
       success: true,
-      url: publicUrl,
+      url: publicData.publicUrl,
       filename: filename,
     });
   } catch (error) {
