@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import PostCard from "../components/PostCard";
 import HeroWrapper from "../components/HeroWrapper";

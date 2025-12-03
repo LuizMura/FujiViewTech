@@ -1,20 +1,11 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import dynamic from "next/dynamic";
 import { HeroProvider } from "@/context/HeroContext";
-import Hero from "./Hero";
+
+const Hero = dynamic(() => import("./Hero"), { ssr: false });
 
 export default function HeroWrapper() {
-  const [isMounted, setIsMounted] = useState(false);
-
-  useEffect(() => {
-    setIsMounted(true);
-  }, []);
-
-  if (!isMounted) {
-    return <div className="h-96 bg-slate-200 rounded-2xl animate-pulse" />;
-  }
-
   return (
     <HeroProvider>
       <Hero />
