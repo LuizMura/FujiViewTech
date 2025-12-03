@@ -63,11 +63,13 @@ create policy "Enable read access for all users" on public.hero_content
 ### 5. Configurar Variáveis Localmente
 
 1. Na raiz do projeto, crie `.env.local` copiando `.env.local.example`:
+
 ```bash
 cp .env.local.example .env.local
 ```
 
 2. Abra `.env.local` e preencha com suas credenciais Supabase:
+
 ```
 NEXT_PUBLIC_SUPABASE_URL=https://xxxx.supabase.co
 NEXT_PUBLIC_SUPABASE_ANON_KEY=eyJ...
@@ -79,12 +81,14 @@ SUPABASE_SERVICE_ROLE_KEY=eyJ...
 ### 6. Testar Localmente
 
 1. Reinicie o servidor Next.js:
+
 ```bash
 npm run dev
 ```
 
 2. Abra http://localhost:3000
 3. Teste o dashboard:
+
    - Clique no botão Settings (hero)
    - Mude algum texto e clique "Salvar Mudanças"
    - Verifique se a mudança aparece no BD Supabase
@@ -131,16 +135,20 @@ npm run dev
 ## 🐛 Troubleshooting
 
 **Erro: "SUPABASE_URL or SERVICE_ROLE_KEY missing"**
+
 - Verifique se `.env.local` existe e tem os valores corretos
 - Reinicie o servidor Next.js
 
 **Erro: "No bucket named 'uploads'"**
+
 - Crie o bucket `uploads` no Supabase Storage
 
 **Erro: "relation 'public.hero_content' does not exist"**
+
 - Execute o SQL acima para criar a tabela
 
 **Imagens não aparecem após upload**
+
 - Verifique se o bucket `uploads` é público
 - Confirme que a URL retornada pela API é acessível no browser
 

@@ -34,7 +34,7 @@ interface HeroData {
 export async function GET() {
   try {
     const supabase = createSupabaseAdmin();
-    
+
     const { data, error } = await supabase
       .from("hero_content")
       .select("*")

@@ -1,6 +1,6 @@
 import React from "react";
 import PostCard from "../components/PostCard";
-import HeroWrapperClient from "../components/HeroWrapperClient";
+import HeroWrapper from "../components/HeroWrapper";
 
 const posts = [
   {
@@ -129,7 +129,7 @@ export default function HomePage() {
   return (
     <div className="container-custom pb-20">
       {/* Hero Section with Live Prices */}
-      <HeroWrapperClient />
+      <HeroWrapper />
 
       <div className="mb-12 flex items-end justify-between">
         <div>
