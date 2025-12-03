@@ -1,0 +1,28 @@
+{
+  "heroContent": {
+    "badge": "Destaque da Semana",
+    "mainTitle": "Os 10 celulares mais vendidos",
+    "gradientTitle": "no Brasil em 2025",
+    "description": "Descubra quais smartphones dominam as vendas e nossa análise honesta sobre quais REALMENTE valem a pena comprar.",
+    "buttonText": "Ver Matéria Completa",
+    "buttonLink": "/reviews/celulares-mais-vendidos-brasil-2025",
+    "imageUrl": "/images/bestselling-phones-brazil.jpg",
+    "imageAlt": "Celulares Mais Vendidos Brasil 2025"
+  },
+  "topCard": {
+    "category": "Notícia",
+    "title": "Apple Vision Pro 2 é lançado — o que mudou?",
+    "imageUrl": "/images/posts/visionpro2.jpg",
+    "imageAlt": "Apple Vision Pro 2",
+    "link": "/noticias/apple-vision-pro-2-lancamento",
+    "categoryColor": "sky"
+  },
+  "bottomCard": {
+    "category": "Tutorial",
+    "title": "10 dicas para aumentar a vida útil do seu smartphone",
+    "imageUrl": "/images/posts/dicas-smartphone.jpg",
+    "imageAlt": "Dicas Smartphone",
+    "link": "/tutoriais/como-aumentar-vida-util-do-seu-smartphone",
+    "categoryColor": "emerald"
+  }
+}

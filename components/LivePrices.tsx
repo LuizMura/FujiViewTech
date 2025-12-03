@@ -1,0 +1,258 @@
+"use client";
+import { useEffect, useState } from "react";
+import { ArrowUp, ArrowDown } from "lucide-react";
+
+interface PriceData {
+  btc: number;
+  eth: number;
+  bnb: number;
+  sol: number;
+  usdt: number;
+  usd: number;
+  eur: number;
+}
+
+interface PriceChange {
+  btc: number;
+  eth: number;
+  bnb: number;
+  sol: number;
+  usdt: number;
+  usd: number;
+  eur: number;
+}
+
+export default function LivePrices() {
+  const [prices, setPrices] = useState<PriceData | null>(null);
+  const [changes, setChanges] = useState<PriceChange | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchPrices = async () => {
+      try {
+        // Fetch crypto prices with 24h change from CoinGecko API
+        const cryptoResponse = await fetch(
+          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,tether&vs_currencies=brl&include_24hr_change=true",
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (!cryptoResponse.ok) {
+          throw new Error("Crypto API failed");
+        }
+
+        const cryptoData = await cryptoResponse.json();
+
+        // Fetch currency prices from AwesomeAPI
+        const currencyResponse = await fetch(
+          "https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL",
+          {
+            method: "GET",
+            headers: {
+              Accept: "application/json",
+            },
+          }
+        );
+
+        if (!currencyResponse.ok) {
+          throw new Error("Currency API failed");
+        }
+
+        const currencyData = await currencyResponse.json();
+
+        const newPrices = {
+          btc: cryptoData.bitcoin?.brl || 0,
+          eth: cryptoData.ethereum?.brl || 0,
+          bnb: cryptoData.binancecoin?.brl || 0,
+          sol: cryptoData.solana?.brl || 0,
+          usdt: cryptoData.tether?.brl || 0,
+          usd: parseFloat(currencyData.USDBRL?.bid) || 0,
+          eur: parseFloat(currencyData.EURBRL?.bid) || 0,
+        };
+
+        const newChanges = {
+          btc: cryptoData.bitcoin?.brl_24h_change || 0,
+          eth: cryptoData.ethereum?.brl_24h_change || 0,
+          bnb: cryptoData.binancecoin?.brl_24h_change || 0,
+          sol: cryptoData.solana?.brl_24h_change || 0,
+          usdt: cryptoData.tether?.brl_24h_change || 0,
+          usd: parseFloat(currencyData.USDBRL?.pctChange) || 0,
+          eur: parseFloat(currencyData.EURBRL?.pctChange) || 0,
+        };
+
+        setPrices(newPrices);
+        setChanges(newChanges);
+        setLoading(false);
+      } catch (error) {
+        console.error("Error fetching prices:", error);
+        // Set default values on error so component still renders
+        setPrices({
+          btc: 0,
+          eth: 0,
+          bnb: 0,
+          sol: 0,
+          usdt: 0,
+          usd: 0,
+          eur: 0,
+        });
+        setChanges({
+          btc: 0,
+          eth: 0,
+          bnb: 0,
+          sol: 0,
+          usdt: 0,
+          usd: 0,
+          eur: 0,
+        });
+        setLoading(false);
+      }
+    };
+
+    fetchPrices();
+    // Update every 60 seconds (reduced frequency to avoid rate limits)
+    const interval = setInterval(fetchPrices, 60000);
+
+    return () => clearInterval(interval);
+  }, []);
+
+  if (loading) {
+    return (
+      <div className="flex items-center gap-4 text-xs text-slate-600">
+        <span className="animate-pulse">Carregando cotações...</span>
+      </div>
+    );
+  }
+
+  if (!prices || !changes) {
+    return (
+      <div className="flex items-center gap-4 text-xs text-slate-600">
+        <span>Cotações temporariamente indisponíveis</span>
+      </div>
+    );
+  }
+
+  const formatPrice = (value: number, isCrypto: boolean = false) => {
+    if (isCrypto && value > 1000) {
+      return `R$ ${value.toLocaleString("pt-BR", {
+        minimumFractionDigits: 0,
+        maximumFractionDigits: 0,
+      })}`;
+    }
+    return `R$ ${value.toLocaleString("pt-BR", {
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
+    })}`;
+  };
+
+  const getChangeColor = (change: number) => {
+    if (change > 0) return "text-green-600";
+    if (change < 0) return "text-red-600";
+    return "text-slate-600";
+  };
+
+  const getChangeIcon = (change: number) => {
+    if (change > 0) return <ArrowUp size={14} className="text-green-600" />;
+    if (change < 0) return <ArrowDown size={14} className="text-red-600" />;
+    return null;
+  };
+
+  return (
+    <div className="flex items-center gap-3 md:gap-4 text-xs overflow-x-auto scrollbar-hide">
+      {/* BTC */}
+      <div className="flex items-center gap-1.5 whitespace-nowrap">
+        <span className="font-bold text-slate-900">BTC</span>
+        <span className={`font-semibold ${getChangeColor(changes.btc)}`}>
+          {formatPrice(prices.btc, true)}
+        </span>
+        {getChangeIcon(changes.btc)}
+      </div>
+
+      <span className="text-slate-300">|</span>
+
+      {/* ETH */}
+      <div className="flex items-center gap-1.5 whitespace-nowrap">
+        <span className="font-bold text-slate-900">ETH</span>
+        <span className={`font-semibold ${getChangeColor(changes.eth)}`}>
+          {formatPrice(prices.eth, true)}
+        </span>
+        {getChangeIcon(changes.eth)}
+      </div>
+
+      <span className="text-slate-300">|</span>
+
+      {/* BNB */}
+      <div className="flex items-center gap-1.5 whitespace-nowrap">
+        <span className="font-bold text-slate-900">BNB</span>
+        <span className={`font-semibold ${getChangeColor(changes.bnb)}`}>
+          {formatPrice(prices.bnb, true)}
+        </span>
+        {getChangeIcon(changes.bnb)}
+      </div>
+
+      <span className="text-slate-300">|</span>
+
+      {/* SOL */}
+      <div className="flex items-center gap-1.5 whitespace-nowrap">
+        <span className="font-bold text-slate-900">SOL</span>
+        <span className={`font-semibold ${getChangeColor(changes.sol)}`}>
+          {formatPrice(prices.sol, true)}
+        </span>
+        {getChangeIcon(changes.sol)}
+      </div>
+
+      <span className="text-slate-300">|</span>
+
+      {/* USDT */}
+      <div className="flex items-center gap-1.5 whitespace-nowrap">
+        <span className="font-bold text-slate-900">USDT</span>
+        <span className={`font-semibold ${getChangeColor(changes.usdt)}`}>
+          {formatPrice(prices.usdt)}
+        </span>
+        {getChangeIcon(changes.usdt)}
+      </div>
+
+      <span className="text-slate-300">|</span>
+
+      {/* USD */}
+      <div className="flex items-center gap-1.5 whitespace-nowrap">
+        <span className="font-bold text-slate-900">USD</span>
+        <span className={`font-semibold ${getChangeColor(changes.usd)}`}>
+          {formatPrice(prices.usd)}
+        </span>
+        {getChangeIcon(changes.usd)}
+      </div>
+
+      <span className="text-slate-300">|</span>
+
+      {/* EUR */}
+      <div className="flex items-center gap-1.5 whitespace-nowrap">
+        <span className="font-bold text-slate-900">EUR</span>
+        <span className={`font-semibold ${getChangeColor(changes.eur)}`}>
+          {formatPrice(prices.eur)}
+        </span>
+        {getChangeIcon(changes.eur)}
+      </div>
+
+      <span className="text-slate-300">|</span>
+
+      {/* More Prices Link */}
+      <button
+        onClick={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          window.open(
+            "https://www.binance.com/referral/earn-together/refer2earn-usdc/claim?hl=pt-BR&ref=GRO_28502_CQT0Y&utm_source=default",
+            "_blank"
+          );
+        }}
+        className="flex items-center gap-1 text-slate-900 hover:text-indigo-600 font-bold whitespace-nowrap transition-colors underline decoration-2 underline-offset-2 cursor-pointer bg-transparent border-0 p-0"
+      >
+        Ganhe USDC Grátis na Binance →
+      </button>
+    </div>
+  );
+}
