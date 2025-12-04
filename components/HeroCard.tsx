@@ -21,16 +21,21 @@ const categoryHoverMap: Record<string, string> = {
 export default function HeroCard({ card }: HeroCardProps) {
   return (
     <Link
-      href={card.link}
+      href={card.link || "/"}
       className="flex-1 relative rounded-2xl overflow-hidden shadow-lg group block"
     >
       <div className="absolute inset-0 w-full h-full">
-        <Image
-          src={card.imageUrl}
-          alt={card.imageAlt}
-          fill
-          className="object-cover transition-transform duration-700 group-hover:scale-105"
-        />
+        {card.imageUrl &&
+        (card.imageUrl.startsWith("/") || card.imageUrl.startsWith("http")) ? (
+          <Image
+            src={card.imageUrl}
+            alt={card.imageAlt}
+            fill
+            className="object-cover transition-transform duration-700 group-hover:scale-105"
+          />
+        ) : (
+          <div className="w-full h-full bg-slate-800" />
+        )}
         <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/40 to-transparent opacity-90"></div>
       </div>
       <div className="absolute bottom-0 left-0 w-full p-6 z-10">

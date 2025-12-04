@@ -81,9 +81,11 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
         const response = await fetch("/api/hero");
         const data = await response.json();
 
-        if (data.heroContent) setHeroContent(data.heroContent);
-        if (data.topCard) setTopCard(data.topCard);
-        if (data.bottomCard) setBottomCard(data.bottomCard);
+        if (data.heroContent)
+          setHeroContent((prev) => ({ ...prev, ...data.heroContent }));
+        if (data.topCard) setTopCard((prev) => ({ ...prev, ...data.topCard }));
+        if (data.bottomCard)
+          setBottomCard((prev) => ({ ...prev, ...data.bottomCard }));
 
         setIsLoaded(true);
       } catch (error) {
@@ -115,7 +117,8 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        throw new Error("Erro ao salvar dados");
+        const errorData = await response.json();
+        throw new Error(errorData.error || "Erro ao salvar dados");
       }
 
       console.log("✅ Dados salvos com sucesso!");
@@ -152,11 +155,6 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
       return updated;
     });
   };
-
-  // Não renderiza até carregar os dados salvos
-  if (!isLoaded) {
-    return <>{children}</>;
-  }
 
   return (
     <HeroContext.Provider

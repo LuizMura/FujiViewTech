@@ -85,6 +85,7 @@ export default function ImageUpload({
         fileInputRef.current.value = "";
       }
     } catch (err) {
+      console.error("Upload error details:", err);
       setError(err instanceof Error ? err.message : "Erro ao fazer upload");
     } finally {
       setIsUploading(false);

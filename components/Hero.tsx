@@ -47,13 +47,19 @@ export default function Hero() {
         <div className="lg:col-span-2 relative h-[26rem] lg:h-[28rem] rounded-2xl overflow-hidden shadow-2xl group">
           {/* Background Image */}
           <div className="absolute inset-0 w-full h-full">
-            <Image
-              src={heroContent.imageUrl}
-              alt={heroContent.imageAlt}
-              fill
-              priority
-              className="object-cover transition-transform duration-700 group-hover:scale-105"
-            />
+            {heroContent.imageUrl &&
+            (heroContent.imageUrl.startsWith("/") ||
+              heroContent.imageUrl.startsWith("http")) ? (
+              <Image
+                src={heroContent.imageUrl}
+                alt={heroContent.imageAlt}
+                fill
+                priority
+                className="object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            ) : (
+              <div className="w-full h-full bg-slate-800" />
+            )}
             <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent opacity-90"></div>
           </div>
 
@@ -75,7 +81,7 @@ export default function Hero() {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link
-                  href={heroContent.buttonLink}
+                  href={heroContent.buttonLink || "/"}
                   className="px-6 py-3 bg-white text-slate-900 font-bold rounded-full hover:bg-indigo-50 transition-colors shadow-lg text-sm md:text-base"
                 >
                   {heroContent.buttonText}

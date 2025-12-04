@@ -42,7 +42,6 @@ export async function GET() {
       .single();
 
     if (error && error.code !== "PGRST116") {
-      // PGRST116 = no rows returned
       console.error("Supabase fetch error:", error);
       return NextResponse.json(
         { heroContent: null, topCard: null, bottomCard: null },
@@ -58,19 +57,26 @@ export async function GET() {
       });
     }
 
+    // Helper to get value from any casing variant
+    const getVal = (key: string) => {
+      const lower = key.toLowerCase();
+      const snake = key.replace(/[A-Z]/g, (m) => "_" + m.toLowerCase());
+      return data[key] || data[lower] || data[snake] || "";
+    };
+
     return NextResponse.json({
       heroContent: {
-        badge: data.badge,
-        mainTitle: data.mainTitle,
-        gradientTitle: data.gradientTitle,
-        description: data.description,
-        buttonText: data.buttonText,
-        buttonLink: data.buttonLink,
-        imageUrl: data.imageUrl,
-        imageAlt: data.imageAlt,
+        badge: getVal("badge"),
+        mainTitle: getVal("mainTitle"),
+        gradientTitle: getVal("gradientTitle"),
+        description: getVal("description"),
+        buttonText: getVal("buttonText"),
+        buttonLink: getVal("buttonLink"),
+        imageUrl: getVal("imageUrl"),
+        imageAlt: getVal("imageAlt"),
       },
-      topCard: data.topCard || null,
-      bottomCard: data.bottomCard || null,
+      topCard: data.topCard || data.topcard || data.top_card || null,
+      bottomCard: data.bottomCard || data.bottomcard || data.bottom_card || null,
     });
   } catch (error) {
     console.error("Erro ao carregar dados do hero:", error);
@@ -87,22 +93,22 @@ export async function POST(request: NextRequest) {
     const body: HeroData = await request.json();
     const supabase = createSupabaseAdmin();
 
-    // Upsert (insert or update) the hero content
+    // Upsert using lowercase column names (Postgres default for unquoted identifiers)
     const { data, error } = await supabase
       .from("hero_content")
       .upsert(
         {
           id: 1,
           badge: body.heroContent.badge,
-          mainTitle: body.heroContent.mainTitle,
-          gradientTitle: body.heroContent.gradientTitle,
+          maintitle: body.heroContent.mainTitle,
+          gradienttitle: body.heroContent.gradientTitle,
           description: body.heroContent.description,
-          buttonText: body.heroContent.buttonText,
-          buttonLink: body.heroContent.buttonLink,
-          imageUrl: body.heroContent.imageUrl,
-          imageAlt: body.heroContent.imageAlt,
-          topCard: body.topCard,
-          bottomCard: body.bottomCard,
+          buttontext: body.heroContent.buttonText,
+          buttonlink: body.heroContent.buttonLink,
+          imageurl: body.heroContent.imageUrl,
+          imagealt: body.heroContent.imageAlt,
+          topcard: body.topCard,
+          bottomcard: body.bottomCard,
           updated_at: new Date().toISOString(),
         },
         { onConflict: "id" }
@@ -112,7 +118,7 @@ export async function POST(request: NextRequest) {
     if (error) {
       console.error("Supabase upsert error:", error);
       return NextResponse.json(
-        { success: false, error: "Erro ao salvar dados no banco" },
+        { success: false, error: error.message, details: error },
         { status: 500 }
       );
     }

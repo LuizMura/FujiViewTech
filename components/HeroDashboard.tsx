@@ -12,7 +12,6 @@ import {
   Image as ImageIcon,
   FileText,
   Tag,
-  Tabs,
   Check,
   AlertCircle,
 } from "lucide-react";

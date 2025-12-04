@@ -6,9 +6,12 @@ import { MDXRemote } from 'next-mdx-remote/rsc'
 import ProductReview from '../../../components/ProductReview'
 import ImageCarousel from '../../../components/ImageCarousel'
 
+import { Affiliate } from '../../../components/MDXComponents'
+
 const components = {
   ProductReview,
-  ImageCarousel
+  ImageCarousel,
+  Affiliate
 }
 
 export async function generateStaticParams() {
