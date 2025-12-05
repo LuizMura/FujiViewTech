@@ -1,48 +1,24 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useHero } from "@/context/HeroContext";
 import LivePrices from "./LivePrices";
-import HeroDashboard from "./HeroDashboard";
 import HeroCard from "./HeroCard";
-import { Settings } from "lucide-react";
 
 export default function Hero() {
   const { heroContent, topCard, bottomCard } = useHero();
-  const [isDashboardOpen, setIsDashboardOpen] = useState(false);
 
   return (
     <>
-      {/* Edit Button */}
-      <button
-        onClick={() => setIsDashboardOpen(true)}
-        className="fixed bottom-6 right-6 bg-gradient-to-r from-indigo-600 to-sky-500 text-white p-4 rounded-full shadow-lg hover:shadow-xl transition-all hover:scale-110 z-30 flex items-center gap-2 group"
-        title="Editar Hero"
-      >
-        <Settings
-          size={20}
-          className="group-hover:rotate-90 transition-transform duration-300"
-        />
-        <span className="hidden sm:inline text-sm font-semibold">
-          Editar Hero
-        </span>
-      </button>
-
-      {/* Dashboard */}
-      <HeroDashboard
-        isOpen={isDashboardOpen}
-        onClose={() => setIsDashboardOpen(false)}
-      />
-
       {/* Price Ticker */}
-      <div className="bg-white py-1 px-4 rounded-2xl shadow-md mb-4 border border-slate-200">
+      <div className="bg-white py-1 justify-center flex items-center rounded-2xl shadow-md mb-4 border border-slate-200 mt-4">
         <LivePrices />
       </div>
 
       {/* Hero Grid Layout */}
-      <div className="grid lg:grid-cols-3 gap-6 mb-16">
+      <div className="grid lg:grid-cols-3 gap-6 mb-32">
         {/* Main Feature (Left - 2/3) */}
         <div className="lg:col-span-2 relative h-[26rem] lg:h-[28rem] rounded-2xl overflow-hidden shadow-2xl group">
           {/* Background Image */}

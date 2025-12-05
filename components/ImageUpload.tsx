@@ -99,7 +99,7 @@ export default function ImageUpload({
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
-        className={`border-2 border-dashed rounded-lg p-6 text-center cursor-pointer transition-all ${
+        className={`border-2 border-dashed rounded-lg p-2 text-center cursor-pointer transition-all ${
           isDragging
             ? "border-indigo-600 bg-indigo-50"
             : "border-slate-300 bg-slate-50 hover:border-indigo-400"
@@ -116,26 +116,21 @@ export default function ImageUpload({
         />
 
         {isUploading ? (
-          <div className="flex flex-col items-center gap-2">
-            <div className="w-8 h-8 border-4 border-slate-300 border-t-indigo-600 rounded-full animate-spin"></div>
-            <p className="text-sm text-slate-600 font-medium">Enviando...</p>
+          <div className="flex items-center justify-center gap-2">
+            <div className="w-5 h-5 border-2 border-slate-300 border-t-indigo-600 rounded-full animate-spin"></div>
+            <p className="text-xs text-slate-600 font-medium">Enviando...</p>
           </div>
         ) : success ? (
-          <div className="flex flex-col items-center gap-2">
-            <Check size={32} className="text-green-600" />
-            <p className="text-sm text-green-600 font-medium">
-              Upload realizado com sucesso!
-            </p>
+          <div className="flex items-center justify-center gap-2">
+            <Check size={20} className="text-green-600" />
+            <p className="text-xs text-green-600 font-medium">Sucesso!</p>
           </div>
         ) : (
-          <div className="flex flex-col items-center gap-2">
-            <Upload size={32} className="text-slate-400" />
-            <div>
-              <p className="text-sm font-medium text-slate-700">
-                Arraste a imagem aqui ou clique para selecionar
-              </p>
-              <p className="text-xs text-slate-500">PNG, JPG, GIF até 5MB</p>
-            </div>
+          <div className="flex items-center justify-center gap-2">
+            <Upload size={20} className="text-slate-400" />
+            <p className="text-xs font-medium text-slate-700">
+              Clique ou arraste
+            </p>
           </div>
         )}
       </div>
@@ -145,26 +140,6 @@ export default function ImageUpload({
         <div className="flex items-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
           <X size={16} className="text-red-600 flex-shrink-0" />
           <p className="text-sm text-red-600">{error}</p>
-        </div>
-      )}
-
-      {/* Current Image Preview */}
-      {currentImageUrl && (
-        <div className="space-y-2">
-          <p className="text-xs font-medium text-slate-600">Imagem atual:</p>
-          <div className="relative rounded-lg overflow-hidden border border-slate-300 bg-slate-100">
-            <img
-              src={currentImageUrl}
-              alt="Current"
-              className="w-full h-32 object-cover"
-              onError={() => {
-                /* Handle error silently */
-              }}
-            />
-            <p className="text-xs text-slate-500 p-2 bg-slate-50 text-center truncate">
-              {currentImageUrl}
-            </p>
-          </div>
         </div>
       )}
     </div>

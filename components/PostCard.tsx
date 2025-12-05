@@ -17,29 +17,42 @@ interface PostCardProps {
 }
 
 export default function PostCard({ post }: PostCardProps) {
-  const overlayTitle = post.slug === "celulares-mais-vendidos-brasil-2025";
+  const imageUrl = post.image || "/images/placeholder.jpg";
+
   return (
-    <article className="relative group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full">
-      {/* Image with overlay */}
-      <div className="relative h-56 overflow-hidden">
-        <Image
-          src={post.image}
-          alt={post.title}
-          fill
-          className="object-cover transition-transform duration-500 group-hover:scale-110"
-        />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-top from-black/70 via-black/30 to-transparent flex flex-col justify-end p-4">
-          <span className="px-3 py-1 bg-white/90 backdrop-blur-sm text-indigo-600 text-xs font-bold uppercase tracking-wider rounded-full shadow-sm">
+    <Link href={`/post/${post.slug}`}>
+      <article className="relative group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full cursor-pointer">
+        {/* Image */}
+        <div className="relative h-56 overflow-hidden bg-slate-200">
+          {post.image ? (
+            <Image
+              src={imageUrl}
+              alt={post.title}
+              fill
+              className="object-cover transition-transform duration-500 group-hover:scale-110"
+            />
+          ) : (
+            <div className="flex items-center justify-center h-full text-slate-400">
+              <span className="text-6xl">📱</span>
+            </div>
+          )}
+        </div>
+
+        {/* Content */}
+        <div className="p-6 flex flex-col flex-grow">
+          <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold uppercase tracking-wider rounded-full self-start mb-3">
             {post.category}
           </span>
-          <h3 className="text-white text-lg font-bold leading-snug mt-2">
+
+          <h3 className="text-slate-900 text-xl font-bold leading-snug mb-2">
             {post.title}
           </h3>
-          <p className="text-white text-sm mt-1 line-clamp-2">
+
+          <p className="text-slate-600 text-sm mb-4 line-clamp-2 flex-grow">
             {post.description}
           </p>
-          <div className="flex items-center gap-4 text-white text-xs mt-2">
+
+          <div className="flex items-center gap-4 text-slate-500 text-xs mb-4">
             <div className="flex items-center gap-1">
               <Calendar size={14} />
               <span>{new Date(post.date).toLocaleDateString("pt-BR")}</span>
@@ -51,16 +64,12 @@ export default function PostCard({ post }: PostCardProps) {
               </div>
             )}
           </div>
-          <div className="flex items-center text-indigo-600 font-semibold text-sm mt-2 group-hover:translate-x-1 transition-transform duration-300">
+
+          <div className="flex items-center text-indigo-600 font-semibold text-sm group-hover:translate-x-1 transition-transform duration-300">
             Ler artigo completo <ArrowRight size={16} className="ml-2" />
           </div>
-          <Link
-            href={`/post/${post.slug}`}
-            className="absolute inset-0"
-            aria-hidden="true"
-          />
         </div>
-      </div>
-    </article>
+      </article>
+    </Link>
   );
 }

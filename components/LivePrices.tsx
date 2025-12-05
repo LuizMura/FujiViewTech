@@ -30,9 +30,9 @@ export default function LivePrices() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        // Fetch crypto prices with 24h change from CoinGecko API
-        const cryptoResponse = await fetch(
-          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,tether&vs_currencies=brl&include_24hr_change=true",
+        // Fetch all prices from AwesomeAPI
+        const response = await fetch(
+          "https://economia.awesomeapi.com.br/last/BTC-BRL,ETH-BRL,BNB-BRL,SOL-BRL,USDT-BRL,USD-BRL,EUR-BRL",
           {
             method: "GET",
             headers: {
@@ -41,47 +41,30 @@ export default function LivePrices() {
           }
         );
 
-        if (!cryptoResponse.ok) {
-          throw new Error("Crypto API failed");
+        if (!response.ok) {
+          throw new Error("API request failed");
         }
 
-        const cryptoData = await cryptoResponse.json();
-
-        // Fetch currency prices from AwesomeAPI
-        const currencyResponse = await fetch(
-          "https://economia.awesomeapi.com.br/last/USD-BRL,EUR-BRL",
-          {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-            },
-          }
-        );
-
-        if (!currencyResponse.ok) {
-          throw new Error("Currency API failed");
-        }
-
-        const currencyData = await currencyResponse.json();
+        const data = await response.json();
 
         const newPrices = {
-          btc: cryptoData.bitcoin?.brl || 0,
-          eth: cryptoData.ethereum?.brl || 0,
-          bnb: cryptoData.binancecoin?.brl || 0,
-          sol: cryptoData.solana?.brl || 0,
-          usdt: cryptoData.tether?.brl || 0,
-          usd: parseFloat(currencyData.USDBRL?.bid) || 0,
-          eur: parseFloat(currencyData.EURBRL?.bid) || 0,
+          btc: parseFloat(data.BTCBRL?.bid) || 0,
+          eth: parseFloat(data.ETHBRL?.bid) || 0,
+          bnb: parseFloat(data.BNBBRL?.bid) || 0,
+          sol: parseFloat(data.SOLBRL?.bid) || 0,
+          usdt: parseFloat(data.USDTBRL?.bid) || 0,
+          usd: parseFloat(data.USDBRL?.bid) || 0,
+          eur: parseFloat(data.EURBRL?.bid) || 0,
         };
 
         const newChanges = {
-          btc: cryptoData.bitcoin?.brl_24h_change || 0,
-          eth: cryptoData.ethereum?.brl_24h_change || 0,
-          bnb: cryptoData.binancecoin?.brl_24h_change || 0,
-          sol: cryptoData.solana?.brl_24h_change || 0,
-          usdt: cryptoData.tether?.brl_24h_change || 0,
-          usd: parseFloat(currencyData.USDBRL?.pctChange) || 0,
-          eur: parseFloat(currencyData.EURBRL?.pctChange) || 0,
+          btc: parseFloat(data.BTCBRL?.pctChange) || 0,
+          eth: parseFloat(data.ETHBRL?.pctChange) || 0,
+          bnb: parseFloat(data.BNBBRL?.pctChange) || 0,
+          sol: parseFloat(data.SOLBRL?.pctChange) || 0,
+          usdt: parseFloat(data.USDTBRL?.pctChange) || 0,
+          usd: parseFloat(data.USDBRL?.pctChange) || 0,
+          eur: parseFloat(data.EURBRL?.pctChange) || 0,
         };
 
         setPrices(newPrices);
@@ -113,7 +96,7 @@ export default function LivePrices() {
     };
 
     fetchPrices();
-    // Update every 60 seconds (reduced frequency to avoid rate limits)
+    // Update every 60 seconds
     const interval = setInterval(fetchPrices, 60000);
 
     return () => clearInterval(interval);

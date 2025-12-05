@@ -8,7 +8,9 @@
     "start": "next start",
     "lint": "eslint",
     "clean": "rmdir /s /q .next && echo .next cleaned",
-    "dev:clean": "npm run clean && npm run dev"
+    "dev:clean": "npm run clean && npm run dev",
+    "deploy": "vercel",
+    "deploy:prod": "vercel --prod"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.86.0",
@@ -18,7 +20,9 @@
     "next": "16.0.3",
     "next-mdx-remote": "^5.0.0",
     "react": "19.2.0",
-    "react-dom": "19.2.0"
+    "react-dom": "19.2.0",
+    "react-markdown": "^10.1.0",
+    "remark-gfm": "^4.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",

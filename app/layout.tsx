@@ -25,7 +25,9 @@ export const metadata = {
   creator: "FujiviewTech",
 
   icons: {
-    icon: "/favicon.ico",
+    icon: "/images/fujiviewtech-logo.png",
+    shortcut: "/images/fujiviewtech-logo.png",
+    apple: "/images/fujiviewtech-logo.png",
   },
 
   openGraph: {
@@ -53,6 +55,8 @@ export const metadata = {
   },
 };
 
+import { AuthProvider } from "./context/AuthContext";
+
 export default function RootLayout({
   children,
 }: {
@@ -61,7 +65,9 @@ export default function RootLayout({
   return (
     <html lang="pt-BR">
       <body className="bg-slate-50 text-slate-900 antialiased selection:bg-indigo-100 selection:text-indigo-700">
-        <LayoutWrapper>{children}</LayoutWrapper>
+        <AuthProvider>
+          <LayoutWrapper>{children}</LayoutWrapper>
+        </AuthProvider>
       </body>
     </html>
   );

@@ -29,6 +29,12 @@ interface HeroContextType {
   updateHeroContent: (content: Partial<HeroContent>) => void;
   updateTopCard: (content: Partial<CardContent>) => void;
   updateBottomCard: (content: Partial<CardContent>) => void;
+  saveAll: (
+    hero: HeroContent,
+    top: CardContent,
+    bottom: CardContent
+  ) => Promise<void>;
+  refreshData: () => Promise<void>;
   isSaving: boolean;
   saveError: string | null;
 }
@@ -76,26 +82,28 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
 
   // Carrega dados salvos ao montar o componente
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const response = await fetch("/api/hero");
-        const data = await response.json();
-
-        if (data.heroContent)
-          setHeroContent((prev) => ({ ...prev, ...data.heroContent }));
-        if (data.topCard) setTopCard((prev) => ({ ...prev, ...data.topCard }));
-        if (data.bottomCard)
-          setBottomCard((prev) => ({ ...prev, ...data.bottomCard }));
-
-        setIsLoaded(true);
-      } catch (error) {
-        console.error("Erro ao carregar dados:", error);
-        setIsLoaded(true);
-      }
-    };
-
     loadData();
   }, []);
+
+  const loadData = async () => {
+    try {
+      const response = await fetch("/api/hero");
+      const data = await response.json();
+
+      if (data.heroContent) setHeroContent(data.heroContent);
+      if (data.topCard) setTopCard(data.topCard);
+      if (data.bottomCard) setBottomCard(data.bottomCard);
+
+      setIsLoaded(true);
+    } catch (error) {
+      console.error("Erro ao carregar dados:", error);
+      setIsLoaded(true);
+    }
+  };
+
+  const refreshData = async () => {
+    await loadData();
+  };
 
   const saveToServer = async (
     newHeroContent: HeroContent,
@@ -117,8 +125,7 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || "Erro ao salvar dados");
+        throw new Error("Erro ao salvar dados");
       }
 
       console.log("✅ Dados salvos com sucesso!");
@@ -156,6 +163,17 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
     });
   };
 
+  const saveAll = async (
+    hero: HeroContent,
+    top: CardContent,
+    bottom: CardContent
+  ) => {
+    setHeroContent(hero);
+    setTopCard(top);
+    setBottomCard(bottom);
+    await saveToServer(hero, top, bottom);
+  };
+
   return (
     <HeroContext.Provider
       value={{
@@ -165,6 +183,8 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
         updateHeroContent,
         updateTopCard,
         updateBottomCard,
+        saveAll,
+        refreshData,
         isSaving,
         saveError,
       }}

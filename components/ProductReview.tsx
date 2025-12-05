@@ -1,24 +1,33 @@
-'use client'
-import React from 'react'
-import ImageCarousel from './ImageCarousel'
-import { Check, X, Cpu, Smartphone, Camera, Battery, HardDrive, CircleDollarSign } from 'lucide-react'
+"use client";
+import React from "react";
+import ImageCarousel from "./ImageCarousel";
+import {
+  Check,
+  X,
+  Cpu,
+  Smartphone,
+  Camera,
+  Battery,
+  HardDrive,
+  CircleDollarSign,
+} from "lucide-react";
 
 interface ProductReviewProps {
-  name: string
-  description: string
-  images: string[]
+  name: string;
+  description: string;
+  images: string[];
   specs: {
-    screen: string
-    processor: string
-    ramStorage: string
-    camera: string
-    battery: string
-    price: string
-  }
-  pros?: string[]
-  cons?: string[]
-  mercadoLivreUrl?: string
-  amazonUrl?: string
+    screen: string;
+    processor: string;
+    ramStorage: string;
+    camera: string;
+    battery: string;
+    price: string;
+  };
+  pros?: string[];
+  cons?: string[];
+  mercadoLivreUrl?: string;
+  amazonUrl?: string;
 }
 
 export default function ProductReview({
@@ -36,8 +45,12 @@ export default function ProductReview({
       <div className="p-5 md:p-6">
         {/* Header - Now at top */}
         <div className="mb-6">
-          <h2 className="text-xl md:text-2xl font-bold text-slate-900 m-0 mb-2">{name}</h2>
-          <p className="text-slate-600 leading-relaxed text-sm md:text-base">{description}</p>
+          <h2 className="text-xl md:text-2xl font-bold text-slate-900 m-0 mb-2">
+            {name}
+          </h2>
+          <p className="text-slate-600 leading-relaxed text-sm md:text-base">
+            {description}
+          </p>
         </div>
 
         {/* Top Section: Carousel + Specs (Side by Side) */}
@@ -46,7 +59,7 @@ export default function ProductReview({
           <div className="w-[350px]">
             <div className="rounded-xl shadow-md border border-slate-100 bg-white">
               {/* Wrapping ImageCarousel to control height/size */}
-              <div className="p-2 h-[350px]"> 
+              <div className="p-2 h-[350px]">
                 <ImageCarousel images={images} alt={name} />
               </div>
             </div>
@@ -59,40 +72,58 @@ export default function ProductReview({
             </h3>
             <div className="grid grid-cols-1 gap-1.5">
               <div className="flex items-center gap-2 text-sm">
-                <Smartphone size={14} className="text-slate-400 flex-shrink-0" />
-                <span className="font-semibold text-slate-700 min-w-[60px]">Tela:</span>
+                <Smartphone
+                  size={14}
+                  className="text-slate-400 flex-shrink-0"
+                />
+                <span className="font-semibold text-slate-700 min-w-[60px]">
+                  Tela:
+                </span>
                 <span className="text-slate-600">{specs.screen}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Cpu size={14} className="text-slate-400 flex-shrink-0" />
-                <span className="font-semibold text-slate-700 min-w-[60px]">CPU:</span>
+                <span className="font-semibold text-slate-700 min-w-[60px]">
+                  CPU:
+                </span>
                 <span className="text-slate-600">{specs.processor}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <HardDrive size={14} className="text-slate-400 flex-shrink-0" />
-                <span className="font-semibold text-slate-700 min-w-[60px]">Memória:</span>
+                <span className="font-semibold text-slate-700 min-w-[60px]">
+                  Memória:
+                </span>
                 <span className="text-slate-600">{specs.ramStorage}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Camera size={14} className="text-slate-400 flex-shrink-0" />
-                <span className="font-semibold text-slate-700 min-w-[60px]">Câmeras:</span>
+                <span className="font-semibold text-slate-700 min-w-[60px]">
+                  Câmeras:
+                </span>
                 <span className="text-slate-600">{specs.camera}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
                 <Battery size={14} className="text-slate-400 flex-shrink-0" />
-                <span className="font-semibold text-slate-700 min-w-[60px]">Bateria:</span>
+                <span className="font-semibold text-slate-700 min-w-[60px]">
+                  Bateria:
+                </span>
                 <span className="text-slate-600">{specs.battery}</span>
               </div>
               <div className="flex items-center gap-2 text-sm">
-                <CircleDollarSign size={14} className="text-slate-400 flex-shrink-0" />
+                <CircleDollarSign
+                  size={14}
+                  className="text-slate-400 flex-shrink-0"
+                />
                 <span className="font-semibold text-slate-700">Preço:</span>
                 <span className="text-slate-600">{specs.price}</span>
               </div>
-              
+
               {/* Affiliate Buttons */}
               {(mercadoLivreUrl || amazonUrl) && (
                 <div className="border-t border-slate-200 pt-2 mt-2 flex items-center gap-5">
-                  <div className="text-xs font-semibold text-slate-700 whitespace-nowrap">Compre Agora:</div>
+                  <div className="text-xs font-semibold text-slate-700 whitespace-nowrap">
+                    Compre Agora:
+                  </div>
                   <div className="flex gap-5 flex-1">
                     {mercadoLivreUrl && (
                       <a
@@ -101,7 +132,11 @@ export default function ProductReview({
                         rel="nofollow noopener noreferrer sponsored"
                         className="w-30 flex items-center justify-center rounded-lg transition-all hover:shadow-md border border-slate-200 overflow-hidden h-10"
                       >
-                        <img src="/images/mercadolivre-logo.png" alt="Mercado Livre" className="h-100%" />
+                        <img
+                          src="/images/mercadolivre-logo.png"
+                          alt="Mercado Livre"
+                          className="h-100%"
+                        />
                       </a>
                     )}
                     {amazonUrl && (
@@ -111,7 +146,11 @@ export default function ProductReview({
                         rel="nofollow noopener noreferrer sponsored"
                         className="w-30 flex items-center justify-center rounded-lg transition-all hover:shadow-md border border-slate-200 overflow-hidden h-10"
                       >
-                        <img src="/images/amazon-logo.png" alt="Amazon" className="h-100%" />
+                        <img
+                          src="/images/amazon-logo.png"
+                          alt="Amazon"
+                          className="h-100%"
+                        />
                       </a>
                     )}
                   </div>
@@ -131,7 +170,10 @@ export default function ProductReview({
               </h4>
               <ul className="space-y-2 m-0 p-0 list-none">
                 {pros.map((pro, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm text-slate-700">
+                  <li
+                    key={index}
+                    className="flex items-start gap-2 text-sm text-slate-700"
+                  >
                     <span className="mt-0.5 min-w-4 text-green-600">✓</span>
                     {pro}
                   </li>
@@ -146,7 +188,10 @@ export default function ProductReview({
               </h4>
               <ul className="space-y-2 m-0 p-0 list-none">
                 {cons.map((con, index) => (
-                  <li key={index} className="flex items-start gap-2 text-sm text-slate-700">
+                  <li
+                    key={index}
+                    className="flex items-start gap-2 text-sm text-slate-700"
+                  >
                     <span className="mt-0.5 min-w-4 text-red-500">✕</span>
                     {con}
                   </li>
@@ -157,5 +202,5 @@ export default function ProductReview({
         )}
       </div>
     </div>
-  )
+  );
 }

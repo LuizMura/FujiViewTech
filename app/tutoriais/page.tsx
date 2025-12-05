@@ -4,39 +4,39 @@ import Image from 'next/image'
 
 export const revalidate = 60;
 
-export default async function NoticiasPage() {
+export default async function TutoriaisPage() {
   const supabase = createSupabaseAdmin();
 
-  const { data: noticias } = await supabase
+  const { data: tutoriais } = await supabase
     .from("articles")
     .select("*")
-    .eq("category", "noticias")
+    .eq("category", "tutoriais")
     .eq("status", "published")
     .order("published_date", { ascending: false });
 
-  const noticiasList = noticias || [];
+  const tutoriaisList = tutoriais || [];
 
   return (
     <section className="container-custom py-12">
       <div className="mb-12">
-        <h1 className="text-4xl font-bold text-slate-900 mb-3">Notícias</h1>
+        <h1 className="text-4xl font-bold text-slate-900 mb-3">Tutoriais</h1>
         <p className="text-lg text-slate-600">
-          As últimas novidades do mundo da tecnologia
+          Guias práticos e passo a passo para dominar a tecnologia
         </p>
       </div>
 
       <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-        {noticiasList.map((noticia) => (
+        {tutoriaisList.map((tutorial) => (
           <article
-            key={noticia.id}
+            key={tutorial.id}
             className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-xl transition-all duration-300 border border-slate-100 group"
           >
-            {noticia.image && (
-              <Link href={`/noticias/${noticia.slug}`}>
+            {tutorial.image && (
+              <Link href={`/tutoriais/${tutorial.slug}`}>
                 <div className="relative h-56 bg-slate-100 overflow-hidden">
                   <Image
-                    src={noticia.image}
-                    alt={noticia.title}
+                    src={tutorial.image}
+                    alt={tutorial.title}
                     fill
                     className="object-cover transition-transform duration-500 group-hover:scale-105"
                   />
@@ -47,40 +47,40 @@ export default async function NoticiasPage() {
             
             <div className="p-6">
               <div className="flex items-center gap-3 text-xs text-slate-500 mb-3">
-                <span className="px-2 py-1 bg-sky-50 text-sky-600 rounded-full font-semibold">
-                  Notícia
+                <span className="px-2 py-1 bg-emerald-50 text-emerald-600 rounded-full font-semibold">
+                  Tutorial
                 </span>
-                {noticia.published_date && <span>📅 {noticia.published_date}</span>}
-                {noticia.read_time && <span>⏱️ {noticia.read_time}</span>}
+                {tutorial.published_date && <span>📅 {tutorial.published_date}</span>}
+                {tutorial.read_time && <span>⏱️ {tutorial.read_time}</span>}
               </div>
 
-              <Link href={`/noticias/${noticia.slug}`}>
-                <h2 className="text-xl font-bold text-slate-900 hover:text-sky-600 transition-colors mb-3 line-clamp-2">
-                  {noticia.title}
+              <Link href={`/tutoriais/${tutorial.slug}`}>
+                <h2 className="text-xl font-bold text-slate-900 hover:text-emerald-600 transition-colors mb-3 line-clamp-2">
+                  {tutorial.title}
                 </h2>
               </Link>
 
-              {noticia.description && (
+              {tutorial.description && (
                 <p className="text-sm text-slate-600 line-clamp-3 mb-4">
-                  {noticia.description}
+                  {tutorial.description}
                 </p>
               )}
 
               <Link
-                href={`/noticias/${noticia.slug}`}
-                className="inline-flex items-center text-sm font-semibold text-sky-600 hover:text-sky-700 transition-colors"
+                href={`/tutoriais/${tutorial.slug}`}
+                className="inline-flex items-center text-sm font-semibold text-emerald-600 hover:text-emerald-700 transition-colors"
               >
-                Ler notícia completa →
+                Ver tutorial completo →
               </Link>
             </div>
           </article>
         ))}
       </div>
 
-      {noticiasList.length === 0 && (
+      {tutoriaisList.length === 0 && (
         <div className="text-center py-20">
           <p className="text-slate-500 text-lg">
-            Nenhuma notícia encontrada. Use o dashboard para criar a primeira!
+            Nenhum tutorial encontrado. Use o dashboard para criar o primeiro!
           </p>
         </div>
       )}

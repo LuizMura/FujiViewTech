@@ -1,29 +1,62 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { Menu, X, Search } from "lucide-react";
 
 export default function Header() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [showHeader, setShowHeader] = useState(true);
+  const [lastScrollY, setLastScrollY] = useState(0);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const currentScrollY = window.scrollY;
+
+      // Se subiu ou está no topo = mostra
+      if (currentScrollY < lastScrollY || currentScrollY < 100) {
+        setShowHeader(true);
+      }
+      // Se desceu = esconde
+      else if (currentScrollY > 100) {
+        setShowHeader(false);
+      }
+
+      setLastScrollY(currentScrollY);
+    };
+
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [lastScrollY]);
 
   const navLinks = [
     { name: "Reviews", href: "/reviews" },
-    { name: "Notícias", href: "/categoria/noticias" },
-    { name: "Tutoriais", href: "/categoria/tutoriais" },
+    { name: "Notícias", href: "/noticias" },
+    { name: "Tutoriais", href: "/tutoriais" },
     { name: "Sobre", href: "/sobre" },
+    { name: "Admin", href: "/admin" },
   ];
 
   return (
-    <header className="fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300">
-      <div className="container-custom h-16 flex items-center justify-between">
+    <header
+      className={`fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-slate-100 ${
+        showHeader ? "translate-y-0" : "-translate-y-full"
+      }`}
+    >
+      {/* Main Header Content */}
+      <div className="container-custom h-20 flex items-center justify-between">
         {/* Logo */}
         <Link href="/" className="flex items-center gap-2 group">
-          <div className="w-8 h-8 bg-gradient-to-br from-indigo-600 to-sky-500 rounded-lg flex items-center justify-center text-white font-bold text-lg shadow-lg group-hover:shadow-indigo-500/30 transition-all duration-300">
-            F
-          </div>
-          <span className="font-bold text-xl tracking-tight text-slate-900 group-hover:text-indigo-600 transition-colors">
-            Fujiview<span className="text-indigo-600">Tech</span>
+          <Image
+            src="/images/fujiviewtech-logo.png"
+            alt="FujiviewTech Logo"
+            width={60}
+            height={60}
+            className="transition-all duration-300 group-hover:scale-110"
+          />
+          <span className="font-bold text-3xl tracking-tight text-slate-900 group-hover:text-[#43a047] transition-colors">
+            Fujiview<span className="text-[#ac3e3e]">Tech</span>
           </span>
         </Link>
 
@@ -65,7 +98,7 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-white border-b border-slate-100 shadow-xl animate-in slide-in-from-top-5 duration-200">
+        <div className="md:hidden absolute top-36 left-0 right-0 bg-white border-b border-slate-100 shadow-xl animate-in slide-in-from-top-5 duration-200">
           <div className="container-custom py-4 flex flex-col gap-2">
             {navLinks.map((link) => (
               <Link
