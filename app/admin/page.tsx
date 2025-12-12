@@ -1,23 +1,27 @@
 "use client";
+import React, { useState } from "react";
 import { useAuth } from "@/app/context/AuthContext";
-import AdminDashboard from "@/components/AdminDashboard";
+import AdminDashboard from "@/components/admin/AdminDashboard";
 
 export default function AdminPage() {
   const { user, loading, supabase } = useAuth();
 
-  const handleLogin = async () => {
-    const email = prompt("Digite seu e‑mail para receber o link de login:");
-    if (!email) return;
-    const { error } = await supabase.auth.signInWithOtp({
-      email,
-      options: { emailRedirectTo: `${window.location.origin}/admin` },
+  const [loginEmail, setLoginEmail] = useState("");
+  const [loginPassword, setLoginPassword] = useState("");
+  const [loginError, setLoginError] = useState("");
+  const [loginLoading, setLoginLoading] = useState(false);
+
+  const handleLogin = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoginError("");
+    setLoginLoading(true);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: loginEmail,
+      password: loginPassword,
     });
+    setLoginLoading(false);
     if (error) {
-      alert(error.message);
-    } else {
-      alert(
-        "Um link de login foi enviado para seu e‑mail. Verifique a caixa de entrada."
-      );
+      setLoginError(error.message);
     }
   };
 
@@ -36,12 +40,38 @@ export default function AdminPage() {
   if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-100">
-        <button
-          onClick={handleLogin}
-          className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition"
+        <form
+          onSubmit={handleLogin}
+          className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm flex flex-col gap-4"
         >
-          Login via Email Magic Link
-        </button>
+          <h2 className="text-2xl font-bold mb-2 text-center">Login Admin</h2>
+          <input
+            type="email"
+            placeholder="E-mail"
+            value={loginEmail}
+            onChange={(e) => setLoginEmail(e.target.value)}
+            className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          />
+          <input
+            type="password"
+            placeholder="Senha"
+            value={loginPassword}
+            onChange={(e) => setLoginPassword(e.target.value)}
+            className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            required
+          />
+          {loginError && (
+            <div className="text-red-600 text-sm text-center">{loginError}</div>
+          )}
+          <button
+            type="submit"
+            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-60"
+            disabled={loginLoading}
+          >
+            {loginLoading ? "Entrando..." : "Entrar"}
+          </button>
+        </form>
       </div>
     );
   }
