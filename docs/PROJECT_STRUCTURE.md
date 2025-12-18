@@ -65,18 +65,21 @@ app/
 #### **Key Files**
 
 **`layout.tsx`**
+
 - Layout raiz da aplicação
 - Define metadata global (SEO, Open Graph, Twitter Cards)
 - Inclui Header e Footer
 - Configura fontes e estilos globais
 
 **`page.tsx`**
+
 - Homepage do site
 - Exibe Hero section
 - Lista posts recentes
 - Grid de artigos em destaque
 
 **`[slug]/page.tsx`** (Dynamic Routes)
+
 - Rotas dinâmicas para conteúdo
 - Usa `generateStaticParams()` para SSG
 - Renderiza conteúdo MDX
@@ -102,16 +105,16 @@ components/
 
 #### **Component Descriptions**
 
-| Component | Descrição | Props |
-|-----------|-----------|-------|
-| `Header` | Barra de navegação com logo e menu | - |
-| `Footer` | Rodapé com links, redes sociais, copyright | - |
-| `Hero` | Banner principal da homepage com CTA | - |
-| `PostCard` | Card para exibir preview de artigo | `post: Post` |
-| `BestPhones2025` | Comparação detalhada de smartphones | - |
-| `MDXComponents` | Componentes React para usar em MDX | - |
-| `DarkToggle` | Botão para alternar tema claro/escuro | - |
-| `AdSense` | Wrapper para anúncios Google AdSense | `slot: string` |
+| Component        | Descrição                                  | Props          |
+| ---------------- | ------------------------------------------ | -------------- |
+| `Header`         | Barra de navegação com logo e menu         | -              |
+| `Footer`         | Rodapé com links, redes sociais, copyright | -              |
+| `Hero`           | Banner principal da homepage com CTA       | -              |
+| `PostCard`       | Card para exibir preview de artigo         | `post: Post`   |
+| `BestPhones2025` | Comparação detalhada de smartphones        | -              |
+| `MDXComponents`  | Componentes React para usar em MDX         | -              |
+| `DarkToggle`     | Botão para alternar tema claro/escuro      | -              |
+| `AdSense`        | Wrapper para anúncios Google AdSense       | `slot: string` |
 
 ---
 
@@ -136,13 +139,13 @@ Cada arquivo MDX deve ter frontmatter:
 
 ```mdx
 ---
-title: 'Título do Artigo'
-date: '2025-11-25'
-description: 'Descrição breve para SEO'
-image: '/images/posts/thumbnail.jpg'
-category: 'reviews'
-author: 'Nome do Autor'
-readTime: '8 min'
+title: "Título do Artigo"
+date: "2025-11-25"
+description: "Descrição breve para SEO"
+image: "/images/posts/thumbnail.jpg"
+category: "reviews"
+author: "Nome do Autor"
+readTime: "8 min"
 ---
 
 # Conteúdo aqui...
@@ -151,11 +154,9 @@ readTime: '8 min'
 #### **Using Components in MDX**
 
 ```mdx
-import { Affiliate } from '../../components/MDXComponents'
+import { Affiliate } from "../../components/MDXComponents";
 
-<Affiliate url="https://amazon.com/produto">
-  Comprar na Amazon
-</Affiliate>
+<Affiliate url="https://amazon.com/produto">Comprar na Amazon</Affiliate>
 ```
 
 ---
@@ -211,6 +212,7 @@ docs/
 ## 🔧 Configuration Files
 
 ### **`package.json`**
+
 Dependências e scripts do projeto.
 
 ```json
@@ -225,19 +227,21 @@ Dependências e scripts do projeto.
 ```
 
 ### **`next.config.ts`**
+
 Configuração do Next.js.
 
 ```typescript
-import type { NextConfig } from 'next'
+import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
   // Configurações aqui
-}
+};
 
-export default nextConfig
+export default nextConfig;
 ```
 
 ### **`tsconfig.json`**
+
 Configuração do TypeScript.
 
 ```json
@@ -248,48 +252,50 @@ Configuração do TypeScript.
     "jsx": "preserve",
     "module": "esnext",
     "moduleResolution": "bundler",
-    "strict": true,
+    "strict": true
     // ...
   }
 }
 ```
 
 ### **`tailwind.config.ts`**
+
 Configuração do Tailwind CSS.
 
 ```typescript
-import type { Config } from 'tailwindcss'
+import type { Config } from "tailwindcss";
 
 const config: Config = {
   content: [
-    './app/**/*.{js,ts,jsx,tsx,mdx}',
-    './components/**/*.{js,ts,jsx,tsx,mdx}',
+    "./app/**/*.{js,ts,jsx,tsx,mdx}",
+    "./components/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
     extend: {
       // Customizações
     },
   },
-}
+};
 
-export default config
+export default config;
 ```
 
 ### **`eslint.config.mjs`**
+
 Configuração do ESLint.
 
 ```javascript
-import { FlatCompat } from '@eslint/eslintrc'
+import { FlatCompat } from "@eslint/eslintrc";
 
 const compat = new FlatCompat({
   baseDirectory: import.meta.dirname,
-})
+});
 
 const eslintConfig = [
-  ...compat.extends('next/core-web-vitals', 'next/typescript'),
-]
+  ...compat.extends("next/core-web-vitals", "next/typescript"),
+];
 
-export default eslintConfig
+export default eslintConfig;
 ```
 
 ---
@@ -300,13 +306,13 @@ export default eslintConfig
 
 Next.js usa roteamento baseado em arquivos:
 
-| File Path | URL | Descrição |
-|-----------|-----|-----------|
-| `app/page.tsx` | `/` | Homepage |
-| `app/sobre/page.tsx` | `/sobre` | Página sobre |
-| `app/reviews/page.tsx` | `/reviews` | Lista de reviews |
+| File Path                     | URL                   | Descrição         |
+| ----------------------------- | --------------------- | ----------------- |
+| `app/page.tsx`                | `/`                   | Homepage          |
+| `app/sobre/page.tsx`          | `/sobre`              | Página sobre      |
+| `app/reviews/page.tsx`        | `/reviews`            | Lista de reviews  |
 | `app/reviews/[slug]/page.tsx` | `/reviews/galaxy-s25` | Review específico |
-| `app/post/[slug]/page.tsx` | `/post/meu-artigo` | Post específico |
+| `app/artigos/[slug]/page.tsx` | `/artigos/meu-artigo` | Artigo específico |
 
 ### **Dynamic Routes**
 
@@ -316,10 +322,7 @@ Rotas dinâmicas usam `[slug]`:
 // app/reviews/[slug]/page.tsx
 export async function generateStaticParams() {
   // Retorna lista de slugs para gerar páginas estáticas
-  return [
-    { slug: 'galaxy-s25-ultra' },
-    { slug: 'iphone-17-pro' },
-  ]
+  return [{ slug: "galaxy-s25-ultra" }, { slug: "iphone-17-pro" }];
 }
 
 export default function ReviewPage({ params }: { params: { slug: string } }) {

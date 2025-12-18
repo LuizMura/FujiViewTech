@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import { getArticles } from "@/lib/hooks/useArticles";
 import { Article } from "@/lib/types/article";
-import PostCard from "@/components/article/PostCard";
+import CategoriaCard from "../CategoriaCard";
 
 export default function CategoriaPage() {
   const params = useParams() || {};
@@ -49,21 +49,9 @@ export default function CategoriaPage() {
           <p className="text-slate-600">Nenhum artigo publicado ainda.</p>
         </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">
           {posts.map((post) => (
-            <PostCard
-              key={post.id || post.slug}
-              post={{
-                slug: post.slug,
-                title: post.title,
-                description: post.excerpt || "",
-                image: post.image || "",
-                category: post.category,
-                date: post.publishedAt || post.createdAt,
-                readTime: post.readTime,
-                price: undefined,
-              }}
-            />
+            <CategoriaCard key={post.id} post={post} />
           ))}
         </div>
       )}

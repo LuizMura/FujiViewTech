@@ -20,7 +20,7 @@ export default function PostCard({ post }: PostCardProps) {
   const imageUrl = post.image || "/images/placeholder.jpg";
 
   return (
-    <Link href={`/post/${post.slug}`}>
+    <Link href={`/artigos/${post.slug}`}>
       <article className="relative group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full cursor-pointer">
         {/* Image */}
         <div className="relative h-56 overflow-hidden bg-slate-200">

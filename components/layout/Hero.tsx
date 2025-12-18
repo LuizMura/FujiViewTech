@@ -1,40 +1,45 @@
-// This is where the Hero component will be defined
+import AfiliadosList from "@/components/home/AfiliadosList";
+
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { useHero } from "@/context/HeroContext";
+import ArtigosCarrossel from "@/components/home/ArtigosCarrossel";
+import NoticiasCard from "@/components/home/NoticiasCard";
+import EconomiaCard from "@/components/home/EconomiaCard";
+import CategoriaCard from "@/components/home/CategoriaCard";
 import LivePrices from "./LivePrices";
-import HeroCard from "../HeroCard";
 import { getArticles } from "@/lib/hooks/useArticles";
 import { Article } from "@/lib/types/article";
 
 export default function Hero() {
   const { heroContent, topCard, bottomCard } = useHero();
-  const [categoryCards, setCategoryCards] = useState<
-    Array<{ category: string; image: string | null }>
-  >([]);
+  const safeHeroContent = heroContent || {};
+  const [latestArticles, setLatestArticles] = useState<Article[]>([]);
+  const [noticiasArticles, setNoticiasArticles] = useState<Article[]>([]);
+  const [economiaArticles, setEconomiaArticles] = useState<Article[]>([]);
+  const [allArticles, setAllArticles] = useState<Article[]>([]);
+
   useEffect(() => {
-    async function fetchCategories() {
+    async function fetchArticles() {
       try {
-        const articles: Article[] = await getArticles();
-        // Extrai categorias únicas e pega a primeira imagem de cada categoria
-        const categoryMap: Record<string, string | null> = {};
-        articles.forEach((article) => {
-          if (article.category && !(article.category in categoryMap)) {
-            categoryMap[article.category] = article.image || null;
-          }
-        });
-        setCategoryCards(
-          Object.entries(categoryMap).map(([category, image]) => ({
-            category,
-            image,
-          }))
-        );
+        const articles: Article[] = await getArticles({ limit: 5 });
+        setLatestArticles(articles);
+        const noticias: Article[] = await getArticles({ category: "noticias", limit: 5 });
+        setNoticiasArticles(noticias);
+        const economia: Article[] = await getArticles({ category: "economia", limit: 5 });
+        setEconomiaArticles(economia);
+        // Buscar todos para os cards genéricos
+        const all: Article[] = await getArticles({ limit: 20 });
+        setAllArticles(all);
       } catch {
-        setCategoryCards([]);
+        setLatestArticles([]);
+        setNoticiasArticles([]);
+        setEconomiaArticles([]);
+        setAllArticles([]);
       }
     }
-    fetchCategories();
+    fetchArticles();
   }, []);
 
   return (
@@ -42,85 +47,48 @@ export default function Hero() {
       <div className="bg-white py-1 justify-center flex items-center rounded-2xl shadow-md mb-4 border border-slate-200">
         <LivePrices />
       </div>
-      <div className="grid lg:grid-cols-3 gap-6 mb-32">
-        <div className="lg:col-span-2 relative h-104 lg:h-112 rounded-2xl overflow-hidden shadow-2xl group">
-          <div className="absolute inset-0 w-full h-full">
-            {heroContent.imageUrl &&
-            (heroContent.imageUrl.startsWith("/") ||
-              heroContent.imageUrl.startsWith("http")) ? (
-              <Image
-                src={heroContent.imageUrl}
-                alt={heroContent.imageAlt}
-                fill
-                priority
-                className="object-cover transition-transform duration-700 group-hover:scale-105"
-              />
-            ) : (
-              <div className="w-full h-full bg-slate-800" />
-            )}
-            <div className="absolute inset-0 bg-linear-to-t from-slate-900 via-slate-900/60 to-transparent opacity-90"></div>
-          </div>
-          <div className="absolute bottom-0 left-0 w-full p-8 md:p-12 z-10">
-            <div className="max-w-3xl">
-              <span className="inline-block px-3 py-1 bg-indigo-600 text-white text-xs font-bold uppercase tracking-wider rounded-full mb-4 shadow-lg">
-                {heroContent.badge}
-              </span>
-              <h1 className="text-3xl md:text-5xl font-extrabold text-white mb-4 leading-tight tracking-tight">
-                {heroContent.mainTitle}
-                <br />
-                <span className="text-transparent bg-clip-text bg-linear-to-r from-indigo-400 to-sky-400 text-4xl md:text-6xl font-extrabold">
-                  {heroContent.gradientTitle}
-                </span>
-              </h1>
-              <p className="text-lg text-slate-300 mb-8 font-light max-w-xl leading-relaxed hidden md:block">
-                {heroContent.description}
-              </p>
-              <div className="flex flex-wrap gap-4">
-                <Link
-                  href={heroContent.buttonLink || "/"}
-                  className="px-6 py-3 bg-white text-slate-900 font-bold rounded-full hover:bg-indigo-50 transition-colors shadow-lg text-sm md:text-base"
-                >
-                  {heroContent.buttonText}
-                </Link>
+      {/* 5 últimos artigos postados em carrossel */}
+      {latestArticles.length > 0 && (
+        <>
+          <div className="grid grid-cols-3 gap-6 mb-8">
+            <div className="col-span-2">
+              <div className="relative w-full aspect-video md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
+                <ArtigosCarrossel artigos={latestArticles} />
               </div>
             </div>
-          </div>
-        </div>
-        <div className="flex flex-col gap-6 h-auto lg:h-112">
-          <HeroCard card={topCard} />
-          <HeroCard card={bottomCard} />
-        </div>
-      </div>
-      {/* Cards de todas as categorias */}
-      {categoryCards.length > 0 && (
-        <div className="w-full flex flex-wrap gap-4 justify-center mb-8">
-          {categoryCards.map((cat) => (
-            <Link
-              key={cat.category}
-              href={`/categoria/${cat.category}`}
-              className="block w-48 h-32 rounded-xl overflow-hidden shadow-lg bg-white border border-slate-200 hover:shadow-xl transition group relative"
-            >
-              {cat.image ? (
-                <Image
-                  src={cat.image}
-                  alt={cat.category}
-                  fill
-                  className="object-cover opacity-80 group-hover:opacity-100"
-                />
-              ) : (
-                <div className="w-full h-full bg-slate-200 flex items-center justify-center text-slate-500 text-2xl">
-                  {cat.category}
+            <div>
+              {/* Notícias da categoria 'noticias' */}
+              <React.Suspense fallback={<div>Carregando notícia...</div>}>
+                <NoticiasCard artigos={noticiasArticles} />
+                <div className="mt-4">
+                  <EconomiaCard artigos={economiaArticles} />
                 </div>
-              )}
-              <div className="absolute bottom-0 left-0 w-full bg-linear-to-t from-slate-900/80 to-transparent p-2">
-                <span className="text-white font-bold text-sm uppercase tracking-wide">
-                  {cat.category}
-                </span>
-              </div>
-            </Link>
-          ))}
-        </div>
+              </React.Suspense>
+            </div>
+          </div>
+          
+          {/* Cards de categorias com imagem acima e texto abaixo */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
+            <CategoriaCard artigos={allArticles} categoria="dicas" badgeColor="#6366f1" badgeLabel="Dicas" />
+            <CategoriaCard artigos={allArticles} categoria="reviews" badgeColor="#f59e42" badgeLabel="Review" />
+            <CategoriaCard artigos={allArticles} categoria="produtos" badgeColor="#10b981" badgeLabel="Tutorial" />
+            <CategoriaCard artigos={allArticles} categoria="novidades" badgeColor="#ef4444" badgeLabel="Novidades" />
+            <CategoriaCard artigos={allArticles} categoria="saude" badgeColor="#14b8a6" badgeLabel="Saúde" />
+          </div>
+        </>
       )}
+      {/* <div className="mb-32">
+        <ArtigosDestaque />
+      </div> */}
+
+          {/* Espaço para AdSense */}
+          <div className="w-full h-24 flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 mb-8">
+            <span className="text-slate-500 font-semibold text-lg">Publicidade</span>
+          </div>
+
+          {/* Produtos afiliados do banco */}
+          <AfiliadosList />
+
     </>
   );
 }

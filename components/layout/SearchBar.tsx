@@ -34,9 +34,16 @@ export default function SearchBar({
         const dataSummary = summaryRes.data || [];
         const error = titleRes.error || summaryRes.error;
         // Unir resultados sem duplicatas
-        const results = [...dataTitle, ...dataSummary].filter(
-          (item, idx, arr) => arr.findIndex((i) => i.id === item.id) === idx
-        );
+        const results = [...dataTitle, ...dataSummary]
+          .filter(
+            (item, idx, arr) => arr.findIndex((i) => i.id === item.id) === idx
+          )
+          .map((item) => ({
+            id: item.id,
+            title: item.title,
+            summary: item.summary,
+            url: `/artigos/${item.id}`,
+          }));
         console.log("[SearchBar] Resultados:", results, "Erro:", error);
         if (error) {
           console.error("[SearchBar] Erro Supabase:", error);
@@ -85,7 +92,7 @@ export default function SearchBar({
                   className="border-b border-slate-100 last:border-none"
                 >
                   <Link
-                    href={`/post/${result.id}`}
+                    href={`/artigos/${result.id}`}
                     className="block px-4 py-3 hover:bg-indigo-50 text-slate-700 cursor-pointer"
                     onClick={() => {
                       setSearch("");

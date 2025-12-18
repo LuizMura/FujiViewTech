@@ -1,8 +1,5 @@
 "use client";
 
-import ImageCarousel from "../ImageCarousel";
-import ProductReview from "../ProductReview";
-import ReviewItem from "../ReviewItem";
 
 export function Affiliate({
   url,
@@ -116,13 +113,11 @@ export function SpecsTable({ specs }: { specs: Record<string, string> }) {
   );
 }
 
+
 export const components = {
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a {...props} className="text-accent underline" />
   ),
-  ImageCarousel,
-  ProductReview,
-  ReviewItem,
   Affiliate,
   AffiliateBox,
   ProductCard,
