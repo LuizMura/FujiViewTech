@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import ArtigoCard from "@/app/artigos/ArtigoCard";
+import type { Article } from "@/lib/types/article";
 import { createClient } from "@/lib/supabase/client";
 
 // Tipos genéricos para os cards
@@ -66,10 +67,14 @@ export default function EditorArtigosCard<T extends CardBase>({
     ],
   };
 
-  const allFields = [
-    ...fields,
-    ...(extraFields[cardType] || []),
-  ];
+  // Remove campos duplicados pelo name
+  const allFieldsMap = new Map();
+  [...fields, ...(extraFields[cardType] || [])].forEach((field) => {
+    if (!allFieldsMap.has(field.name)) {
+      allFieldsMap.set(field.name, field);
+    }
+  });
+  const allFields = Array.from(allFieldsMap.values());
 
 
   async function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
