@@ -5,6 +5,11 @@ import { Article } from "@/lib/types/article";
 import { getArticles } from "@/lib/hooks/useArticles";
 import { createClient } from "@/lib/supabase/client";
 
+
+export interface ArticleListRef {
+  reload: () => void;
+}
+
 interface ArticleListProps {
   onSelect?: (id: string, data?: Article) => void;
   selectedId?: string | null;
@@ -15,7 +20,7 @@ interface ArticleListProps {
 }
 
 
-const ArticleList = forwardRef(function ArticleList({
+const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(function ArticleList({
   onSelect,
   selectedId,
   category: externalCategory,
