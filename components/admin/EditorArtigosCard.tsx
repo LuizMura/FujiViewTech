@@ -145,6 +145,7 @@ export default function EditorArtigosCard<T extends CardBase>({
             )}
           </div>
         )}
+
         // Função de type guard para garantir que form é Article
         function isArticle(obj: any): obj is Article {
           return obj && typeof obj === 'object' &&
