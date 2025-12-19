@@ -65,7 +65,13 @@ export default function AdminArtigosPage() {
                   setSelectedArticle(result);
                   articleListRef.current?.reload();
                 } catch (err) {
-                  setFeedback("Erro ao salvar artigo: " + (err?.message || err));
+                  let msg = "";
+                  if (err && typeof err === "object" && "message" in err) {
+                    msg = (err as Error).message;
+                  } else {
+                    msg = String(err);
+                  }
+                  setFeedback("Erro ao salvar artigo: " + msg);
                 } finally {
                   setLoadingAction(false);
                 }
