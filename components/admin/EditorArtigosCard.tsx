@@ -1,9 +1,19 @@
+
 "use client";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import ArtigoCard from "@/app/artigos/ArtigoCard";
 import type { Article } from "@/lib/types/article";
 import { createClient } from "@/lib/supabase/client";
+
+// Função de type guard para garantir que form é Article
+function isArticle(obj: any): obj is Article {
+  return obj && typeof obj === 'object' &&
+    typeof obj.title === 'string' &&
+    typeof obj.slug === 'string' &&
+    'excerpt' in obj &&
+    'content' in obj;
+}
 
 // Tipos genéricos para os cards
 interface CardBase {
