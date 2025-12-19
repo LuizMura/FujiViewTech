@@ -39,18 +39,18 @@ export default function AdminPage() {
 
   if (!user) {
     return (
-      <div className="flex min-h-screen items-center justify-center bg-gray-100">
+      <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-[#232946] via-[#393e5c] to-[#232946]">
         <form
           onSubmit={handleLogin}
-          className="bg-white p-8 rounded-lg shadow-md w-full max-w-sm flex flex-col gap-4"
+          className="bg-[#232946]/90 p-8 rounded-2xl shadow-xl w-full max-w-sm flex flex-col gap-4 border border-[#393e5c]"
         >
-          <h2 className="text-2xl font-bold mb-2 text-center">Login Admin</h2>
+          <h2 className="text-2xl font-bold mb-2 text-center text-[#eebbc3]">Login Admin</h2>
           <input
             type="email"
             placeholder="E-mail"
             value={loginEmail}
             onChange={(e) => setLoginEmail(e.target.value)}
-            className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-[#b8c1ec] bg-[#393e5c] text-[#eebbc3] rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#eebbc3] placeholder-[#b8c1ec]"
             required
           />
           <input
@@ -58,15 +58,15 @@ export default function AdminPage() {
             placeholder="Senha"
             value={loginPassword}
             onChange={(e) => setLoginPassword(e.target.value)}
-            className="border border-gray-300 rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="border border-[#b8c1ec] bg-[#393e5c] text-[#eebbc3] rounded px-4 py-2 focus:outline-none focus:ring-2 focus:ring-[#eebbc3] placeholder-[#b8c1ec]"
             required
           />
           {loginError && (
-            <div className="text-red-600 text-sm text-center">{loginError}</div>
+            <div className="text-[#eebbc3] bg-[#b8c1ec]/20 rounded p-2 text-sm text-center">{loginError}</div>
           )}
           <button
             type="submit"
-            className="px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition disabled:opacity-60"
+            className="px-6 py-3 bg-[#eebbc3] text-[#232946] rounded-lg font-bold hover:bg-[#b8c1ec] transition disabled:opacity-60"
             disabled={loginLoading}
           >
             {loginLoading ? "Entrando..." : "Entrar"}
