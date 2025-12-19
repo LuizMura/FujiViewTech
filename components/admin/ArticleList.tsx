@@ -1,6 +1,6 @@
-"use client";
 
-import { useState, useEffect } from "react";
+"use client";
+import { forwardRef, useImperativeHandle, useState, useEffect } from "react";
 import { Article } from "@/lib/types/article";
 import { getArticles } from "@/lib/hooks/useArticles";
 import { createClient } from "@/lib/supabase/client";
@@ -14,25 +14,20 @@ interface ArticleListProps {
   loadingAction?: boolean;
 }
 
-interface ArticleListProps {
-  onSelect?: (id: string, data?: Article) => void;
-  selectedId?: string | null;
-  category?: string;
-}
 
-function ArticleList({
+const ArticleList = forwardRef(function ArticleList({
   onSelect,
   selectedId,
   category: externalCategory,
   onNew,
   onDelete,
   loadingAction,
-}: ArticleListProps) {
+}, ref) {
   const [showConfirm, setShowConfirm] = useState(false);
-  const [articles, setArticles] = useState<Article[]>([]);
+  const [articles, setArticles] = useState([]);
   const [loading, setLoading] = useState(true);
-  const [category, setCategory] = useState<string>(externalCategory || "");
-  const [categories, setCategories] = useState<string[]>([]);
+  const [category, setCategory] = useState(externalCategory || "");
+  const [categories, setCategories] = useState([]);
 
   // Sincronizar filtro externo com interno
   useEffect(() => {
@@ -54,7 +49,7 @@ function ArticleList({
         setCategories([]);
       } else {
         const unique = Array.from(
-          new Set((data || []).map((a: { category: string }) => a.category))
+          new Set((data || []).map((a) => a.category))
         );
         setCategories(unique);
       }
@@ -74,6 +69,10 @@ function ArticleList({
       setLoading(false);
     }
   };
+
+  useImperativeHandle(ref, () => ({
+    reload: loadArticles,
+  }));
 
   useEffect(() => {
     loadArticles();
@@ -183,6 +182,6 @@ function ArticleList({
       )}
     </div>
   );
-}
+});
 
 export default ArticleList;

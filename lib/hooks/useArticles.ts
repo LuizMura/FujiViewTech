@@ -117,11 +117,11 @@ export async function createArticle(
 
   const dbData = articleToDB(input);
 
+
   const { data, error } = await supabase
     .from("articles")
     .insert([dbData])
-    .select()
-    .single();
+    .select();
 
   if (error) {
     console.error("Error creating article:", error);
@@ -131,9 +131,11 @@ export async function createArticle(
     } catch {}
     throw error;
   }
-
-  console.log("✅ Article created:", data.id, data.title);
-  return articleFromDB(data as ArticleDB);
+  if (!data || !Array.isArray(data) || data.length === 0) {
+    throw new Error("Nenhum artigo retornado após criação.");
+  }
+  console.log("✅ Article created:", data[0].id, data[0].title);
+  return articleFromDB(data[0] as ArticleDB);
 }
 
 /**
@@ -152,13 +154,25 @@ export async function updateArticle(
     .update(dbData)
     .eq("id", id)
     .select()
-    .single();
+    .maybeSingle();
 
   if (error) {
     console.error("Error updating article:", error);
     throw error;
   }
-
+  if (!data) {
+    // Se não retornou, busca manualmente
+    const { data: fetched, error: fetchError } = await supabase
+      .from("articles")
+      .select("*")
+      .eq("id", id)
+      .maybeSingle();
+    if (fetchError || !fetched) {
+      throw new Error("Nenhum artigo retornado após atualização.");
+    }
+    console.log("✅ Article updated (fetched):", fetched.id, fetched.title);
+    return articleFromDB(fetched as ArticleDB);
+  }
   console.log("✅ Article updated:", data.id, data.title);
   return articleFromDB(data as ArticleDB);
 }

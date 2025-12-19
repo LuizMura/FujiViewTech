@@ -1,10 +1,46 @@
-
 "use client";
 import { useState, useEffect } from "react";
 import ReactMarkdown from "react-markdown";
 import ArtigoCard from "@/app/artigos/ArtigoCard";
 import type { Article } from "@/lib/types/article";
 import { createClient } from "@/lib/supabase/client";
+
+// Gera um objeto Article válido para preview, preenchendo campos obrigatórios com valores mock/default
+function getPreviewArticle(form: any): Article {
+  return {
+    id: form.id || "preview-id",
+    slug: form.slug || "preview-slug",
+    title: form.title || "Título do Artigo",
+    excerpt: form.excerpt || "Resumo do artigo...",
+    content: form.content || "",
+    image: form.image || "",
+    category: form.category || "Categoria",
+    authorId: form.authorId || "Autor",
+    status: form.status || "draft",
+    publishedAt: form.publishedAt || new Date().toISOString(),
+    createdAt: form.createdAt || new Date().toISOString(),
+    updatedAt: form.updatedAt || new Date().toISOString(),
+    titleColor: form.titleColor || "#232946",
+    titleFontSize: form.titleFontSize || 24,
+    excerptColor: form.excerptColor || "#393e5c",
+    excerptFontSize: form.excerptFontSize || 16,
+    bgColor: form.bgColor || "#fff",
+    bgOpacity: form.bgOpacity || 1,
+    showButton: form.showButton ?? true,
+    buttonText: form.buttonText || "Ver mais",
+    buttonBgColor: form.buttonBgColor || "#eebbc3",
+    buttonTextColor: form.buttonTextColor || "#232946",
+    buttonFontSize: form.buttonFontSize || 16,
+    buttonBorderRadius: form.buttonBorderRadius || 8,
+    views: form.views || 0,
+    clicks: form.clicks || 0,
+    metaTitle: form.metaTitle || null,
+    metaDescription: form.metaDescription || null,
+    ogImage: form.ogImage || null,
+    subComponent: form.subComponent || null,
+    readTime: form.readTime || "1 min",
+  };
+}
 
 // Função de type guard para garantir que form é Article
 function isArticle(obj: any): obj is Article {
@@ -49,6 +85,7 @@ export default function EditorArtigosCard<T extends CardBase>({
   // Campos comuns
   const fields = [
     { name: "title", label: "Título", type: "text" },
+    { name: "slug", label: "Slug (URL)", type: "text" },
     { name: "image", label: "Imagem (URL)", type: "text" },
     { name: "category", label: "Categoria", type: "text" },
     { name: "publishedAt", label: "Data de Publicação", type: "date" },
@@ -92,13 +129,12 @@ export default function EditorArtigosCard<T extends CardBase>({
     if (type === "file" && files && files[0]) {
       const supabase = createClient();
       const file = files[0];
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}-${Math.random().toString(36).substring(2, 8)}.${fileExt}`;
-      const filePath = `${fileName}`;
+      // Usar o nome original do arquivo
+      const filePath = file.name;
 
-      // Upload para o bucket 'Imagens ArtigoCard'
+      // Upload para o bucket 'artigos'
       const { data, error } = await supabase.storage
-        .from('Imagens ArtigoCard')
+        .from('artigos')
         .upload(filePath, file, { upsert: true });
 
       if (error) {
@@ -108,7 +144,7 @@ export default function EditorArtigosCard<T extends CardBase>({
 
       // Gerar URL pública
       const { data: publicUrlData } = supabase.storage
-        .from('Imagens ArtigoCard')
+        .from('artigos')
         .getPublicUrl(filePath);
 
       setForm((prev) => ({
@@ -143,11 +179,7 @@ export default function EditorArtigosCard<T extends CardBase>({
         {/* Preview ocupa todo o espaço */}
         {cardType === "ArtigoCard" && (
           <div className="p-6">
-            {isArticle(form) ? (
-              <ArtigoCard post={form} showAuthor={true} />
-            ) : (
-              <div className="text-red-600">Dados insuficientes para pré-visualização do artigo.</div>
-            )}
+            <ArtigoCard post={getPreviewArticle(form)} showAuthor={true} />
             {form.content && (
               <div className="prose prose-lg max-w-none mt-8 px-2 text-black">
                 <ReactMarkdown>{form.content}</ReactMarkdown>
@@ -225,6 +257,48 @@ export default function EditorArtigosCard<T extends CardBase>({
             )}
           </div>
         ))}
+
+        {/* Upload para pasta mdx do bucket artigos */}
+        <div className="mb-3">
+          <label className="block text-[#bfc7d5] mb-1" htmlFor="mdx-image-upload">Upload imagem para MDX</label>
+          <input
+            id="mdx-image-upload"
+            name="mdx-image-upload"
+            type="file"
+            accept="image/*"
+            onChange={async (e) => {
+              const supabase = createClient();
+              const file = e.target.files?.[0];
+              if (!file) return;
+              const filePath = `mdx/${file.name}`;
+              const { data, error } = await supabase.storage
+                .from('artigos')
+                .upload(filePath, file, { upsert: true });
+              if (error) {
+                alert('Erro ao fazer upload da imagem MDX: ' + error.message);
+                return;
+              }
+              const { data: publicUrlData } = supabase.storage
+                .from('artigos')
+                .getPublicUrl(filePath);
+              setForm((prev) => ({ ...prev, mdxImage: publicUrlData?.publicUrl || "" }));
+            }}
+            className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+          />
+          {/* Preview da imagem MDX */}
+          {form.mdxImage && (
+            <div className="mt-2 flex items-center gap-2">
+              <img src={form.mdxImage} alt="Preview MDX" className="max-h-32 rounded border border-[#4b6b57]" />
+              <button
+                type="button"
+                className="px-2 py-1 bg-[#eebbc3] text-[#232946] rounded text-xs"
+                onClick={() => navigator.clipboard.writeText(form.mdxImage)}
+              >
+                Copiar URL
+              </button>
+            </div>
+          )}
+        </div>
         {/* Editor markdown para conteúdo do artigo */}
         <div className="mb-3">
           <label className="block text-[#bfc7d5] mb-1" htmlFor="content">Conteúdo do Artigo (Markdown)</label>
