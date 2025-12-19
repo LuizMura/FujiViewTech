@@ -133,7 +133,11 @@ export default function EditorArtigosCard<T extends CardBase>({
         {/* Preview ocupa todo o espaço */}
         {cardType === "ArtigoCard" && (
           <div className="p-6">
-            <ArtigoCard post={form as Article} showAuthor={true} />
+            {isArticle(form) ? (
+              <ArtigoCard post={form} showAuthor={true} />
+            ) : (
+              <div className="text-red-600">Dados insuficientes para pré-visualização do artigo.</div>
+            )}
             {form.content && (
               <div className="prose prose-lg max-w-none mt-8 px-2 text-black">
                 <ReactMarkdown>{form.content}</ReactMarkdown>
@@ -141,6 +145,14 @@ export default function EditorArtigosCard<T extends CardBase>({
             )}
           </div>
         )}
+        // Função de type guard para garantir que form é Article
+        function isArticle(obj: any): obj is Article {
+          return obj && typeof obj === 'object' &&
+            typeof obj.title === 'string' &&
+            typeof obj.slug === 'string' &&
+            'excerpt' in obj &&
+            'content' in obj;
+        }
         {cardType === "NoticiasCard" && (
           <div className="w-full">
             {form.image && (
