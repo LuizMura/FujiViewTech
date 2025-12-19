@@ -1,5 +1,7 @@
 
+
 import Link from "next/link";
+import type { Article } from "@/lib/types/article";
 
 interface CategoriaCardProps {
   post: Article;
