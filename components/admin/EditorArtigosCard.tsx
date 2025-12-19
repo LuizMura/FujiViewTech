@@ -66,14 +66,10 @@ export default function EditorArtigosCard<T extends CardBase>({
     ],
   };
 
-  // Remove campos duplicados pelo name
-  const allFieldsMap = new Map();
-  [...fields, ...(extraFields[cardType] || [])].forEach((field) => {
-    if (!allFieldsMap.has(field.name)) {
-      allFieldsMap.set(field.name, field);
-    }
-  });
-  const allFields = Array.from(allFieldsMap.values());
+  const allFields = [
+    ...fields,
+    ...(extraFields[cardType] || []),
+  ];
 
 
   async function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {

@@ -18,7 +18,7 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({ post, showAuthor = true }) => {
         <div className="relative w-full aspect-video md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
           <Image
             src={post.image || "/images/placeholder.jpg"}
-            alt={post.title}
+            alt={post.title ? post.title : "Imagem do artigo"}
             fill
             className="object-cover"
             priority

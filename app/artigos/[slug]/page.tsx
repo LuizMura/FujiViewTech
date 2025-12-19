@@ -104,7 +104,3 @@ export default function PostPage() {
     </article>
   );
 }
-
-    <main className="container-custom py-12 px-[10px]">
-      {/* ...existing code... */}
-    </main>
