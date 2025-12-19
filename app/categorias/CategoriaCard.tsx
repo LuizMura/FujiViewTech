@@ -30,7 +30,7 @@ const CategoriaCard: React.FC<CategoriaCardProps> = ({ post }) => {
             <span>{post.readTime || ""}</span>
           </div>
           <h2 className="text-lg font-bold mb-0 group-hover:text-blue-600 transition-colors line-clamp-2 text-black">{post.title}</h2>
-          <p className="text-slate-600 text-sm line-clamp-3">{post.description || post.excerpt || ""}</p>
+          <p className="text-slate-600 text-sm line-clamp-3">{post.excerpt || ""}</p>
         </div>
       </div>
     </Link>
