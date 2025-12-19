@@ -29,10 +29,10 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(function Articl
   loadingAction,
 }, ref) {
   const [showConfirm, setShowConfirm] = useState(false);
-  const [articles, setArticles] = useState([]);
+  const [articles, setArticles] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
   const [category, setCategory] = useState(externalCategory || "");
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<string[]>([]);
 
   // Sincronizar filtro externo com interno
   useEffect(() => {
