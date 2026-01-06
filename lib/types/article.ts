@@ -10,6 +10,7 @@ export interface Article {
   slug: string;
   // Conteúdo
   title: string;
+  description: string | null;
   excerpt: string | null;
   content: string | null;
   image: string | null;
@@ -56,6 +57,7 @@ export interface ArticleDB {
   id: string;
   slug: string;
   title: string;
+  description: string | null;
   excerpt: string | null;
   content: string | null;
   image: string | null;
@@ -132,6 +134,7 @@ export function articleFromDB(db: ArticleDB): Article {
     id: db.id,
     slug: db.slug,
     title: db.title,
+    description: db.description,
     excerpt: db.excerpt,
     content: db.content,
     image: db.image,
@@ -167,33 +170,20 @@ export function articleFromDB(db: ArticleDB): Article {
 export function articleToDB(
   article: CreateArticleInput | UpdateArticleInput
 ): Partial<ArticleDB> {
+  const publishedDate = (article as any).published_date || (article as any).publishedAt || null;
+
   return {
     ...("id" in article && { id: article.id }),
     slug: article.slug!,
     title: article.title!,
-    excerpt: article.excerpt || null,
+    description: article.excerpt || null,
     content: article.content || null,
     image: article.image || null,
     category: article.category!,
-    status: article.status || "draft",
-    title_color: article.titleColor || "#1e293b",
-    title_font_size: article.titleFontSize || 18,
-    excerpt_color: article.excerptColor || "#64748b",
-    excerpt_font_size: article.excerptFontSize || 14,
-    bg_color: article.bgColor || "#ffffff",
-    bg_opacity: article.bgOpacity || 100,
-    show_button: article.showButton || false,
-    button_text: article.buttonText || "Ver mais",
-    button_bg_color: article.buttonBgColor || "#3b82f6",
-    button_text_color: article.buttonTextColor || "#ffffff",
-    button_font_size: article.buttonFontSize || 14,
-    button_border_radius: article.buttonBorderRadius || 8,
-    meta_title: article.metaTitle || null,
-    meta_description: article.metaDescription || null,
-    og_image: article.ogImage || null,
-    // sub_component removido pois não existe em ArticleDB
+    status: article.status || "published",
     read_time: article.readTime || "5 min",
-  };
+    published_date: publishedDate,
+  } as Partial<ArticleDB>;
 }
 
 // Dashboard Stats

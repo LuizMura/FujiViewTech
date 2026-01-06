@@ -145,6 +145,8 @@ export default function LivePrices() {
 
   return (
     <div className="flex items-center gap-3 md:gap-4 text-xs overflow-x-auto scrollbar-hide">
+      <span className="text-slate-300">|</span>
+
       {/* BTC */}
       <div className="flex items-center gap-1.5 whitespace-nowrap">
         <span className="font-bold text-slate-900">BTC</span>

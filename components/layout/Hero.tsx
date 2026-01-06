@@ -25,9 +25,15 @@ export default function Hero() {
       try {
         const articles: Article[] = await getArticles({ limit: 5 });
         setLatestArticles(articles);
-        const noticias: Article[] = await getArticles({ category: "noticias", limit: 5 });
+        const noticias: Article[] = await getArticles({
+          category: "noticias",
+          limit: 5,
+        });
         setNoticiasArticles(noticias);
-        const economia: Article[] = await getArticles({ category: "economia", limit: 5 });
+        const economia: Article[] = await getArticles({
+          category: "economia",
+          limit: 5,
+        });
         setEconomiaArticles(economia);
         // Buscar todos para os cards genéricos
         const all: Article[] = await getArticles({ limit: 20 });
@@ -44,7 +50,7 @@ export default function Hero() {
 
   return (
     <>
-      <div className="bg-white py-1 justify-center flex items-center rounded-2xl shadow-md mb-4 border border-slate-200">
+      <div className="mt-2 mb-5 bg-white py-1  justify-center flex items-center rounded-2xl shadow-md mb-4 border border-slate-200">
         <LivePrices />
       </div>
       {/* 5 últimos artigos postados em carrossel */}
@@ -66,14 +72,16 @@ export default function Hero() {
               </React.Suspense>
             </div>
           </div>
-          
+
+          {/* Título e divisão antes dos cards de categorias */}
+          <div className="mb-3">
+            <h2 className="text-2xl font-bold text-slate-100">
+              ÚLTIMAS POSTAGENS
+            </h2>
+          </div>
           {/* Cards de categorias com imagem acima e texto abaixo */}
           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-            <CategoriaCard artigos={allArticles} categoria="dicas" badgeColor="#6366f1" badgeLabel="Dicas" />
-            <CategoriaCard artigos={allArticles} categoria="reviews" badgeColor="#f59e42" badgeLabel="Review" />
-            <CategoriaCard artigos={allArticles} categoria="produtos" badgeColor="#10b981" badgeLabel="Tutorial" />
-            <CategoriaCard artigos={allArticles} categoria="novidades" badgeColor="#ef4444" badgeLabel="Novidades" />
-            <CategoriaCard artigos={allArticles} categoria="saude" badgeColor="#14b8a6" badgeLabel="Saúde" />
+            <CategoriaCard artigos={allArticles} />
           </div>
         </>
       )}
@@ -81,14 +89,22 @@ export default function Hero() {
         <ArtigosDestaque />
       </div> */}
 
-          {/* Espaço para AdSense */}
-          <div className="w-full h-24 flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 mb-8">
-            <span className="text-slate-500 font-semibold text-lg">Publicidade</span>
-          </div>
+      {/* Espaço para AdSense */}
+      <div className="w-full h-24 flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 mb-8">
+        <span className="text-slate-500 font-semibold text-lg">
+          Publicidade
+        </span>
+      </div>
 
-          {/* Produtos afiliados do banco */}
-          <AfiliadosList />
+      {/* Título de Produtos */}
+      <div className="mb-3">
+        <h2 className="text-2xl font-bold text-slate-100">
+          PRODUTOS AFILIADOS
+        </h2>
+      </div>
 
+      {/* Produtos afiliados do banco */}
+      <AfiliadosList />
     </>
   );
 }

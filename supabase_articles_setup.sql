@@ -19,6 +19,16 @@ CREATE TABLE IF NOT EXISTS public.articles (
 );
 
 -- Create index for faster queries
+-- Ensure columns exist even if table already existed with older schema
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS description TEXT;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS content TEXT;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS image TEXT;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS author TEXT DEFAULT 'FujiViewTech';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS read_time TEXT DEFAULT '5 min';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS published_date DATE;
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'published';
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT now();
+
 CREATE INDEX IF NOT EXISTS idx_articles_category ON public.articles(category);
 CREATE INDEX IF NOT EXISTS idx_articles_status ON public.articles(status);
 CREATE INDEX IF NOT EXISTS idx_articles_published_date ON public.articles(published_date DESC);
@@ -47,6 +57,7 @@ END;
 $$ LANGUAGE plpgsql;
 
 -- Create trigger to automatically update updated_at
+DROP TRIGGER IF EXISTS update_articles_updated_at ON public.articles;
 CREATE TRIGGER update_articles_updated_at
   BEFORE UPDATE ON public.articles
   FOR EACH ROW

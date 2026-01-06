@@ -11,6 +11,7 @@ function getPreviewArticle(form: any): Article {
     id: form.id || "preview-id",
     slug: form.slug || "preview-slug",
     title: form.title || "Título do Artigo",
+    description: form.description || form.excerpt || "Resumo do artigo...",
     excerpt: form.excerpt || "Resumo do artigo...",
     content: form.content || "",
     image: form.image || "",
@@ -75,11 +76,11 @@ export default function EditorArtigosCard<T extends CardBase>({
   onSave,
   previewOnTop = false,
 }: EditorArtigosCardProps<T>) {
-  const [form, setForm] = useState<T>(initialData || ({} as T));
+  const [form, setForm] = useState<T>(initialData || ({ status: "published" } as unknown as T));
 
   // Atualiza o formulário quando initialData muda (ex: ao selecionar artigo)
   useEffect(() => {
-    setForm(initialData || ({} as T));
+    setForm(initialData || ({ status: "published" } as unknown as T));
   }, [initialData]);
 
   // Campos comuns
@@ -88,6 +89,7 @@ export default function EditorArtigosCard<T extends CardBase>({
     { name: "slug", label: "Slug (URL)", type: "text" },
     { name: "image", label: "Imagem (URL)", type: "text" },
     { name: "category", label: "Categoria", type: "text" },
+    { name: "status", label: "Status", type: "select", options: ["draft", "published", "archived"] },
     { name: "publishedAt", label: "Data de Publicação", type: "date" },
     { name: "readTime", label: "Tempo de Leitura", type: "text" },
     { name: "authorId", label: "Autor", type: "text" },
@@ -124,8 +126,9 @@ export default function EditorArtigosCard<T extends CardBase>({
   const allFields = Array.from(allFieldsMap.values());
 
 
-  async function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) {
-    const { name, value, type, files } = e.target as HTMLInputElement & HTMLTextAreaElement;
+  async function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+    const { name, value, type } = e.target;
+    const files = (e.target as HTMLInputElement).files;
     if (type === "file" && files && files[0]) {
       const supabase = createClient();
       const file = files[0];
@@ -223,7 +226,19 @@ export default function EditorArtigosCard<T extends CardBase>({
         {allFields.map((field) => (
           <div className="mb-3" key={field.name}>
             <label className="block text-[#bfc7d5] mb-1" htmlFor={field.name}>{field.label}</label>
-            {field.name === "image" ? (
+            {field.type === "select" ? (
+              <select
+                id={field.name}
+                name={field.name}
+                value={form[field.name] || "published"}
+                onChange={handleChange}
+                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+              >
+                {(field.options || []).map((opt: string) => (
+                  <option key={opt} value={opt} className="text-black">{opt}</option>
+                ))}
+              </select>
+            ) : field.name === "image" ? (
               <>
                 <input
                   id={field.name}

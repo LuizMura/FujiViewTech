@@ -1,5 +1,25 @@
 "use client";
 
+import AfiliadosCard from "@/components/home/AfiliadosCard";
+
+type Afiliado = {
+  nome: string;
+  url: string;
+  cor?: string;
+  texto?: string;
+  logo?: string;
+};
+
+type AfiliadosCardProps = {
+  imagem?: string;
+  imagens?: string[];
+  titulo: string;
+  descricao: string;
+  loja: string;
+  preco: string;
+  afiliados: Afiliado[];
+};
+
 
 export function Affiliate({
   url,
@@ -113,6 +133,10 @@ export function SpecsTable({ specs }: { specs: Record<string, string> }) {
   );
 }
 
+export function AfiliadosCardBlock(props: AfiliadosCardProps) {
+  return <AfiliadosCard {...props} />;
+}
+
 
 export const components = {
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
@@ -122,4 +146,6 @@ export const components = {
   AffiliateBox,
   ProductCard,
   SpecsTable,
+  AfiliadosCard: AfiliadosCardBlock,
+  AfiliadosCardBlock,
 };

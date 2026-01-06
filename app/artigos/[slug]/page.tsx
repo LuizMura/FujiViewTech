@@ -10,14 +10,45 @@ import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import { components as mdxComponents } from "@/components/article/MDXComponents";
 
+class MDXErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; errorMessage?: string }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, errorMessage: error.message };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error("Erro ao renderizar MDX:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="rounded-lg border border-amber-200 bg-amber-50 text-amber-800 p-4 text-sm">
+          Não foi possível renderizar o conteúdo deste artigo. Verifique se o MDX contém variáveis não definidas (por exemplo, uso de "index" sem declaração).
+          <div className="mt-2 text-xs text-amber-700">{this.state.errorMessage}</div>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
 export default function PostPage() {
   const params = useParams() || {};
-  const slug =
+  const rawSlug =
     typeof params.slug === "string"
       ? params.slug
       : Array.isArray(params.slug)
       ? params.slug[0]
       : "";
+  const slug = rawSlug ? decodeURIComponent(rawSlug) : "";
   const [post, setPost] = useState<Article | null>(null);
   const [mdx, setMdx] = useState<MDXRemoteSerializeResult | null>(null);
   const [loading, setLoading] = useState(true);
@@ -70,8 +101,10 @@ export default function PostPage() {
   }
 
   return (
-    <article className="pb-20 px-32 rounded-3xl shadow-xl">
-      <ArtigoCard post={post} />
+    <article className="pb-20 rounded-3xl shadow-xl">
+      <div className="container-custom">
+        <ArtigoCard post={post} />
+      </div>
       {/* Content */}
       <div className="container-custom max-w-3xl mx-auto">
         <div
@@ -88,7 +121,9 @@ export default function PostPage() {
           prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-slate-700"
         >
           {mdx ? (
-            <MDXRemote {...mdx} components={mdxComponents} />
+            <MDXErrorBoundary>
+              <MDXRemote {...mdx} components={mdxComponents} />
+            </MDXErrorBoundary>
           ) : (
             <div>{post.content}</div>
           )}

@@ -27,7 +27,7 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({ post, showAuthor = true }) => {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
           {/* Title and Metadata on top of image */}
           <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-12">
-            <div className="space-y-4 max-w-3xl">
+            <div className="space-y-4">
               <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/90">
                 <span className="px-4 py-1.5 bg-white/20 backdrop-blur-sm text-white font-bold rounded-full capitalize tracking-wide">
                   {post.category}
@@ -36,8 +36,8 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({ post, showAuthor = true }) => {
                 <div className="flex items-center gap-1.5">
                   <Calendar size={16} className="text-white/80" />
                   <span>
-                    {post.publishedAt
-                      ? new Date(post.publishedAt).toLocaleDateString("pt-BR", {
+                    {post.updatedAt
+                      ? new Date(post.updatedAt).toLocaleDateString("pt-BR", {
                           day: "numeric",
                           month: "long",
                           year: "numeric",
@@ -56,11 +56,17 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({ post, showAuthor = true }) => {
                 )}
               </div>
 
-              <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg">
+              <h1
+                className="text-3xl md:text-5xl lg:text-6xl font-extrabold text-white leading-tight tracking-tight drop-shadow-lg"
+                style={{width: "100%", maxWidth: "95%"}}
+              >
                 {post.title}
               </h1>
               {post.excerpt && (
-                <p className="text-base md:text-lg text-white/90 leading-relaxed max-w-2xl">
+                <p
+                  className="text-base md:text-lg text-white/90 leading-relaxed"
+                  style={{width: "100%", maxWidth: "95%"}}
+                >
                   {post.excerpt}
                 </p>
               )}

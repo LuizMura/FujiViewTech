@@ -2,10 +2,12 @@
 import SearchBar from "./SearchBar";
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import LogoBrand from "./LogoBrand";
 import { Menu, X, Search } from "lucide-react";
 
 function Header() {
+  const pathname = usePathname();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [showHeader, setShowHeader] = useState(true);
   const [lastScrollY, setLastScrollY] = useState(0);
@@ -72,7 +74,7 @@ function Header() {
           {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
         </button>
       </div>
-      <nav className="hidden md:flex border-t border-slate-100 bg-white/80 py-1">
+      <nav className="hidden md:flex border-t border-slate-100 bg-white/80 py-1 backdrop-blur-md">
         <div className="container-custom flex items-center gap-4">
           {navLinks.map((link, idx) => (
             <React.Fragment key={link.name}>
@@ -80,10 +82,18 @@ function Header() {
               {idx > 0 && <span className="text-slate-300 font-bold">|</span>}
               <Link
                 href={link.href}
-                className="text-sm font-medium text-slate-600 hover:text-indigo-600 transition-colors relative group whitespace-nowrap"
+                className={`text-sm font-medium transition-colors relative group whitespace-nowrap uppercase ${
+                  pathname === link.href
+                    ? "text-[#ac3e3e]"
+                    : "text-slate-600 hover:text-[#ac3e3e]"
+                }`}
               >
                 {link.name}
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-indigo-600 transition-all duration-300 group-hover:w-full"></span>
+                <span
+                  className={`absolute -bottom-1 left-0 h-0.5 bg-[#ac3e3e] transition-all duration-300 ${
+                    pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
+                  }`}
+                ></span>
               </Link>
               {idx === navLinks.length - 1 && (
                 <span className="text-slate-300 font-bold">|</span>
@@ -105,7 +115,11 @@ function Header() {
                 )}
                 <Link
                   href={link.href}
-                  className="px-4 py-3 text-slate-700 hover:bg-slate-50 hover:text-indigo-600 rounded-lg font-medium transition-colors whitespace-nowrap"
+                  className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap uppercase ${
+                    pathname === link.href
+                      ? "bg-red-50 text-[#ac3e3e]"
+                      : "text-slate-700 hover:bg-red-50 hover:text-[#ac3e3e]"
+                  }`}
                   onClick={() => setIsMenuOpen(false)}
                 >
                   {link.name}

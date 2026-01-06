@@ -4,14 +4,16 @@ import AfiliadosCard from "./AfiliadosCard";
 interface Afiliado {
   nome: string;
   url: string;
-  cor: string;
-  texto: string;
+  cor?: string;
+  texto?: string;
+  logo?: string;
 }
 
 interface ProdutoAfiliado {
   imagem: string;
   titulo: string;
   descricao: string;
+  loja?: string;
   preco: string;
   afiliado1_nome: string;
   afiliado1_url: string;
@@ -49,6 +51,7 @@ const AfiliadosList: React.FC = () => {
           imagem={produto.imagem}
           titulo={produto.titulo}
           descricao={produto.descricao}
+          loja={produto.loja || "Loja"}
           preco={produto.preco}
           afiliados={[
             {
@@ -56,12 +59,18 @@ const AfiliadosList: React.FC = () => {
               url: produto.afiliado1_url,
               cor: produto.afiliado1_cor,
               texto: produto.afiliado1_texto,
+              logo: produto.afiliado1_nome?.toLowerCase().includes("amazon")
+                ? "/images/amazon-logo.png"
+                : undefined,
             },
             {
               nome: produto.afiliado2_nome,
               url: produto.afiliado2_url,
               cor: produto.afiliado2_cor,
               texto: produto.afiliado2_texto,
+              logo: produto.afiliado2_nome?.toLowerCase().includes("mercado")
+                ? "/images/mercadolivre-logo.png"
+                : undefined,
             },
           ]}
         />

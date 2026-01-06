@@ -1,6 +1,6 @@
 import Image from "next/image";
 
-export default function LogoBrand({ size = 60 }: { size?: number }) {
+export default function LogoBrand({ size = 100 }: { size?: number }) {
   // Calcula o tamanho da fonte proporcional ao tamanho da logo
   const fontSize =
     size >= 60
@@ -20,9 +20,9 @@ export default function LogoBrand({ size = 60 }: { size?: number }) {
         className="transition-all duration-300 group-hover:scale-110"
       />
       <span
-        className={`font-bold ${
+        className={`font-extrabold ${
           size >= 70 ? "text-3xl" : "text-xl"
-        } tracking-tight text-slate-900 group-hover:text-[#43a047] transition-colors`}
+        } tracking-tight text-slate-900 group-hover:text-[#4a7c59] transition-colors`}
       >
         Fujiview<span className="text-[#ac3e3e]">Tech</span>
       </span>

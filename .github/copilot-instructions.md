@@ -1,0 +1,20 @@
+# FujiViewTech – AI Coding Guide
+- Stack: Next.js App Router + React 19 + Tailwind 4; TypeScript throughout.
+- Routing: pages live under app/, root layout wraps everything with AuthProvider (Supabase auth) in [app/layout.tsx](app/layout.tsx).
+- Home data: homepage currently lists filesystem MDX via getAllPosts() in [lib/posts.ts](lib/posts.ts) and renders HeroWrapper; content dir is /content (may be empty in some environments).
+- Dynamic articles: reader page [app/artigos/[slug]/page.tsx](app/artigos/%5Bslug%5D/page.tsx) fetches a single article from Supabase with getArticleBySlug(), serializes MDX via next-mdx-remote, and renders MDXComponents.
+- Supabase clients: server-side admin via createSupabaseAdmin() using SUPABASE_SERVICE_ROLE_KEY; browser client via createSupabaseClient()/createBrowserClient with NEXT_PUBLIC_SUPABASE_URL/NEXT_PUBLIC_SUPABASE_ANON_KEY. Keep service role strictly server-only.
+- Articles API: [app/api/content/route.ts](app/api/content/route.ts) lists/upserts/deletes rows in the articles table (status filtered to published on GET). [app/api/content/[slug]/route.ts](app/api/content/%5Bslug%5D/route.ts) returns a single article with frontmatter + content.
+- Hero CMS: [app/api/hero/route.ts](app/api/hero/route.ts) stores a single hero record (id=1) in the hero_content table; handles casing differences when reading; upserts all fields plus JSONB cards.
+- Uploads: [app/api/upload/route.ts](app/api/upload/route.ts) streams image files to the Supabase storage bucket uploads with validation (image mime, <5MB) and returns a public URL.
+- Database setup: SQL seeds live in supabase_setup.sql (hero_content table), supabase_articles_setup.sql (articles schema + RLS + trigger), supabase_storage_setup.sql (uploads bucket policies). Apply these before running APIs.
+- Article model: see [lib/types/article.ts](lib/types/article.ts) plus transformations in [lib/hooks/useArticles.ts](lib/hooks/useArticles.ts) (articleFromDB/articleToDB, CRUD, analytics RPCs increment_article_views/clicks, slug helpers).
+- Auth: AuthProvider wires Supabase auth session to React context in [app/context/AuthContext.tsx](app/context/AuthContext.tsx); use useAuth() inside client components instead of creating new clients.
+- Hero state on client: HeroProvider in [app/context/HeroContext.tsx](app/context/HeroContext.tsx) holds in-memory hero/top/bottom cards; persistence happens via the hero API (no file writes).
+- Content rendering: MDX is serialized client-side for articles; when no MDX content exists, raw post.content renders as fallback. Keep MDX frontmatter fields (title, description, date, category, image, author, readTime) consistent with DB columns.
+- Scripts: npm run dev (Next dev), build/start, lint, clean/.next removal, dev:clean, deploy/deploy:prod (Vercel CLI). Turbopack enabled via Next.
+- Environment: set SUPABASE_URL, SUPABASE_SERVICE_ROLE_KEY for server routes; NEXT_PUBLIC_SUPABASE_URL and NEXT_PUBLIC_SUPABASE_ANON_KEY for clients; ensure Supabase bucket uploads is public or URLs will fail.
+- SEO/static files: metadata configured in layout.tsx; OG assets under public/images; sitemap/robots routes live under app/sitemap.xml/ and app/robots.txt/.
+- Testing/validation: no test suite present; prioritize exercising API routes (content, hero, upload) against Supabase dev project when changing schemas.
+- Patterns to follow: prefer Supabase for new content instead of filesystem; keep slug unique per category (see DB constraint); use server actions/API routes for service role operations—never expose service key to client.
+- When adding dashboard/admin features, reuse createClient() from lib/supabase/client.ts for browser calls and reuse useArticles helpers for CRUD to keep DB shape consistent.

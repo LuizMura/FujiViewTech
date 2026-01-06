@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import ArtigoCard from "@/app/artigos/ArtigoCard";
+import CarrosselCard from "@/components/home/CarrosselCard";
 import { Article } from "@/lib/types/article";
 
 interface ArtigosCarrosselProps {
@@ -24,13 +24,18 @@ const ArtigosCarrossel: React.FC<ArtigosCarrosselProps> = ({ artigos }) => {
     return () => clearInterval(timer);
   }, [total]);
 
+  if (!artigos || artigos.length === 0) return null;
+
   return (
     <div className="w-full max-w-7xl mx-auto relative">
-      <div className="relative min-h-[300px] overflow-hidden">
-        {/* Badge fixo no carrossel */}
-        <span className="absolute top-6 left-6 z-30 bg-amber-500 text-white text-xs font-semibold px-3 py-1 rounded-full">
-          Destaque da semana
+      {/* Badge Destaque da semana */}
+      <div className="absolute top-8 left-12 z-30">
+        <span className="px-4 py-1 bg-slate-100/70 backdrop-blur-sm text-black font-bold rounded-full text-sm tracking-wide">
+          DESTAQUE DA SEMANA
         </span>
+      </div>
+
+      <div className="relative min-h-[300px] overflow-hidden">
         <div
           className="whitespace-nowrap transition-transform duration-700"
           style={{ transform: `translateX(-${current * 100}%)` }}
@@ -41,35 +46,43 @@ const ArtigosCarrossel: React.FC<ArtigosCarrosselProps> = ({ artigos }) => {
               className="inline-block align-top w-full"
               style={{ verticalAlign: "top" }}
             >
-              <ArtigoCard post={artigo} showAuthor={false} />
+              <CarrosselCard article={artigo} showAuthor={false} />
             </div>
           ))}
         </div>
-        {/* Navegação */}
-        <button
-          className="absolute left-1 top-1/2 -translate-y-1/2 bg-white/60 hover:bg-white/90 text-indigo-600 rounded-full p-1 shadow z-20 border border-white/40 transition-colors duration-200"
-          onClick={() => goTo(current - 1)}
-          aria-label="Anterior"
-        >
-          <span className="text-2xl">&lt;</span>
-        </button>
-        <button
-          className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/60 hover:bg-white/90 text-indigo-600 rounded-full p-1 shadow z-20 border border-white/40 transition-colors duration-200"
-          onClick={() => goTo(current + 1)}
-          aria-label="Próximo"
-        >
-          <span className="text-2xl">&gt;</span>
-        </button>
-        {/* Paginação fixa como badges no canto do carrossel */}
-        <div className="absolute left-6 bottom-6 z-30 flex gap-2">
-          {artigos.map((_, idx) => (
-            <button
-              key={idx}
-              className={`w-3 h-3 rounded-full ${idx === current ? "bg-indigo-600" : "bg-slate-300"}`}
-              onClick={() => goTo(idx)}
-              aria-label={`Ir para o slide ${idx + 1}`}
-            />
-          ))}
+
+        {/* Navpage e Paginação em dots */}
+        <div className="absolute bottom-7 left-1/2 -translate-x-1/2 flex gap-4 items-center z-20">
+          <button
+            className="mb-1 text-white/80 hover:text-white transition-colors duration-200"
+            onClick={() => goTo(current - 1)}
+            aria-label="Anterior"
+          >
+            <span className="text-2xl">&lt;</span>
+          </button>
+
+          <div className="flex gap-2">
+            {artigos.map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => goTo(idx)}
+                className={`h-2.5 rounded-full transition-all duration-300 ${
+                  idx === current
+                    ? "bg-white w-8"
+                    : "bg-white/50 hover:bg-white/70 w-2.5"
+                }`}
+                aria-label={`Ir para artigo ${idx + 1}`}
+              />
+            ))}
+          </div>
+
+          <button
+            className="mb-1 text-white/80 hover:text-white transition-colors duration-200"
+            onClick={() => goTo(current + 1)}
+            aria-label="Próximo"
+          >
+            <span className="text-2xl">&gt;</span>
+          </button>
         </div>
       </div>
     </div>

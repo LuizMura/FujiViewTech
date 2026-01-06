@@ -49,6 +49,26 @@ INSERT INTO public.hero_content (
   topcard,
   bottomcard
 )
+
+-- Home configuration table to control featured content on the homepage
+CREATE TABLE IF NOT EXISTS public.home_config (
+  id INT PRIMARY KEY DEFAULT 1,
+  article_slugs TEXT[],
+  afiliado_ids TEXT[],
+  updated_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE public.home_config ENABLE ROW LEVEL SECURITY;
+
+CREATE POLICY "Allow read home config" ON public.home_config
+  FOR SELECT USING (true);
+
+CREATE POLICY "Allow service role write home config" ON public.home_config
+  FOR ALL USING (true) WITH CHECK (true);
+
+INSERT INTO public.home_config (id, article_slugs, afiliado_ids)
+VALUES (1, ARRAY[]::TEXT[], ARRAY[]::TEXT[])
+ON CONFLICT (id) DO NOTHING;
 VALUES (
   1, 
   'Destaque da Semana', 

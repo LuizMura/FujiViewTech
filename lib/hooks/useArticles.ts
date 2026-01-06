@@ -97,14 +97,16 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     .from("articles")
     .select("*")
     .eq("slug", slug)
-    .single();
+    .eq("status", "published")
+    .maybeSingle();
 
   if (error) {
-    console.error("Error fetching article by slug:", error);
+    console.error("Error fetching article by slug:", error?.message || error);
     return null;
   }
 
-  return data ? articleFromDB(data as ArticleDB) : null;
+  if (!data) return null;
+  return articleFromDB(data as ArticleDB);
 }
 
 /**
@@ -157,7 +159,7 @@ export async function updateArticle(
     .maybeSingle();
 
   if (error) {
-    console.error("Error updating article:", error);
+    console.error("Error updating article:", error?.message || error);
     throw error;
   }
   if (!data) {
