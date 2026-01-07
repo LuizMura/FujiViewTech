@@ -19,7 +19,10 @@ export async function GET() {
       .single();
 
     if (error) {
-      return NextResponse.json({ article_slugs: [], afiliado_ids: [] }, { status: 200 });
+      return NextResponse.json(
+        { article_slugs: [], afiliado_ids: [] },
+        { status: 200 }
+      );
     }
 
     return NextResponse.json({
@@ -28,15 +31,22 @@ export async function GET() {
     });
   } catch (error) {
     console.error("Home config GET error", error);
-    return NextResponse.json({ article_slugs: [], afiliado_ids: [] }, { status: 200 });
+    return NextResponse.json(
+      { article_slugs: [], afiliado_ids: [] },
+      { status: 200 }
+    );
   }
 }
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const articleSlugs: string[] = Array.isArray(body.articleSlugs) ? body.articleSlugs : [];
-    const afiliadoIds: string[] = Array.isArray(body.afiliadoIds) ? body.afiliadoIds : [];
+    const articleSlugs: string[] = Array.isArray(body.articleSlugs)
+      ? body.articleSlugs
+      : [];
+    const afiliadoIds: string[] = Array.isArray(body.afiliadoIds)
+      ? body.afiliadoIds
+      : [];
 
     const supabase = createSupabaseAdmin();
     const { error, data } = await supabase
@@ -60,6 +70,9 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ success: true, data });
   } catch (error) {
     console.error("Home config POST error", error);
-    return NextResponse.json({ error: "Erro ao salvar configuração" }, { status: 500 });
+    return NextResponse.json(
+      { error: "Erro ao salvar configuração" },
+      { status: 500 }
+    );
   }
 }

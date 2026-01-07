@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import AfiliadosCard from "@/components/home/AfiliadosCard";
 
 type Afiliado = {
@@ -19,7 +20,6 @@ type AfiliadosCardProps = {
   preco: string;
   afiliados: Afiliado[];
 };
-
 
 export function Affiliate({
   url,
@@ -137,11 +137,37 @@ export function AfiliadosCardBlock(props: AfiliadosCardProps) {
   return <AfiliadosCard {...props} />;
 }
 
-
 export const components = {
   a: (props: React.AnchorHTMLAttributes<HTMLAnchorElement>) => (
     <a {...props} className="text-accent underline" />
   ),
+  p: (props: React.HTMLAttributes<HTMLParagraphElement>) => {
+    // Evita <p> dentro de <p> filtrando children que já são elementos block
+    const { children, ...rest } = props;
+    if (
+      Array.isArray(children) &&
+      children.some(
+        (child) =>
+          React.isValidElement(child) &&
+          [
+            "h1",
+            "h2",
+            "h3",
+            "h4",
+            "h5",
+            "h6",
+            "ul",
+            "ol",
+            "blockquote",
+            "div",
+            "article",
+          ].includes(child.type as string)
+      )
+    ) {
+      return <div {...rest}>{children}</div>;
+    }
+    return <p {...rest}>{children}</p>;
+  },
   Affiliate,
   AffiliateBox,
   ProductCard,

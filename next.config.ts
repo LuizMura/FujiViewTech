@@ -10,6 +10,12 @@ const nextConfig: NextConfig = {
         hostname: "jxcmxjmqcsxkxftblbrq.supabase.co",
         pathname: "/storage/v1/object/public/artigos/**",
       },
+      // Permite imagens do bucket 'uploads' (API de upload)
+      {
+        protocol: "https",
+        hostname: "jxcmxjmqcsxkxftblbrq.supabase.co",
+        pathname: "/storage/v1/object/public/uploads/**",
+      },
       {
         protocol: "https",
         hostname: "images.unsplash.com",
@@ -17,6 +23,14 @@ const nextConfig: NextConfig = {
       {
         protocol: "https",
         hostname: "example.com",
+      },
+      {
+        protocol: "https",
+        hostname: "images.samsung.com",
+      },
+      {
+        protocol: "https",
+        hostname: "m.media-amazon.com",
       },
     ],
   },

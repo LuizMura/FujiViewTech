@@ -1,4 +1,4 @@
-import AfiliadosList from "@/components/home/AfiliadosList";
+import AfiliadosCarrossel from "@/components/home/AfiliadosCarrossel";
 
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
@@ -7,7 +7,7 @@ import { useHero } from "@/context/HeroContext";
 import ArtigosCarrossel from "@/components/home/ArtigosCarrossel";
 import NoticiasCard from "@/components/home/NoticiasCard";
 import EconomiaCard from "@/components/home/EconomiaCard";
-import CategoriaCard from "@/components/home/CategoriaCard";
+import UltimasPostagensCarrossel from "@/components/home/UltimasPostagensCarrossel";
 import LivePrices from "./LivePrices";
 import { getArticles } from "@/lib/hooks/useArticles";
 import { Article } from "@/lib/types/article";
@@ -50,19 +50,19 @@ export default function Hero() {
 
   return (
     <>
-      <div className="mt-2 mb-5 bg-white py-1  justify-center flex items-center rounded-2xl shadow-md mb-4 border border-slate-200">
+      <div className="z-40 -mt-13 md:mt-2 mb-5 bg-white py-1 justify-center flex items-center rounded-none md:rounded-2xl shadow-md border border-slate-200">
         <LivePrices />
       </div>
       {/* 5 últimos artigos postados em carrossel */}
       {latestArticles.length > 0 && (
         <>
-          <div className="grid grid-cols-3 gap-6 mb-8">
-            <div className="col-span-2">
-              <div className="relative w-full aspect-video md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+            <div className="md:col-span-2 order-1 md:order-1">
+              <div className="relative w-full aspect-video h-[280px] md:h-[450px] rounded-none md:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
                 <ArtigosCarrossel artigos={latestArticles} />
               </div>
             </div>
-            <div>
+            <div className="order-2 md:order-2">
               {/* Notícias da categoria 'noticias' */}
               <React.Suspense fallback={<div>Carregando notícia...</div>}>
                 <NoticiasCard artigos={noticiasArticles} />
@@ -73,21 +73,12 @@ export default function Hero() {
             </div>
           </div>
 
-          {/* Título e divisão antes dos cards de categorias */}
-          <div className="mb-3">
-            <h2 className="text-2xl font-bold text-slate-100">
-              ÚLTIMAS POSTAGENS
-            </h2>
-          </div>
-          {/* Cards de categorias com imagem acima e texto abaixo */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-            <CategoriaCard artigos={allArticles} />
+          {/* Cards do UltimasPostagensCarrossel com imagem acima e texto abaixo */}
+          <div className="mb-8">
+            <UltimasPostagensCarrossel artigos={allArticles} />
           </div>
         </>
       )}
-      {/* <div className="mb-32">
-        <ArtigosDestaque />
-      </div> */}
 
       {/* Espaço para AdSense */}
       <div className="w-full h-24 flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 mb-8">
@@ -96,15 +87,8 @@ export default function Hero() {
         </span>
       </div>
 
-      {/* Título de Produtos */}
-      <div className="mb-3">
-        <h2 className="text-2xl font-bold text-slate-100">
-          PRODUTOS AFILIADOS
-        </h2>
-      </div>
-
       {/* Produtos afiliados do banco */}
-      <AfiliadosList />
+      <AfiliadosCarrossel />
     </>
   );
 }

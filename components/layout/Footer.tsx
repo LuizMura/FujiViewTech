@@ -36,11 +36,11 @@ export default function Footer() {
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
           <div className="col-span-1 md:col-span-1">
             <Link href="/">
-              <LogoBrand size={70} />
+              <LogoBrand />
             </Link>
-            <p className="text-slate-500 text-sm leading-relaxed mb-6">
-              Tecnologia descomplicada para todos. Reviews honestos, notícias
-              rápidas e tutoriais que funcionam.
+            <p className="text-slate-500 text-sm leading-relaxed mb-6 ">
+              Seu canal de notícias, dicas, viagens, reviews e novidades da
+              tecnologia.
             </p>
             <div className="flex gap-4">
               <SocialLink href="#" icon={<Twitter size={18} />} />

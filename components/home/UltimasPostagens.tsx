@@ -10,7 +10,7 @@ interface CardProps {
   badgeLabel?: string;
 }
 
-const CategoriaCard: React.FC<CardProps> = ({ artigos }) => {
+const UltimasPostagens: React.FC<CardProps> = ({ artigos }) => {
   if (!artigos || artigos.length === 0) return null;
 
   // Ordena por createdAt descending, ignora o 1º (no carrossel) e pega 5 aleatórios dos penúltimos
@@ -47,10 +47,14 @@ const CategoriaCard: React.FC<CardProps> = ({ artigos }) => {
             ) : (
               <div className="w-full h-48 bg-slate-200" />
             )}
-            <div className="flex-1 flex flex-col justify-center px-3 py-3 w-full">
-              <h3 className="text-sm font-bold text-slate-900 line-clamp-3 text-center">{artigo.title}</h3>
+            <div className="flex-1 flex flex-col justify-start px-2 py-1 w-full">
+              <h3 className="text-sm font-bold text-slate-900 line-clamp-3 text-start">
+                {artigo.title}
+              </h3>
               {artigo.excerpt && (
-                <p className="text-xs text-slate-600 line-clamp-2 text-center mt-1">{artigo.excerpt}</p>
+                <p className="text-xs text-slate-600 line-clamp-2 text-center mt-1">
+                  {artigo.excerpt}
+                </p>
               )}
             </div>
           </div>
@@ -60,4 +64,4 @@ const CategoriaCard: React.FC<CardProps> = ({ artigos }) => {
   );
 };
 
-export default CategoriaCard;
+export default UltimasPostagens;

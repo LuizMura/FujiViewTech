@@ -21,19 +21,19 @@ const NoticiasCard: React.FC<NoticiasCardProps> = ({ artigos }) => {
   if (noticias.length === 0) return null;
 
   // Ordena por data de publicação (mais recente primeiro)
-  const noticiaMaisRecente = noticias
-    .slice()
-    .sort((a, b) => {
-      const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
-      const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
-      return dateB - dateA;
-    })[0];
+  const noticiaMaisRecente = noticias.slice().sort((a, b) => {
+    const dateA = a.publishedAt ? new Date(a.publishedAt).getTime() : 0;
+    const dateB = b.publishedAt ? new Date(b.publishedAt).getTime() : 0;
+    return dateB - dateA;
+  })[0];
 
   if (!noticiaMaisRecente) return null;
 
   return (
-    <div className="w-full max-w-xl mx-auto relative flex items-center h-[150px] md:h-[215px] bg-white rounded-2xl shadow border overflow-hidden">
-      <span className="absolute top-3 left-3 z-10 bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full">Notícias</span>
+    <div className="w-full max-w-xl mx-auto relative flex items-center h-[120px] md:h-[215px] bg-white rounded-none md:rounded-2xl shadow border overflow-hidden">
+      <span className="absolute top-3 left-3 z-10 bg-indigo-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+        Notícias
+      </span>
       {/* Imagem quadrada à esquerda */}
       {noticiaMaisRecente.image ? (
         <div className="flex-shrink-0 h-full aspect-square relative ">
@@ -41,7 +41,7 @@ const NoticiasCard: React.FC<NoticiasCardProps> = ({ artigos }) => {
             src={noticiaMaisRecente.image}
             alt={noticiaMaisRecente.title}
             fill
-            style={{ objectFit: "cover", borderRadius: 12 }}
+            className="object-cover rounded-xl max-md:rounded-none"
             sizes="120px"
           />
         </div>
@@ -50,9 +50,13 @@ const NoticiasCard: React.FC<NoticiasCardProps> = ({ artigos }) => {
       )}
       {/* Título e descrição à direita */}
       <div className="flex-1 flex flex-col justify-center px-2">
-        <h3 className="text-base md:text-lg font-bold text-slate-900 line-clamp-2 mb-1">{noticiaMaisRecente.title}</h3>
+        <h3 className="text-base md:text-lg font-bold text-slate-900 line-clamp-2 mb-1">
+          {noticiaMaisRecente.title}
+        </h3>
         {noticiaMaisRecente.excerpt && (
-          <p className="text-xs md:text-sm text-slate-600 line-clamp-2">{noticiaMaisRecente.excerpt}</p>
+          <p className="text-xs md:text-sm text-slate-600 line-clamp-2">
+            {noticiaMaisRecente.excerpt}
+          </p>
         )}
       </div>
     </div>

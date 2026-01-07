@@ -16,8 +16,8 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({
   return (
     <>
       {/* Featured Image with Title Overlay */}
-      <div className="mb-6 w-full">
-        <div className="relative w-full aspect-video md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
+      <div className="w-full">
+        <div className="relative w-full aspect-video h-[280px] md:h-[450px] rounded-none md:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
           <Image
             src={article.image || "/images/placeholder.jpg"}
             alt={article.title ? article.title : "Imagem do artigo"}
@@ -28,15 +28,15 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({
           {/* Dark Gradient Overlay */}
           <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
           {/* Title and Metadata on top of image */}
-          <div className="absolute inset-0 flex flex-col justify-end p-8 md:p-15">
-            <div className="space-y-4">
-              <div className="flex flex-wrap items-center gap-4 text-sm font-medium text-white/90">
+          <div className="absolute inset-0 flex flex-col justify-start mt-6 p-8 md:p-15">
+            <div className="space-y-2 md:space-y-4">
+              <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm font-medium text-white/90">
                 <span className="text-white font-bold capitalize tracking-wide">
                   {article.category}
                 </span>
                 <span className="w-1 h-1 bg-white/50 rounded-full"></span>
                 <div className="flex items-center gap-1.5">
-                  <Calendar size={16} className="text-white/80" />
+                  <Calendar size={14} className="text-white/80 md:w-4 md:h-4" />
                   <span>
                     {article.updatedAt
                       ? new Date(article.updatedAt).toLocaleDateString(
@@ -52,27 +52,21 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({
                 </div>
               </div>
 
-              <h1
-                className="text-3xl md:text-5xl lg:text-[2.5vw] font-extrabold text-white leading-tight tracking-tight drop-shadow-lg whitespace-normal break-words"
-                style={{ width: "100%", maxWidth: "85%" }}
-              >
+              <h1 className="text-2xl md:text-5xl lg:text-[2.5vw] font-extrabold text-white leading-tight tracking-tight drop-shadow-lg whitespace-normal break-words max-w-[95%] md:max-w-[85%]">
                 {article.title}
               </h1>
               {article.excerpt && (
-                <p
-                  className="text-base text-[1.3vw] text-white/90 leading-relaxed whitespace-normal break-words"
-                  style={{ width: "100%", maxWidth: "80%" }}
-                >
+                <p className="text-2sm md:text-base lg:text-[1.3vw] text-white/90 leading-relaxed whitespace-normal break-words max-w-[95%] md:max-w-[80%]">
                   {article.excerpt}
                 </p>
               )}
 
-              <div className="pt-0 flex justify-end">
+              <div className="absolute bottom-10 right-5 md:bottom-16 md:right-15">
                 <Link
                   href={`/artigos/${article.slug}`}
-                  className="inline-block px-5 py-1 bg-white/80 text-black font-semibold rounded-full shadow hover:bg-indigo-400 transition-colors"
+                  className="inline-block px-4 py-1 md:px-5 md:py-1 bg-white/80 text-black text-xs md:text-sm font-semibold rounded-full shadow hover:bg-indigo-400 transition-colors"
                 >
-                  Ver matéria
+                  Ver Matéria
                 </Link>
               </div>
             </div>

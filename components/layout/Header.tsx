@@ -48,9 +48,9 @@ function Header() {
         showHeader ? "translate-y-0" : "-translate-y-full"
       }`}
     >
-      <div className="container-custom h-18 flex items-center justify-between">
+      <div className="container-custom h-16 md:h-18 flex items-center justify-between">
         <Link href="/">
-          <LogoBrand size={70} />
+          <LogoBrand />
         </Link>
         <div className="hidden md:flex items-center gap-4">
           <button className="p-2 text-slate-500 hover:text-indigo-600 transition-colors rounded-full hover:bg-slate-100">
@@ -103,28 +103,21 @@ function Header() {
         </div>
       </nav>
       {isMenuOpen && (
-        <div className="md:hidden absolute top-36 left-0 right-0 bg-white border-b border-slate-100 shadow-xl animate-in slide-in-from-top-5 duration-200">
-          <div className="container-custom py-4 flex flex-col gap-2">
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900 border-b border-slate-700 shadow-xl animate-in slide-in-from-top-5 duration-200">
+          <div className="container-custom py-4 flex flex-col gap-1">
             {navLinks.map((link) => (
-              <React.Fragment key={link.name}>
-                {navLinks.indexOf(link) === 0 && (
-                  <span className="text-slate-300 font-bold">|</span>
-                )}
-                {navLinks.indexOf(link) > 0 && (
-                  <span className="text-slate-300 font-bold">|</span>
-                )}
-                <Link
-                  href={link.href}
-                  className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap uppercase ${
-                    pathname === link.href
-                      ? "bg-red-50 text-[#ac3e3e]"
-                      : "text-slate-700 hover:bg-red-50 hover:text-[#ac3e3e]"
-                  }`}
-                  onClick={() => setIsMenuOpen(false)}
-                >
-                  {link.name}
-                </Link>
-              </React.Fragment>
+              <Link
+                key={link.name}
+                href={link.href}
+                className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap uppercase ${
+                  pathname === link.href
+                    ? "bg-[#ac3e3e] text-white"
+                    : "text-slate-200 hover:bg-slate-800 hover:text-white"
+                }`}
+                onClick={() => setIsMenuOpen(false)}
+              >
+                {link.name}
+              </Link>
             ))}
             <div className="h-px bg-slate-100 my-2"></div>
             <Link

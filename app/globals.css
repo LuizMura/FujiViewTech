@@ -48,6 +48,15 @@ body {
   padding: 0 1.5rem;
 }
 
+@media (max-width: 768px) {
+  .container-custom {
+    padding: 0;
+  }
+}
+header {
+  padding: 0 0.75rem;
+}
+
 .glass-nav {
   background: rgba(255, 255, 255, 0.8);
   backdrop-filter: blur(12px);

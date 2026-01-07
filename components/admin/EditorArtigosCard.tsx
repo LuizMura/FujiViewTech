@@ -45,11 +45,14 @@ function getPreviewArticle(form: any): Article {
 
 // Função de type guard para garantir que form é Article
 function isArticle(obj: any): obj is Article {
-  return obj && typeof obj === 'object' &&
-    typeof obj.title === 'string' &&
-    typeof obj.slug === 'string' &&
-    'excerpt' in obj &&
-    'content' in obj;
+  return (
+    obj &&
+    typeof obj === "object" &&
+    typeof obj.title === "string" &&
+    typeof obj.slug === "string" &&
+    "excerpt" in obj &&
+    "content" in obj
+  );
 }
 
 // Tipos genéricos para os cards
@@ -76,7 +79,9 @@ export default function EditorArtigosCard<T extends CardBase>({
   onSave,
   previewOnTop = false,
 }: EditorArtigosCardProps<T>) {
-  const [form, setForm] = useState<T>(initialData || ({ status: "published" } as unknown as T));
+  const [form, setForm] = useState<T>(
+    initialData || ({ status: "published" } as unknown as T)
+  );
 
   // Atualiza o formulário quando initialData muda (ex: ao selecionar artigo)
   useEffect(() => {
@@ -89,7 +94,12 @@ export default function EditorArtigosCard<T extends CardBase>({
     { name: "slug", label: "Slug (URL)", type: "text" },
     { name: "image", label: "Imagem (URL)", type: "text" },
     { name: "category", label: "Categoria", type: "text" },
-    { name: "status", label: "Status", type: "select", options: ["draft", "published", "archived"] },
+    {
+      name: "status",
+      label: "Status",
+      type: "select",
+      options: ["draft", "published", "archived"],
+    },
     { name: "publishedAt", label: "Data de Publicação", type: "date" },
     { name: "readTime", label: "Tempo de Leitura", type: "text" },
     { name: "authorId", label: "Autor", type: "text" },
@@ -125,8 +135,11 @@ export default function EditorArtigosCard<T extends CardBase>({
   });
   const allFields = Array.from(allFieldsMap.values());
 
-
-  async function handleChange(e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) {
+  async function handleChange(
+    e: React.ChangeEvent<
+      HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement
+    >
+  ) {
     const { name, value, type } = e.target;
     const files = (e.target as HTMLInputElement).files;
     if (type === "file" && files && files[0]) {
@@ -137,17 +150,17 @@ export default function EditorArtigosCard<T extends CardBase>({
 
       // Upload para o bucket 'artigos'
       const { data, error } = await supabase.storage
-        .from('artigos')
+        .from("artigos")
         .upload(filePath, file, { upsert: true });
 
       if (error) {
-        alert('Erro ao fazer upload da imagem: ' + error.message);
+        alert("Erro ao fazer upload da imagem: " + error.message);
         return;
       }
 
       // Gerar URL pública
       const { data: publicUrlData } = supabase.storage
-        .from('artigos')
+        .from("artigos")
         .getPublicUrl(filePath);
 
       setForm((prev) => ({
@@ -191,41 +204,73 @@ export default function EditorArtigosCard<T extends CardBase>({
           </div>
         )}
 
-        
         {cardType === "NoticiasCard" && (
           <div className="w-full">
             {form.image && (
-              <img src={form.image} alt="Imagem" className="w-full h-40 object-cover rounded-lg mb-3" />
+              <img
+                src={form.image}
+                alt="Imagem"
+                className="w-full h-40 object-cover rounded-lg mb-3"
+              />
             )}
-            <div className="font-bold text-lg text-[#e3e8f0] mb-1">{form.title || "Título da Notícia"}</div>
-            <div className="text-xs text-[#7f8fa6] mb-2">{form.category || "Categoria"}</div>
-            <div className="text-[#bfc7d5] mb-2">{form.source || "Fonte da notícia"}</div>
-            <div className="text-xs text-[#bfc7d5]">Publicado em: {form.publishedAt || "-"}</div>
+            <div className="font-bold text-lg text-[#e3e8f0] mb-1">
+              {form.title || "Título da Notícia"}
+            </div>
+            <div className="text-xs text-[#7f8fa6] mb-2">
+              {form.category || "Categoria"}
+            </div>
+            <div className="text-[#bfc7d5] mb-2">
+              {form.source || "Fonte da notícia"}
+            </div>
+            <div className="text-xs text-[#bfc7d5]">
+              Publicado em: {form.publishedAt || "-"}
+            </div>
           </div>
         )}
         {cardType === "EconomiaCard" && (
           <div className="w-full">
             {form.image && (
-              <img src={form.image} alt="Imagem" className="w-full h-40 object-cover rounded-lg mb-3" />
+              <img
+                src={form.image}
+                alt="Imagem"
+                className="w-full h-40 object-cover rounded-lg mb-3"
+              />
             )}
-            <div className="font-bold text-lg text-[#e3e8f0] mb-1">{form.title || "Título do Card"}</div>
-            <div className="text-xs text-[#7f8fa6] mb-2">{form.category || "Categoria"}</div>
-            <div className="text-[#bfc7d5] mb-2">Preço: R$ {form.price || 0}</div>
-            <div className="text-xs text-[#bfc7d5]">Variação: {form.variation || 0}%</div>
+            <div className="font-bold text-lg text-[#e3e8f0] mb-1">
+              {form.title || "Título do Card"}
+            </div>
+            <div className="text-xs text-[#7f8fa6] mb-2">
+              {form.category || "Categoria"}
+            </div>
+            <div className="text-[#bfc7d5] mb-2">
+              Preço: R$ {form.price || 0}
+            </div>
+            <div className="text-xs text-[#bfc7d5]">
+              Variação: {form.variation || 0}%
+            </div>
           </div>
         )}
         {cardType === "CategoriaCard" && (
           <div className="w-full">
-            <div className="font-bold text-lg text-[#e3e8f0] mb-1">{form.title || "Nome da Categoria"}</div>
-            <div className="text-[#bfc7d5] mb-2">{form.description || "Descrição da categoria..."}</div>
+            <div className="font-bold text-lg text-[#e3e8f0] mb-1">
+              {form.title || "Nome da Categoria"}
+            </div>
+            <div className="text-[#bfc7d5] mb-2">
+              {form.description || "Descrição da categoria..."}
+            </div>
           </div>
         )}
       </div>
       {/* Formulário à direita */}
-      <form onSubmit={handleSubmit} className="bg-[#23272f] p-4 rounded-xl shadow-lg w-full max-w-md">
+      <form
+        onSubmit={handleSubmit}
+        className="bg-[#23272f] p-4 rounded-xl shadow-lg w-full max-w-md"
+      >
         {allFields.map((field) => (
           <div className="mb-3" key={field.name}>
-            <label className="block text-[#bfc7d5] mb-1" htmlFor={field.name}>{field.label}</label>
+            <label className="block text-[#bfc7d5] mb-1" htmlFor={field.name}>
+              {field.label}
+            </label>
             {field.type === "select" ? (
               <select
                 id={field.name}
@@ -235,7 +280,9 @@ export default function EditorArtigosCard<T extends CardBase>({
                 className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
               >
                 {(field.options || []).map((opt: string) => (
-                  <option key={opt} value={opt} className="text-black">{opt}</option>
+                  <option key={opt} value={opt} className="text-black">
+                    {opt}
+                  </option>
                 ))}
               </select>
             ) : field.name === "image" ? (
@@ -249,7 +296,11 @@ export default function EditorArtigosCard<T extends CardBase>({
                   className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
                 />
                 {form.image && (
-                  <img src={form.image} alt="Preview" className="mt-2 max-h-40 rounded-lg border border-[#4b6b57]" />
+                  <img
+                    src={form.image}
+                    alt="Preview"
+                    className="mt-2 max-h-40 rounded-lg border border-[#4b6b57]"
+                  />
                 )}
               </>
             ) : field.type === "textarea" ? (
@@ -275,7 +326,12 @@ export default function EditorArtigosCard<T extends CardBase>({
 
         {/* Upload para pasta mdx do bucket artigos */}
         <div className="mb-3">
-          <label className="block text-[#bfc7d5] mb-1" htmlFor="mdx-image-upload">Upload imagem para MDX</label>
+          <label
+            className="block text-[#bfc7d5] mb-1"
+            htmlFor="mdx-image-upload"
+          >
+            Upload imagem para MDX
+          </label>
           <input
             id="mdx-image-upload"
             name="mdx-image-upload"
@@ -287,23 +343,30 @@ export default function EditorArtigosCard<T extends CardBase>({
               if (!file) return;
               const filePath = `mdx/${file.name}`;
               const { data, error } = await supabase.storage
-                .from('artigos')
+                .from("artigos")
                 .upload(filePath, file, { upsert: true });
               if (error) {
-                alert('Erro ao fazer upload da imagem MDX: ' + error.message);
+                alert("Erro ao fazer upload da imagem MDX: " + error.message);
                 return;
               }
               const { data: publicUrlData } = supabase.storage
-                .from('artigos')
+                .from("artigos")
                 .getPublicUrl(filePath);
-              setForm((prev) => ({ ...prev, mdxImage: publicUrlData?.publicUrl || "" }));
+              setForm((prev) => ({
+                ...prev,
+                mdxImage: publicUrlData?.publicUrl || "",
+              }));
             }}
             className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
           />
           {/* Preview da imagem MDX */}
           {form.mdxImage && (
             <div className="mt-2 flex items-center gap-2">
-              <img src={form.mdxImage} alt="Preview MDX" className="max-h-32 rounded border border-[#4b6b57]" />
+              <img
+                src={form.mdxImage}
+                alt="Preview MDX"
+                className="max-h-32 rounded border border-[#4b6b57]"
+              />
               <button
                 type="button"
                 className="px-2 py-1 bg-[#eebbc3] text-[#232946] rounded text-xs"
@@ -316,7 +379,9 @@ export default function EditorArtigosCard<T extends CardBase>({
         </div>
         {/* Editor markdown para conteúdo do artigo */}
         <div className="mb-3">
-          <label className="block text-[#bfc7d5] mb-1" htmlFor="content">Conteúdo do Artigo (Markdown)</label>
+          <label className="block text-[#bfc7d5] mb-1" htmlFor="content">
+            Conteúdo do Artigo (Markdown)
+          </label>
           <textarea
             id="content"
             name="content"
@@ -330,13 +395,20 @@ export default function EditorArtigosCard<T extends CardBase>({
         {/* Preview markdown */}
         {form.content && (
           <div className="mb-3">
-            <div className="block text-[#bfc7d5] mb-1 font-bold">Preview do Conteúdo</div>
+            <div className="block text-[#bfc7d5] mb-1 font-bold">
+              Preview do Conteúdo
+            </div>
             <div className="prose prose-invert bg-[#18181b] rounded-lg p-3 border border-[#4b6b57] max-h-64 overflow-auto">
               <ReactMarkdown>{form.content}</ReactMarkdown>
             </div>
           </div>
         )}
-        <button type="submit" className="w-full mt-4 py-2 bg-[#7f8fa6] text-[#23272f] rounded-lg font-bold hover:bg-[#596275] transition">Salvar</button>
+        <button
+          type="submit"
+          className="w-full mt-4 py-2 bg-[#7f8fa6] text-[#23272f] rounded-lg font-bold hover:bg-[#596275] transition"
+        >
+          Salvar
+        </button>
       </form>
     </div>
   );

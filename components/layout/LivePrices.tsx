@@ -144,85 +144,111 @@ export default function LivePrices() {
   };
 
   return (
-    <div className="flex items-center gap-3 md:gap-4 text-xs overflow-x-auto scrollbar-hide">
-      <span className="text-slate-300">|</span>
+    <div className="flex items-center gap-2 md:gap-4 text-xs md:text-xs overflow-x-auto scrollbar-hide px-2 md:px-0">
+      <span className="hidden md:inline text-slate-300">|</span>
 
       {/* BTC */}
-      <div className="flex items-center gap-1.5 whitespace-nowrap">
-        <span className="font-bold text-slate-900">BTC</span>
-        <span className={`font-semibold ${getChangeColor(changes.btc)}`}>
+      <div className="flex items-center gap-1 whitespace-nowrap">
+        <span className="font-bold text-slate-900 text-[12px] md:text-xs">
+          BTC
+        </span>
+        <span
+          className={`font-semibold text-[12px] md:text-xs ${getChangeColor(
+            changes.btc
+          )}`}
+        >
           {formatPrice(prices.btc, true)}
         </span>
-        {getChangeIcon(changes.btc)}
+        <span className="hidden md:inline">{getChangeIcon(changes.btc)}</span>
       </div>
 
-      <span className="text-slate-300">|</span>
+      <span className="hidden md:inline text-slate-300">|</span>
 
       {/* ETH */}
-      <div className="flex items-center gap-1.5 whitespace-nowrap">
-        <span className="font-bold text-slate-900">ETH</span>
-        <span className={`font-semibold ${getChangeColor(changes.eth)}`}>
+      <div className="flex items-center gap-1 whitespace-nowrap">
+        <span className="font-bold text-slate-900 text-[12px] md:text-xs">
+          ETH
+        </span>
+        <span
+          className={`font-semibold text-[12px] md:text-xs ${getChangeColor(
+            changes.eth
+          )}`}
+        >
           {formatPrice(prices.eth, true)}
         </span>
-        {getChangeIcon(changes.eth)}
+        <span className="hidden md:inline">{getChangeIcon(changes.eth)}</span>
       </div>
 
-      <span className="text-slate-300">|</span>
-
-      {/* BNB */}
-      <div className="flex items-center gap-1.5 whitespace-nowrap">
-        <span className="font-bold text-slate-900">BNB</span>
-        <span className={`font-semibold ${getChangeColor(changes.bnb)}`}>
+      <span className="hidden md:inline text-slate-300">|</span>
+      <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
+        <span className="font-bold text-slate-900 text-xs">BNB</span>
+        <span
+          className={`font-semibold text-xs ${getChangeColor(changes.bnb)}`}
+        >
           {formatPrice(prices.bnb, true)}
         </span>
-        {getChangeIcon(changes.bnb)}
+        <span className="hidden md:inline">{getChangeIcon(changes.bnb)}</span>
       </div>
 
-      <span className="text-slate-300">|</span>
+      <span className="hidden md:inline text-slate-300">|</span>
 
       {/* SOL */}
-      <div className="flex items-center gap-1.5 whitespace-nowrap">
-        <span className="font-bold text-slate-900">SOL</span>
-        <span className={`font-semibold ${getChangeColor(changes.sol)}`}>
+      <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
+        <span className="font-bold text-slate-900 text-xs">SOL</span>
+        <span
+          className={`font-semibold text-xs ${getChangeColor(changes.sol)}`}
+        >
           {formatPrice(prices.sol, true)}
         </span>
-        {getChangeIcon(changes.sol)}
+        <span className="hidden md:inline">{getChangeIcon(changes.sol)}</span>
       </div>
 
-      <span className="text-slate-300">|</span>
+      <span className="hidden md:inline text-slate-300">|</span>
 
       {/* USDT */}
-      <div className="flex items-center gap-1.5 whitespace-nowrap">
-        <span className="font-bold text-slate-900">USDT</span>
-        <span className={`font-semibold ${getChangeColor(changes.usdt)}`}>
+      <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
+        <span className="font-bold text-slate-900 text-xs">USDT</span>
+        <span
+          className={`font-semibold text-xs ${getChangeColor(changes.usdt)}`}
+        >
           {formatPrice(prices.usdt)}
         </span>
-        {getChangeIcon(changes.usdt)}
+        <span className="hidden md:inline">{getChangeIcon(changes.usdt)}</span>
       </div>
 
-      <span className="text-slate-300">|</span>
-
-      {/* USD */}
-      <div className="flex items-center gap-1.5 whitespace-nowrap">
-        <span className="font-bold text-slate-900">USD</span>
-        <span className={`font-semibold ${getChangeColor(changes.usd)}`}>
+      <span className="hidden md:inline text-slate-300">|</span>
+      <div className="flex items-center gap-1 whitespace-nowrap">
+        <span className="font-bold text-slate-900 text-[12px] md:text-xs">
+          USD
+        </span>
+        <span
+          className={`font-semibold text-[12px] md:text-xs ${getChangeColor(
+            changes.usd
+          )}`}
+        >
           {formatPrice(prices.usd)}
         </span>
         {getChangeIcon(changes.usd)}
       </div>
 
-      <span className="text-slate-300">|</span>
+      <span className="hidden md:inline text-slate-300">|</span>
 
       {/* EUR */}
-      <div className="flex items-center gap-1.5 whitespace-nowrap">
-        <span className="font-bold text-slate-900">EUR</span>
-        <span className={`font-semibold ${getChangeColor(changes.eur)}`}>
+      <div className="flex items-center gap-1 whitespace-nowrap">
+        <span className="font-bold text-slate-900 text-[12px] md:text-xs">
+          EUR
+        </span>
+        <span
+          className={`font-semibold text-[12px] md:text-xs ${getChangeColor(
+            changes.eur
+          )}`}
+        >
           {formatPrice(prices.eur)}
         </span>
         {getChangeIcon(changes.eur)}
       </div>
 
-      <span className="text-slate-300">|</span>
+      <span className="hidden md:inline text-slate-300">|</span>
 
       {/* More Prices Link */}
       <button
@@ -234,7 +260,7 @@ export default function LivePrices() {
             "_blank"
           );
         }}
-        className="flex items-center gap-1 text-slate-900 hover:text-indigo-600 font-bold whitespace-nowrap transition-colors underline decoration-2 underline-offset-2 cursor-pointer bg-transparent border-0 p-0"
+        className="hidden md:flex items-center gap-1 text-slate-900 hover:text-indigo-600 font-bold whitespace-nowrap transition-colors underline decoration-2 underline-offset-2 cursor-pointer bg-transparent border-0 p-0"
       >
         Ganhe USDC Grátis na Binance →
       </button>
