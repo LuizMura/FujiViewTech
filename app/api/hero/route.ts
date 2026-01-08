@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 interface HeroData {
   heroContent: {
@@ -33,7 +33,7 @@ interface HeroData {
 // GET: Fetch hero content from Supabase
 export async function GET() {
   try {
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
 
     const { data, error } = await supabase
       .from("hero_content")
@@ -76,7 +76,8 @@ export async function GET() {
         imageAlt: getVal("imageAlt"),
       },
       topCard: data.topCard || data.topcard || data.top_card || null,
-      bottomCard: data.bottomCard || data.bottomcard || data.bottom_card || null,
+      bottomCard:
+        data.bottomCard || data.bottomcard || data.bottom_card || null,
     });
   } catch (error) {
     console.error("Erro ao carregar dados do hero:", error);
@@ -91,7 +92,7 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body: HeroData = await request.json();
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
 
     // Upsert using lowercase column names (Postgres default for unquoted identifiers)
     const { data, error } = await supabase

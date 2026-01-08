@@ -17,7 +17,7 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({
     <>
       {/* Featured Image with Title Overlay */}
       <div className="w-full">
-        <div className="relative w-full aspect-video h-[280px] md:h-[450px] rounded-none md:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
+        <div className="relative w-full aspect-video h-[270px] md:h-[450px] rounded-none md:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
           <Image
             src={article.image || "/images/placeholder.jpg"}
             alt={article.title ? article.title : "Imagem do artigo"}
@@ -52,7 +52,7 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({
                 </div>
               </div>
 
-              <h1 className="text-2xl md:text-5xl lg:text-[2.5vw] font-extrabold text-white leading-tight tracking-tight drop-shadow-lg whitespace-normal break-words max-w-[95%] md:max-w-[85%]">
+              <h1 className="leading-tight text-2xl md:text-5xl lg:text-[2.5vw] font-extrabold text-white leading-tight tracking-tight drop-shadow-lg whitespace-normal break-words max-w-[95%] md:max-w-[85%]">
                 {article.title}
               </h1>
               {article.excerpt && (

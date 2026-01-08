@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const TABLE = "home_config";
 const SINGLE_ID = 1;
@@ -11,7 +11,7 @@ type HomeConfig = {
 
 export async function GET() {
   try {
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from(TABLE)
       .select("article_slugs, afiliado_ids")
@@ -48,7 +48,7 @@ export async function POST(request: NextRequest) {
       ? body.afiliadoIds
       : [];
 
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
     const { error, data } = await supabase
       .from(TABLE)
       .upsert(

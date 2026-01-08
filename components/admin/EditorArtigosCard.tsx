@@ -1,6 +1,40 @@
 "use client";
-import { useState, useEffect } from "react";
-import ReactMarkdown from "react-markdown";
+import { MDXRemote } from "next-mdx-remote";
+import { serialize } from "next-mdx-remote/serialize";
+import type { MDXRemoteSerializeResult } from "next-mdx-remote";
+import { components as mdxComponents } from "@/components/article/MDXComponents";
+import React, { useState, useEffect } from "react";
+class MDXErrorBoundary extends React.Component<
+  { children: React.ReactNode },
+  { hasError: boolean; errorMessage?: string }
+> {
+  constructor(props: any) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  static getDerivedStateFromError(error: Error) {
+    return { hasError: true, errorMessage: error.message };
+  }
+
+  componentDidCatch(error: Error) {
+    console.error("Erro ao renderizar MDX no preview:", error);
+  }
+
+  render() {
+    if (this.state.hasError) {
+      return (
+        <div className="rounded-lg border border-red-200 bg-red-50 text-red-800 p-4 text-sm">
+          <p className="font-bold">Erro ao renderizar conteúdo MDX:</p>
+          <p className="mt-2 text-xs text-red-700">{this.state.errorMessage}</p>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
+
+import matter from "gray-matter";
 import ArtigoCard from "@/app/artigos/ArtigoCard";
 import type { Article } from "@/lib/types/article";
 import { createClient } from "@/lib/supabase/client";
@@ -82,6 +116,28 @@ export default function EditorArtigosCard<T extends CardBase>({
   const [form, setForm] = useState<T>(
     initialData || ({ status: "published" } as unknown as T)
   );
+  const [mdxSource, setMdxSource] = useState<MDXRemoteSerializeResult | null>(
+    null
+  );
+  const [mdxError, setMdxError] = useState<string | null>(null);
+  // Serialize MDX when form.content changes
+  useEffect(() => {
+    async function serializeMdx() {
+      if (form.content) {
+        try {
+          const { content } = matter(form.content);
+          const mdx = await serialize(content);
+          setMdxSource(mdx);
+        } catch (err) {
+          console.error("Error serializing MDX:", err);
+          setMdxSource(null);
+        }
+      } else {
+        setMdxSource(null);
+      }
+    }
+    serializeMdx();
+  }, [form.content]);
 
   // Atualiza o formulário quando initialData muda (ex: ao selecionar artigo)
   useEffect(() => {
@@ -197,13 +253,27 @@ export default function EditorArtigosCard<T extends CardBase>({
           <div className="p-6">
             <ArtigoCard post={getPreviewArticle(form)} showAuthor={true} />
             {form.content && (
-              <div className="prose prose-lg max-w-none mt-8 px-2 text-black">
-                <ReactMarkdown>{form.content}</ReactMarkdown>
+              <div className="max-w-none mt-8 px-2 bg-white rounded-b-3xl py-8 [&_*]:text-black [&_h1]:text-4xl [&_h1]:font-extrabold [&_h1]:mb-6 [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:text-lg [&_p]:leading-8 [&_p]:mb-6 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_li]:text-black [&_a]:text-indigo-600 [&_a]:font-semibold">
+                {mdxError && (
+                  <div className="rounded-lg border border-red-200 bg-red-50 text-red-800 p-4 text-sm">
+                    <p className="font-bold">Erro ao compilar MDX:</p>
+                    <p className="mt-2 text-xs text-red-700">{mdxError}</p>
+                  </div>
+                )}
+                {!mdxError && mdxSource && (
+                  <MDXErrorBoundary>
+                    <MDXRemote {...mdxSource} components={mdxComponents} />
+                  </MDXErrorBoundary>
+                )}
+                {!mdxError && !mdxSource && (
+                  <div className="text-slate-400">
+                    Digite conteúdo para preview...
+                  </div>
+                )}
               </div>
             )}
           </div>
         )}
-
         {cardType === "NoticiasCard" && (
           <div className="w-full">
             {form.image && (
@@ -264,7 +334,7 @@ export default function EditorArtigosCard<T extends CardBase>({
       {/* Formulário à direita */}
       <form
         onSubmit={handleSubmit}
-        className="bg-[#23272f] p-4 rounded-xl shadow-lg w-full max-w-md"
+        className="bg-[#23272f] p-4 rounded-xl shadow-lg w-full max-w-2xl mx-auto"
       >
         {allFields.map((field) => (
           <div className="mb-3" key={field.name}>
@@ -323,7 +393,6 @@ export default function EditorArtigosCard<T extends CardBase>({
             )}
           </div>
         ))}
-
         {/* Upload para pasta mdx do bucket artigos */}
         <div className="mb-3">
           <label
@@ -392,23 +461,22 @@ export default function EditorArtigosCard<T extends CardBase>({
             placeholder={"Digite o conteúdo do artigo em Markdown..."}
           />
         </div>
-        {/* Preview markdown */}
-        {form.content && (
-          <div className="mb-3">
-            <div className="block text-[#bfc7d5] mb-1 font-bold">
-              Preview do Conteúdo
-            </div>
-            <div className="prose prose-invert bg-[#18181b] rounded-lg p-3 border border-[#4b6b57] max-h-64 overflow-auto">
-              <ReactMarkdown>{form.content}</ReactMarkdown>
-            </div>
-          </div>
-        )}
         <button
           type="submit"
           className="w-full mt-4 py-2 bg-[#7f8fa6] text-[#23272f] rounded-lg font-bold hover:bg-[#596275] transition"
         >
           Salvar
         </button>
+        {form.slug && (
+          <a
+            href={`/artigos/${form.slug}`}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="w-full mt-2 py-2 bg-[#eebbc3] text-[#232946] rounded-lg font-bold hover:bg-[#d4a5b3] transition text-center block"
+          >
+            Ver Artigo
+          </a>
+        )}{" "}
       </form>
     </div>
   );

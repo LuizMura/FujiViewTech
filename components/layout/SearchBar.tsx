@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import Link from "next/link";
-import { createSupabaseClient } from "@/lib/supabase";
+import { createClient } from "@/lib/supabase/client";
 
 export default function SearchBar({
   onResultClick,
@@ -15,7 +15,7 @@ export default function SearchBar({
   const [searching, setSearching] = useState(false);
 
   useEffect(() => {
-    const supabase = createSupabaseClient();
+    const supabase = createClient();
     const fetchArticles = async () => {
       if (search.length > 1) {
         setSearching(true);

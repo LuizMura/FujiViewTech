@@ -2,6 +2,7 @@
 
 import React from "react";
 import AfiliadosCard from "@/components/home/AfiliadosCard";
+import ProductRow from "@/components/article/ProductRow";
 
 type Afiliado = {
   nome: string;
@@ -144,28 +145,33 @@ export const components = {
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => {
     // Evita <p> dentro de <p> filtrando children que já são elementos block
     const { children, ...rest } = props;
-    if (
-      Array.isArray(children) &&
-      children.some(
-        (child) =>
-          React.isValidElement(child) &&
-          [
-            "h1",
-            "h2",
-            "h3",
-            "h4",
-            "h5",
-            "h6",
-            "ul",
-            "ol",
-            "blockquote",
-            "div",
-            "article",
-          ].includes(child.type as string)
-      )
-    ) {
+
+    // Verifica se há elementos block dentro do parágrafo
+    const hasBlockElement = React.Children.toArray(children).some((child) => {
+      if (!React.isValidElement(child)) return false;
+      const blockElements = [
+        "h1",
+        "h2",
+        "h3",
+        "h4",
+        "h5",
+        "h6",
+        "ul",
+        "ol",
+        "blockquote",
+        "div",
+        "article",
+        "p",
+      ];
+      return blockElements.includes(
+        typeof child.type === "string" ? child.type : ""
+      );
+    });
+
+    if (hasBlockElement) {
       return <div {...rest}>{children}</div>;
     }
+
     return <p {...rest}>{children}</p>;
   },
   Affiliate,
@@ -174,4 +180,5 @@ export const components = {
   SpecsTable,
   AfiliadosCard: AfiliadosCardBlock,
   AfiliadosCardBlock,
+  ProductRow,
 };

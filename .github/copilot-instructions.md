@@ -1,9 +1,10 @@
 # FujiViewTech – AI Coding Guide
+
 - Stack: Next.js App Router + React 19 + Tailwind 4; TypeScript throughout.
 - Routing: pages live under app/, root layout wraps everything with AuthProvider (Supabase auth) in [app/layout.tsx](app/layout.tsx).
 - Home data: homepage currently lists filesystem MDX via getAllPosts() in [lib/posts.ts](lib/posts.ts) and renders HeroWrapper; content dir is /content (may be empty in some environments).
 - Dynamic articles: reader page [app/artigos/[slug]/page.tsx](app/artigos/%5Bslug%5D/page.tsx) fetches a single article from Supabase with getArticleBySlug(), serializes MDX via next-mdx-remote, and renders MDXComponents.
-- Supabase clients: server-side admin via createSupabaseAdmin() using SUPABASE_SERVICE_ROLE_KEY; browser client via createSupabaseClient()/createBrowserClient with NEXT_PUBLIC_SUPABASE_URL/NEXT_PUBLIC_SUPABASE_ANON_KEY. Keep service role strictly server-only.
+- Supabase clients: 3 clientes separados em lib/supabase/ → createClient() (browser/client components, anon key), createServerSupabaseClient() (server components, anon key + cookies), createAdminClient() (API routes, service_role key). Keep service role strictly server-only (app/api/\*\*). Never expose admin client to browser.
 - Articles API: [app/api/content/route.ts](app/api/content/route.ts) lists/upserts/deletes rows in the articles table (status filtered to published on GET). [app/api/content/[slug]/route.ts](app/api/content/%5Bslug%5D/route.ts) returns a single article with frontmatter + content.
 - Hero CMS: [app/api/hero/route.ts](app/api/hero/route.ts) stores a single hero record (id=1) in the hero_content table; handles casing differences when reading; upserts all fields plus JSONB cards.
 - Uploads: [app/api/upload/route.ts](app/api/upload/route.ts) streams image files to the Supabase storage bucket uploads with validation (image mime, <5MB) and returns a public URL.

@@ -1,12 +1,12 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createAdminClient } from "@/lib/supabase/admin";
 import fs from "fs";
 import path from "path";
 import matter from "gray-matter";
 
 export async function GET() {
   try {
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
     const results = [];
 
     // Categories to migrate
@@ -41,15 +41,16 @@ export async function GET() {
             image: data.image || "",
             author: data.author || "FujiViewTech",
             read_time: data.readTime || "5 min",
-            published_date:
-              data.date || new Date().toISOString().split("T")[0],
+            published_date: data.date || new Date().toISOString().split("T")[0],
             status: "published",
           },
           { onConflict: "slug,category" }
         );
 
         if (error) {
-          results.push(`❌ Failed to migrate ${category}/${slug}: ${error.message}`);
+          results.push(
+            `❌ Failed to migrate ${category}/${slug}: ${error.message}`
+          );
         } else {
           results.push(`✅ Migrated ${category}/${slug}`);
         }

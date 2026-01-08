@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // GET: Get a specific article content
 export async function GET(
@@ -11,7 +11,7 @@ export async function GET(
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category") || "reviews";
 
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
 
     const { data: article, error } = await supabase
       .from("articles")

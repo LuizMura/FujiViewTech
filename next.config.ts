@@ -1,8 +1,11 @@
 import type { NextConfig } from "next";
 
+const isProd = process.env.NODE_ENV === "production";
+
 const nextConfig: NextConfig = {
   /* config options here */
-  reactCompiler: true,
+  // React Compiler can impact dev sourcemaps; enable in production only
+  reactCompiler: isProd,
   images: {
     remotePatterns: [
       {

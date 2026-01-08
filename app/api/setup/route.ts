@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function GET() {
   try {
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
     const results = [];
 
     // 1. Create 'uploads' bucket
@@ -11,7 +11,12 @@ export async function GET() {
       await supabase.storage.createBucket("uploads", {
         public: true,
         fileSizeLimit: 5242880, // 5MB
-        allowedMimeTypes: ["image/png", "image/jpeg", "image/gif", "image/webp"],
+        allowedMimeTypes: [
+          "image/png",
+          "image/jpeg",
+          "image/gif",
+          "image/webp",
+        ],
       });
 
     if (bucketError) {

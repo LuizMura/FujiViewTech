@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Article } from "@/lib/types/article";
@@ -15,6 +15,8 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
 }) => {
   const [currentIndex, setCurrentIndex] = useState(0);
   const itemsPerPage = 5;
+  const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
+  const containerRef = useRef<HTMLDivElement>(null);
 
   // Ordena por createdAt descending, ignora o 1º (no carrossel) e pega aleatórios dos penúltimos
   const sorted = artigos
@@ -33,16 +35,14 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
 
   const totalPages = Math.ceil(shuffled.length / itemsPerPage);
   const currentPage = Math.floor(currentIndex / itemsPerPage);
-  const visibleItems = shuffled.slice(
-    currentPage * itemsPerPage,
-    currentPage * itemsPerPage + itemsPerPage
-  );
+  const visibleItems = shuffled;
 
   const goToPrev = () => {
     setCurrentIndex((prev) => {
       const newIndex = prev - itemsPerPage;
       return newIndex < 0 ? shuffled.length - itemsPerPage : newIndex;
     });
+    scrollToIndex();
   };
 
   const goToNext = () => {
@@ -50,28 +50,46 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
       const newIndex = prev + itemsPerPage;
       return newIndex >= shuffled.length ? 0 : newIndex;
     });
+    scrollToIndex();
+  };
+
+  const scrollToIndex = (index?: number) => {
+    if (!containerRef.current) return;
+    const targetIndex = index !== undefined ? index : currentIndex;
+    const cardWidth =
+      window.innerWidth < 768 ? 180 : window.innerWidth < 1024 ? 250 : 220;
+    const gap = window.innerWidth < 768 ? 12 : 24;
+    const scrollPosition = targetIndex * (cardWidth + gap);
+
+    containerRef.current.scrollTo({
+      left: scrollPosition,
+      behavior: "smooth",
+    });
   };
 
   return (
-    <div className="w-full">
+    <div className="px-2 md:px-0 w-full">
       <div className="relative">
         {/* Linha divisória */}
-        <div className="border-t border-slate-300 mb-6"></div>
+        <div className="border-t border-slate-300 mb-4 md:mb-6"></div>
 
         {/* Controles de navegação */}
-        {shuffled.length > itemsPerPage && (
-          <div className="relative flex items-center mb-8">
-            <h2 className="text-2xl font-bold text-slate-100">
-              ÚLTIMAS POSTAGENS
-            </h2>
+        <div className="relative flex items-center mb-2 md:mb-8">
+          <h2 className="text-lg md:text-2xl font-bold text-slate-100">
+            ÚLTIMAS POSTAGENS
+          </h2>
 
-            <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-4">
+          {!isMobile && shuffled.length > itemsPerPage && (
+            <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-4">
               <button
                 onClick={goToPrev}
-                className="p-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors disabled:opacity-50"
+                className="p-1.5 md:p-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors disabled:opacity-50"
                 aria-label="Anterior"
               >
-                <ChevronLeft size={24} className="text-slate-900" />
+                <ChevronLeft
+                  size={20}
+                  className="md:w-6 md:h-6 text-slate-900"
+                />
               </button>
 
               {/* Indicadores de página */}
@@ -79,7 +97,10 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
                 {Array.from({ length: totalPages }).map((_, idx) => (
                   <button
                     key={idx}
-                    onClick={() => setCurrentIndex(idx * itemsPerPage)}
+                    onClick={() => {
+                      setCurrentIndex(idx * itemsPerPage);
+                      scrollToIndex(idx * itemsPerPage);
+                    }}
                     className={`w-2 h-2 rounded-full transition-all ${
                       idx === currentPage
                         ? "bg-slate-900 w-6"
@@ -92,46 +113,69 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
 
               <button
                 onClick={goToNext}
-                className="p-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors disabled:opacity-50"
+                className="p-1.5 md:p-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors disabled:opacity-50"
                 aria-label="Próximo"
               >
-                <ChevronRight size={24} className="text-slate-900" />
+                <ChevronRight
+                  size={20}
+                  className="md:w-6 md:h-6 text-slate-900"
+                />
               </button>
             </div>
-          </div>
-        )}
+          )}
+        </div>
 
         {/* Grid de cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 mb-8">
-          {visibleItems.map((artigo) => (
-            <Link key={artigo.id} href={`/${artigo.category}/${artigo.slug}`}>
-              <div className="relative flex flex-col items-center bg-white rounded-xl shadow border overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
-                {artigo.image ? (
-                  <div className="w-full h-48 relative">
-                    <Image
-                      src={artigo.image}
-                      alt={artigo.title}
-                      fill
-                      style={{ objectFit: "cover" }}
-                      sizes="250px"
-                    />
-                  </div>
-                ) : (
-                  <div className="w-full h-48 bg-slate-200" />
-                )}
-                <div className="flex-1 flex flex-col justify-center px-3 py-3 w-full">
-                  <h3 className="text-sm font-bold text-slate-900 line-clamp-3 text-center">
-                    {artigo.title}
-                  </h3>
-                  {artigo.excerpt && (
-                    <p className="text-xs text-slate-600 line-clamp-2 text-center mt-1">
-                      {artigo.excerpt}
-                    </p>
-                  )}
-                </div>
+        <div className="relative">
+          {/* Setas de navegação */}
+          {shuffled.length > 0 && (
+            <>
+              <div className="absolute left-[-12px] md:left-0 top-1/2 -translate-y-1/2 z-10 pointer-events-none p-1.5 md:p-2 rounded-full bg-white/30 backdrop-blur-sm">
+                <ChevronLeft size={24} className="text-white" />
               </div>
-            </Link>
-          ))}
+              <div className="absolute right-[-12px] md:right-0 top-1/2 -translate-y-1/2 z-10 pointer-events-none p-1.5 md:p-2 rounded-full bg-white/30 backdrop-blur-sm">
+                <ChevronRight size={24} className="text-white" />
+              </div>
+            </>
+          )}
+          <div
+            ref={containerRef}
+            className="flex overflow-x-auto gap-3 md:gap-6 mb-8 snap-x snap-mandatory scrollbar-hide w-full"
+          >
+            {visibleItems.map((artigo) => (
+              <Link
+                key={artigo.id}
+                href={`/artigos/${artigo.slug}`}
+                className="flex-shrink-0 w-[180px] md:w-[250px] lg:w-[220px] snap-start"
+              >
+                <div className="relative flex flex-col items-center bg-white rounded-xl shadow border overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
+                  {artigo.image ? (
+                    <div className="w-full h-40 md:h-48 relative">
+                      <Image
+                        src={artigo.image}
+                        alt={artigo.title}
+                        fill
+                        style={{ objectFit: "cover" }}
+                        sizes="250px"
+                      />
+                    </div>
+                  ) : (
+                    <div className="w-full h-40 md:h-48 bg-slate-200" />
+                  )}
+                  <div className="flex-1 flex flex-col justify-center px-2 py-2 md:px-3 md:py-3 w-full">
+                    <h3 className="text-xs md:text-sm font-bold text-slate-900 line-clamp-3 text-center">
+                      {artigo.title}
+                    </h3>
+                    {artigo.excerpt && (
+                      <p className="text-[10px] md:text-xs text-slate-600 line-clamp-2 text-center mt-1">
+                        {artigo.excerpt}
+                      </p>
+                    )}
+                  </div>
+                </div>
+              </Link>
+            ))}
+          </div>
         </div>
       </div>
     </div>

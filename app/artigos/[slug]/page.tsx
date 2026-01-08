@@ -9,6 +9,7 @@ import { MDXRemote } from "next-mdx-remote";
 import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import { components as mdxComponents } from "@/components/article/MDXComponents";
+import matter from "gray-matter";
 
 class MDXErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -31,8 +32,12 @@ class MDXErrorBoundary extends React.Component<
     if (this.state.hasError) {
       return (
         <div className="rounded-lg border border-amber-200 bg-amber-50 text-amber-800 p-4 text-sm">
-          Não foi possível renderizar o conteúdo deste artigo. Verifique se o MDX contém variáveis não definidas (por exemplo, uso de "index" sem declaração).
-          <div className="mt-2 text-xs text-amber-700">{this.state.errorMessage}</div>
+          Não foi possível renderizar o conteúdo deste artigo. Verifique se o
+          MDX contém variáveis não definidas (por exemplo, uso de "index" sem
+          declaração).
+          <div className="mt-2 text-xs text-amber-700">
+            {this.state.errorMessage}
+          </div>
         </div>
       );
     }
@@ -60,7 +65,9 @@ export default function PostPage() {
         const data = await getArticleBySlug(slug);
         setPost(data);
         if (data?.content) {
-          const mdxSource = await serialize(data.content);
+          // Remover frontmatter do conteúdo antes de serializar
+          const { content } = matter(data.content);
+          const mdxSource = await serialize(content);
           setMdx(mdxSource);
         } else {
           setMdx(null);
@@ -101,25 +108,9 @@ export default function PostPage() {
   }
 
   return (
-    <article className="pb-20 rounded-3xl shadow-xl">
+    <article className="-mt-13 md:mt-0 pb-20 rounded-0 md:rounded-3xl shadow-xl">
       <div className="container-custom">
-        <ArtigoCard post={post} />
-      </div>
-      {/* Content */}
-      <div className="container-custom max-w-3xl mx-auto">
-        <div
-          className="prose prose-lg prose-slate max-w-none 
-          prose-headings:font-bold prose-headings:text-slate-900 prose-headings:tracking-tight
-          prose-h1:text-4xl prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6
-          prose-h3:text-2xl prose-h3:text-indigo-900
-          prose-p:text-slate-600 prose-p:leading-8 prose-p:mb-6
-          prose-a:text-indigo-600 prose-a:font-semibold prose-a:no-underline hover:prose-a:underline hover:prose-a:text-indigo-700
-          prose-strong:text-slate-900 prose-strong:font-bold
-          prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2
-          prose-li:text-slate-600 prose-li:marker:text-indigo-400
-          prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-10
-          prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-slate-700"
-        >
+        <ArtigoCard post={post}>
           {mdx ? (
             <MDXErrorBoundary>
               <MDXRemote {...mdx} components={mdxComponents} />
@@ -127,10 +118,10 @@ export default function PostPage() {
           ) : (
             <div>{post.content}</div>
           )}
-        </div>
+        </ArtigoCard>
 
         {/* Footer / Share / Tags placeholder */}
-        <div className="mt-16 pt-8 border-t border-slate-200">
+        <div className="mt-16 pt-8 border-t border-slate-200 px-4 md:px-8">
           <p className="text-slate-200 italic text-center">
             Gostou deste artigo? Compartilhe com seus amigos!
           </p>

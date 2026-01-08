@@ -170,7 +170,8 @@ export function articleFromDB(db: ArticleDB): Article {
 export function articleToDB(
   article: CreateArticleInput | UpdateArticleInput
 ): Partial<ArticleDB> {
-  const publishedDate = (article as any).published_date || (article as any).publishedAt || null;
+  const publishedDate =
+    (article as any).published_date || (article as any).publishedAt || null;
 
   return {
     ...("id" in article && { id: article.id }),

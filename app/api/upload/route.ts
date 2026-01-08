@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 export async function POST(request: NextRequest) {
   try {
@@ -35,7 +35,7 @@ export async function POST(request: NextRequest) {
     const filename = `image-${timestamp}.${ext}`;
 
     // Upload to Supabase Storage
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
     const { data, error } = await supabase.storage
       .from("uploads")
       .upload(filename, buffer, {

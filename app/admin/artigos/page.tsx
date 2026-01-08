@@ -6,7 +6,6 @@ import ArticleList from "@/components/admin/ArticleList";
 import { useRef } from "react";
 import EditorArtigosCard from "@/components/admin/EditorArtigosCard";
 
-
 export default function AdminArtigosPage() {
   const [selectedArticle, setSelectedArticle] = useState<any>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
@@ -27,11 +26,14 @@ export default function AdminArtigosPage() {
               selectedId={selectedArticle?.id || null}
               onNew={() => setSelectedArticle(null)}
               onDelete={async () => {
-                if (!window.confirm('Tem certeza que deseja excluir este artigo?')) return;
+                if (
+                  !window.confirm("Tem certeza que deseja excluir este artigo?")
+                )
+                  return;
                 setLoadingAction(true);
                 setFeedback(null);
                 setTimeout(() => {
-                  setFeedback('Artigo excluído (simulação).');
+                  setFeedback("Artigo excluído (simulação).");
                   setSelectedArticle(null);
                   setLoadingAction(false);
                   articleListRef.current?.reload();
@@ -48,7 +50,9 @@ export default function AdminArtigosPage() {
                 setLoadingAction(true);
                 setFeedback(null);
                 try {
-                  const { createArticle, updateArticle } = await import("@/lib/hooks/useArticles");
+                  const { createArticle, updateArticle } = await import(
+                    "@/lib/hooks/useArticles"
+                  );
                   let result;
                   if (data.id) {
                     // Se a imagem foi alterada, garanta que ela seja usada
@@ -79,7 +83,9 @@ export default function AdminArtigosPage() {
               previewOnTop={true}
             />
             {feedback && (
-              <div className="text-center text-green-400 font-bold mt-2">{feedback}</div>
+              <div className="text-center text-green-400 font-bold mt-2">
+                {feedback}
+              </div>
             )}
           </div>
         </div>

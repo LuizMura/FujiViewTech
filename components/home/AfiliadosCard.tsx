@@ -102,29 +102,33 @@ const AfiliadosCard: React.FC<AfiliadosCardProps> = ({
           </>
         )}
       </div>
-      <h3 className="text-base md:text-lg font-bold text-slate-900 text-center mb-1 line-clamp-2">
-        {titulo}
-      </h3>
-      <p className="text-xs md:text-sm text-slate-600 text-center mb-2 line-clamp-2">
-        {descricao}
-      </p>
-      <div className="text-sm font-semibold text-slate-700 text-center mb-2">
-        {loja}
+      <div className="flex-1 w-full flex flex-col items-center">
+        <h3 className="text-base md:text-lg font-bold text-slate-900 text-center mb-1 line-clamp-2 leading-tight">
+          {titulo}
+        </h3>
+        <p className="text-xs md:text-sm text-slate-600 text-center mb-2 line-clamp-2">
+          {descricao}
+        </p>
       </div>
-      <div className="text-lg font-bold text-green-600 mb-3 flex-grow">
-        {preco}
+      <div className="w-full flex flex-col items-center mb-1 md:mb-3">
+        <div className="text-sm font-semibold text-slate-700 text-center">
+          {loja}
+        </div>
+        <div className="text-base md:text-lg font-bold text-green-600">
+          {preco}
+        </div>
       </div>
       {afiliados[0]?.url ? (
         <a
           href={afiliados[0].url}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full h-10 rounded-lg bg-[#ac3e3e] text-white text-sm font-semibold transition-transform duration-200 hover:-translate-y-0.5 flex items-center justify-center mt-auto"
+          className="w-full h-7 md:h-10 rounded-lg bg-[#ac3e3e] text-white text-sm font-semibold transition-transform duration-200 hover:-translate-y-0.5 flex items-center justify-center"
         >
           COMPRAR
         </a>
       ) : (
-        <div className="w-full h-10 rounded-lg bg-gray-400 text-white text-sm font-semibold flex items-center justify-center mt-auto cursor-not-allowed">
+        <div className="w-full h-7 md:h-10 rounded-lg bg-gray-400 text-white text-sm font-semibold flex items-center justify-center cursor-not-allowed">
           Indisponível
         </div>
       )}

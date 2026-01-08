@@ -1,11 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 const TABLE_NAME = "afiliados";
 
 export async function GET() {
   try {
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .select("*")
@@ -96,7 +96,7 @@ export async function POST(request: NextRequest) {
     const receitaParsed =
       rest.receita !== undefined ? parsePtBRMoney(rest.receita) : 0;
 
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .insert([
@@ -188,7 +188,7 @@ export async function PUT(request: NextRequest) {
       updateRest.receita = parsed ?? 0;
     }
 
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
     const { data, error } = await supabase
       .from(TABLE_NAME)
       .update({
@@ -222,7 +222,7 @@ export async function DELETE(request: NextRequest) {
       return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
     }
 
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
     const { error } = await supabase.from(TABLE_NAME).delete().eq("id", id);
 
     if (error) {

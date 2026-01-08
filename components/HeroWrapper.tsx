@@ -1,7 +1,7 @@
 "use client";
 
 import dynamic from "next/dynamic";
-import { HeroProvider } from "@/context/HeroContext";
+import { HeroProvider } from "@/app/context/HeroContext";
 
 const Hero = dynamic(() => import("./layout/Hero"), { ssr: false });
 

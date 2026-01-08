@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseAdmin } from "@/lib/supabase";
+import { createAdminClient } from "@/lib/supabase/admin";
 
 // GET: List all articles from a category
 export async function GET(request: NextRequest) {
@@ -7,7 +7,7 @@ export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category") || "reviews";
 
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
 
     const { data: articles, error } = await supabase
       .from("articles")
@@ -65,7 +65,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
 
     // Upsert article
     const { data, error } = await supabase
@@ -80,7 +80,8 @@ export async function POST(request: NextRequest) {
           image: frontmatter.image || "",
           author: frontmatter.author || "FujiViewTech",
           read_time: frontmatter.readTime || "5 min",
-          published_date: frontmatter.date || new Date().toISOString().split("T")[0],
+          published_date:
+            frontmatter.date || new Date().toISOString().split("T")[0],
           status: "published",
         },
         { onConflict: "slug,category" }
@@ -124,7 +125,7 @@ export async function DELETE(request: NextRequest) {
       );
     }
 
-    const supabase = createSupabaseAdmin();
+    const supabase = createAdminClient();
 
     const { error } = await supabase
       .from("articles")
@@ -134,10 +135,7 @@ export async function DELETE(request: NextRequest) {
 
     if (error) {
       console.error("Supabase delete error:", error);
-      return NextResponse.json(
-        { error: error.message },
-        { status: 500 }
-      );
+      return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
     return NextResponse.json({

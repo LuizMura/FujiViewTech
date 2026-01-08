@@ -1,6 +1,6 @@
 "use client";
 
-import { HeroProvider } from "@/context/HeroContext";
+import { HeroProvider } from "@/app/context/HeroContext";
 import Header from "@/components/layout/Header";
 import Footer from "@/components/layout/Footer";
 

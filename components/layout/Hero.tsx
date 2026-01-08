@@ -3,7 +3,7 @@ import AfiliadosCarrossel from "@/components/home/AfiliadosCarrossel";
 import React, { useEffect, useState } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { useHero } from "@/context/HeroContext";
+import { useHero } from "@/app/context/HeroContext";
 import ArtigosCarrossel from "@/components/home/ArtigosCarrossel";
 import NoticiasCard from "@/components/home/NoticiasCard";
 import EconomiaCard from "@/components/home/EconomiaCard";
@@ -56,9 +56,9 @@ export default function Hero() {
       {/* 5 últimos artigos postados em carrossel */}
       {latestArticles.length > 0 && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 md:mb-8">
             <div className="md:col-span-2 order-1 md:order-1">
-              <div className="relative w-full aspect-video h-[280px] md:h-[450px] rounded-none md:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
+              <div className="-mt-4 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-none md:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
                 <ArtigosCarrossel artigos={latestArticles} />
               </div>
             </div>
