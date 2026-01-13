@@ -29,7 +29,7 @@ const EconomiaCard: React.FC<EconomiaCardProps> = ({ artigos }) => {
   if (!economiaMaisRecente) return null;
 
   return (
-    <div className="-mt-1 md:mt-0w-full max-w-xl mx-auto relative flex items-start h-[120px] md:h-[215px] bg-white rounded-none md:rounded-2xl shadow border overflow-hidden">
+    <div className="-mt-1 md:mt-0 w-full max-w-xl mx-auto relative flex items-start h-[120px] md:h-[215px] bg-white rounded-sm md:rounded-2xl shadow border overflow-hidden">
       <span className="absolute top-3 left-3 z-10 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
         Economia
       </span>

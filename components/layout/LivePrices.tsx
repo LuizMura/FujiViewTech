@@ -144,16 +144,16 @@ export default function LivePrices() {
   };
 
   return (
-    <div className="flex items-center gap-2 md:gap-4 text-xs md:text-xs overflow-x-auto scrollbar-hide px-2 md:px-0">
+    <div className="flex items-center gap-1 md:gap-2 text- md:text-sm overflow-x-auto scrollbar-hide px-1 md:px-0">
       <span className="hidden md:inline text-slate-300">|</span>
 
       {/* BTC */}
       <div className="flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-[12px] md:text-xs">
+        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
           BTC
         </span>
         <span
-          className={`font-semibold text-[12px] md:text-xs ${getChangeColor(
+          className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
             changes.btc
           )}`}
         >
@@ -166,11 +166,11 @@ export default function LivePrices() {
 
       {/* ETH */}
       <div className="flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-[12px] md:text-xs">
+        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
           ETH
         </span>
         <span
-          className={`font-semibold text-[12px] md:text-xs ${getChangeColor(
+          className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
             changes.eth
           )}`}
         >
@@ -181,9 +181,9 @@ export default function LivePrices() {
 
       <span className="hidden md:inline text-slate-300">|</span>
       <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-xs">BNB</span>
+        <span className="font-bold text-slate-900 text-sm">BNB</span>
         <span
-          className={`font-semibold text-xs ${getChangeColor(changes.bnb)}`}
+          className={`font-semibold text-sm ${getChangeColor(changes.bnb)}`}
         >
           {formatPrice(prices.bnb, true)}
         </span>
@@ -194,9 +194,9 @@ export default function LivePrices() {
 
       {/* SOL */}
       <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-xs">SOL</span>
+        <span className="font-bold text-slate-900 text-sm">SOL</span>
         <span
-          className={`font-semibold text-xs ${getChangeColor(changes.sol)}`}
+          className={`font-semibold text-sm ${getChangeColor(changes.sol)}`}
         >
           {formatPrice(prices.sol, true)}
         </span>
@@ -207,9 +207,9 @@ export default function LivePrices() {
 
       {/* USDT */}
       <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-xs">USDT</span>
+        <span className="font-bold text-slate-900 text-sm">USDT</span>
         <span
-          className={`font-semibold text-xs ${getChangeColor(changes.usdt)}`}
+          className={`font-semibold text-sm ${getChangeColor(changes.usdt)}`}
         >
           {formatPrice(prices.usdt)}
         </span>
@@ -218,11 +218,11 @@ export default function LivePrices() {
 
       <span className="hidden md:inline text-slate-300">|</span>
       <div className="flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-[12px] md:text-xs">
+        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
           USD
         </span>
         <span
-          className={`font-semibold text-[12px] md:text-xs ${getChangeColor(
+          className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
             changes.usd
           )}`}
         >
@@ -235,11 +235,11 @@ export default function LivePrices() {
 
       {/* EUR */}
       <div className="flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-[12px] md:text-xs">
+        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
           EUR
         </span>
         <span
-          className={`font-semibold text-[12px] md:text-xs ${getChangeColor(
+          className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
             changes.eur
           )}`}
         >

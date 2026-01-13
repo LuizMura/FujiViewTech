@@ -44,48 +44,45 @@ function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300 bg-white/80 backdrop-blur-md border-b border-slate-100 ${
+      className={`fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300 backdrop-blur-md border-b border-slate-100 ${
         showHeader ? "translate-y-0" : "-translate-y-full"
       }`}
     >
       <div className="container-custom h-16 md:h-18 flex items-center justify-between">
         <Link href="/">
-          <LogoBrand />
+          <LogoBrand invert />
         </Link>
         <div className="hidden md:flex items-center gap-4">
-          <button className="p-2 text-slate-500 hover:text-indigo-600 transition-colors rounded-full hover:bg-slate-100">
-            <Search size={20} />
-          </button>
           <div className="w-56">
             {/* Barra de busca global */}
             <SearchBar />
           </div>
           <Link
             href="/newsletter"
-            className="px-4 py-2 bg-slate-900 text-white text-sm font-medium rounded-full hover:bg-indigo-600 transition-all duration-300 shadow-md hover:shadow-lg"
+            className="px-4 py-2 bg-neutral-600 text-white text-sm font-medium rounded-full hover:bg-indigo-900 transition-all duration-300 shadow-md hover:shadow-lg"
           >
             Inscrever-se
           </Link>
         </div>
         <button
-          className="md:hidden p-2 text-slate-700"
+          className="px-5 md:hidden p-2 text-slate-100"
           onClick={() => setIsMenuOpen(!isMenuOpen)}
         >
-          {isMenuOpen ? <X size={24} /> : <Menu size={24} />}
+          {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
         </button>
       </div>
-      <nav className="hidden md:flex border-t border-slate-100 bg-white/80 py-1 backdrop-blur-md">
+      <nav className="hidden md:flex border-t border-neutral-600 bg-stone-300 py-0.5 backdrop-blur-md">
         <div className="container-custom flex items-center gap-4">
           {navLinks.map((link, idx) => (
             <React.Fragment key={link.name}>
-              {idx === 0 && <span className="text-slate-300 font-bold">|</span>}
-              {idx > 0 && <span className="text-slate-300 font-bold">|</span>}
+              {idx === 0 && <span className="text-stone-400 font-bold">|</span>}
+              {idx > 0 && <span className="text-stone-400 font-bold">|</span>}
               <Link
                 href={link.href}
-                className={`text-sm font-medium transition-colors relative group whitespace-nowrap uppercase ${
+                className={`text-sm font-semibold transition-colors relative group whitespace-nowrap uppercase ${
                   pathname === link.href
                     ? "text-[#ac3e3e]"
-                    : "text-slate-600 hover:text-[#ac3e3e]"
+                    : "text-stone-700 hover:text-[#ac3e3e]"
                 }`}
               >
                 {link.name}
@@ -96,15 +93,17 @@ function Header() {
                 ></span>
               </Link>
               {idx === navLinks.length - 1 && (
-                <span className="text-slate-300 font-bold">|</span>
+                <span className="text-stone-400 font-bold">|</span>
               )}
             </React.Fragment>
           ))}
         </div>
       </nav>
       {isMenuOpen && (
-        <div className="md:hidden absolute top-16 left-0 right-0 bg-slate-900 border-b border-slate-700 shadow-xl animate-in slide-in-from-top-5 duration-200">
+        /* Mobile nav + navLinks (menu sanduíche) */
+        <div className="md:hidden absolute top-16 left-0 right-0 bg-stone-300 border-b border-slate-700 shadow-xl animate-in slide-in-from-top-5 duration-200">
           <div className="container-custom py-4 flex flex-col gap-1">
+            {/* Mobile navLinks */}
             {navLinks.map((link) => (
               <Link
                 key={link.name}
@@ -112,7 +111,7 @@ function Header() {
                 className={`px-4 py-3 rounded-lg font-medium transition-colors whitespace-nowrap uppercase ${
                   pathname === link.href
                     ? "bg-[#ac3e3e] text-white"
-                    : "text-slate-200 hover:bg-slate-800 hover:text-white"
+                    : "text-slate-800 hover:bg-slate-800 hover:text-white"
                 }`}
                 onClick={() => setIsMenuOpen(false)}
               >

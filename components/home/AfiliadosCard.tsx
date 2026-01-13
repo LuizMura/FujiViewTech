@@ -64,13 +64,13 @@ const AfiliadosCard: React.FC<AfiliadosCardProps> = ({
   };
 
   return (
-    <div className="w-full max-w-xs mx-auto bg-white rounded-2xl shadow border overflow-hidden flex flex-col items-center p-4 h-full">
-      <div className="w-full aspect-square relative mb-3">
+    <div className="w-full max-w-xs mx-auto bg-white rounded-sm md:rounded-xl shadow border overflow-hidden flex flex-col items-center p-2 h-full">
+      <div className="w-full aspect-square relative mb-1">
         <Image
           src={imagesList[current] || cover}
           alt={titulo}
           fill
-          style={{ objectFit: "cover", borderRadius: 12 }}
+          style={{ objectFit: "cover", padding: "0.5rem" }}
           sizes="300px"
         />
         {imagesList.length > 1 && (
@@ -106,11 +106,11 @@ const AfiliadosCard: React.FC<AfiliadosCardProps> = ({
         <h3 className="text-base md:text-lg font-bold text-slate-900 text-center mb-1 line-clamp-2 leading-tight">
           {titulo}
         </h3>
-        <p className="text-xs md:text-sm text-slate-600 text-center mb-2 line-clamp-2">
+        <p className="text-xs md:text-sm text-slate-600 text-center mb-1 line-clamp-2">
           {descricao}
         </p>
       </div>
-      <div className="w-full flex flex-col items-center mb-1 md:mb-3">
+      <div className="w-full flex flex-col items-center mb-1">
         <div className="text-sm font-semibold text-slate-700 text-center">
           {loja}
         </div>

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import AfiliadosCard from "./AfiliadosCard";
+import CarrosselNavigation from "./CarrosselNavigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface Afiliado {
@@ -118,61 +119,27 @@ const AfiliadosCarrossel: React.FC = () => {
   return (
     <div className="px-2 md:px-0 w-full">
       <div className="relative">
-        {/* Linha divisória */}
-        <div className="border-t border-slate-300 mb-4 md:mb-6"></div>
-
         {/* Controles de navegação */}
-        <div className="relative flex items-center mb-2 md:mb-8">
-          <h2 className="text-lg md:text-2xl font-bold text-slate-100">
+        {!isMobile && produtos.length > itemsPerPage && (
+          <CarrosselNavigation
+            currentPage={currentPage}
+            totalPages={totalPages}
+            onPrev={goToPrev}
+            onNext={goToNext}
+            onPageClick={(idx) => {
+              const target = idx * itemsPerPage;
+              setCurrentIndex(target);
+              scrollToIndex(target);
+            }}
+            title="SELECIONADOS PARA VOCÊ"
+          />
+        )}
+
+        {isMobile && (
+          <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
             SELECIONADOS PARA VOCÊ
           </h2>
-
-          {!isMobile && produtos.length > itemsPerPage && (
-            <div className="absolute left-1/2 -translate-x-1/2 hidden md:flex items-center gap-4">
-              <button
-                onClick={goToPrev}
-                className="p-1.5 md:p-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors disabled:opacity-50"
-                aria-label="Anterior"
-              >
-                <ChevronLeft
-                  size={20}
-                  className="md:w-6 md:h-6 text-slate-900"
-                />
-              </button>
-
-              {/* Indicadores de página */}
-              <div className="flex gap-2">
-                {Array.from({ length: totalPages }).map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => {
-                      const target = idx * itemsPerPage;
-                      setCurrentIndex(target);
-                      scrollToIndex(target);
-                    }}
-                    className={`w-2 h-2 rounded-full transition-all ${
-                      idx === currentPage
-                        ? "bg-slate-900 w-6"
-                        : "bg-slate-300 hover:bg-slate-400"
-                    }`}
-                    aria-label={`Página ${idx + 1}`}
-                  />
-                ))}
-              </div>
-
-              <button
-                onClick={goToNext}
-                className="p-1.5 md:p-2 rounded-full bg-slate-200 hover:bg-slate-300 transition-colors disabled:opacity-50"
-                aria-label="Próximo"
-              >
-                <ChevronRight
-                  size={20}
-                  className="md:w-6 md:h-6 text-slate-900"
-                />
-              </button>
-            </div>
-          )}
-        </div>
+        )}
 
         {/* Grid de cards */}
         <div className="relative">

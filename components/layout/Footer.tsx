@@ -31,25 +31,27 @@ function FooterLink({
 export default function Footer() {
   const currentYear = new Date().getFullYear();
   return (
-    <footer className="bg-white border-t border-slate-200 pt-16 pb-8">
+    <footer className="md:pl-0 bg-white border-t border-slate-200 pt-16 pb-8">
       <div className="container-custom">
         <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
-          <div className="col-span-1 md:col-span-1">
-            <Link href="/">
-              <LogoBrand />
-            </Link>
-            <p className="text-slate-500 text-sm leading-relaxed mb-6 ">
+          <div className="col-span-1 md:col-span-1 text-center md:text-left">
+            <span className="flex justify-center items-center gap-2 mb-2">
+              <Link href="/">
+                <LogoBrand />
+              </Link>
+            </span>
+            <p className="px-4 text-slate-500 text-sm leading-relaxed mb-6 md:px-0">
               Seu canal de notícias, dicas, viagens, reviews e novidades da
               tecnologia.
             </p>
-            <div className="flex gap-4">
+            <div className="flex gap-4 justify-center md:justify-start">
               <SocialLink href="#" icon={<Twitter size={18} />} />
               <SocialLink href="#" icon={<Instagram size={18} />} />
               <SocialLink href="#" icon={<Linkedin size={18} />} />
               <SocialLink href="#" icon={<Github size={18} />} />
             </div>
           </div>
-          <div>
+          <div className="text-center md:text-left">
             <h3 className="font-bold text-slate-900 mb-4">Categorias</h3>
             <ul className="space-y-3 text-slate-600">
               <FooterLink href="/categoria/reviews">Reviews</FooterLink>
@@ -60,7 +62,7 @@ export default function Footer() {
               </FooterLink>
             </ul>
           </div>
-          <div>
+          <div className="text-center md:text-left">
             <h3 className="font-bold text-slate-900 mb-4">Empresa</h3>
             <ul className="space-y-3 text-slate-600">
               <FooterLink href="/sobre">Sobre Nós</FooterLink>
@@ -69,18 +71,20 @@ export default function Footer() {
               <FooterLink href="/carreiras">Trabalhe Conosco</FooterLink>
             </ul>
           </div>
-          <div>
+          <div className="text-center md:text-left">
             <h3 className="font-bold text-slate-900 mb-4">Fique atualizado</h3>
-            <p className="text-slate-500 text-sm mb-4">
+            <p className="px-4 md:px-0 text-slate-500 text-sm mb-4">
               Receba as melhores notícias de tecnologia diretamente no seu
               e-mail.
             </p>
-            <form className="flex flex-col gap-2">
+
+            <form className="p-6 md:p-0 flex flex-col gap-2">
               <input
                 type="email"
                 placeholder="Seu melhor e-mail"
                 className="px-4 py-2 border border-slate-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:border-transparent text-sm placeholder-slate-400"
               />
+
               <button
                 type="submit"
                 className="px-4 py-2 bg-slate-900 text-white font-medium rounded-lg hover:bg-indigo-600 transition-colors text-sm"

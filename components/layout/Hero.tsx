@@ -5,8 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import { useHero } from "@/app/context/HeroContext";
 import ArtigosCarrossel from "@/components/home/ArtigosCarrossel";
-import NoticiasCard from "@/components/home/NoticiasCard";
-import EconomiaCard from "@/components/home/EconomiaCard";
+import CategoryCard from "@/components/home/CategoryCard";
 import UltimasPostagensCarrossel from "@/components/home/UltimasPostagensCarrossel";
 import LivePrices from "./LivePrices";
 import { getArticles } from "@/lib/hooks/useArticles";
@@ -18,6 +17,10 @@ export default function Hero() {
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
   const [noticiasArticles, setNoticiasArticles] = useState<Article[]>([]);
   const [economiaArticles, setEconomiaArticles] = useState<Article[]>([]);
+  const [viagensArticles, setViagensArticles] = useState<Article[]>([]);
+  const [filmesSeriesArticles, setFilmesSeriesArticles] = useState<Article[]>(
+    []
+  );
   const [allArticles, setAllArticles] = useState<Article[]>([]);
 
   useEffect(() => {
@@ -35,6 +38,16 @@ export default function Hero() {
           limit: 5,
         });
         setEconomiaArticles(economia);
+        const viagens: Article[] = await getArticles({
+          category: "viagens",
+          limit: 5,
+        });
+        setViagensArticles(viagens);
+        const filmesSeries: Article[] = await getArticles({
+          category: "filmes-e-series",
+          limit: 5,
+        });
+        setFilmesSeriesArticles(filmesSeries);
         // Buscar todos para os cards genéricos
         const all: Article[] = await getArticles({ limit: 20 });
         setAllArticles(all);
@@ -50,24 +63,35 @@ export default function Hero() {
 
   return (
     <>
-      <div className="z-40 -mt-13 md:mt-2 mb-5 bg-white py-1 justify-center flex items-center rounded-none md:rounded-2xl shadow-md border border-slate-200">
+      <div className="z-40 -mt-13 md:mt-2 mb-5 bg-white py-0.5 justify-center flex items-center rounded-none md:rounded-2xl shadow-md border border-slate-200">
         <LivePrices />
       </div>
       {/* 5 últimos artigos postados em carrossel */}
+
       {latestArticles.length > 0 && (
         <>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 md:mb-8">
+          <div className="px-1 grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 md:mb-8">
             <div className="md:col-span-2 order-1 md:order-1">
-              <div className="-mt-4 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-none md:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
+              <div className="-mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
                 <ArtigosCarrossel artigos={latestArticles} />
               </div>
             </div>
             <div className="order-2 md:order-2">
-              {/* Notícias da categoria 'noticias' */}
-              <React.Suspense fallback={<div>Carregando notícia...</div>}>
-                <NoticiasCard artigos={noticiasArticles} />
+              {/* Notícias e Economia */}
+              <React.Suspense fallback={<div>Carregando...</div>}>
+                <CategoryCard
+                  artigos={noticiasArticles}
+                  category="noticias"
+                  label="Notícias"
+                  badgeColor="bg-indigo-600"
+                />
                 <div className="mt-4">
-                  <EconomiaCard artigos={economiaArticles} />
+                  <CategoryCard
+                    artigos={economiaArticles}
+                    category="economia"
+                    label="Economia"
+                    badgeColor="bg-green-600"
+                  />
                 </div>
               </React.Suspense>
             </div>
@@ -75,20 +99,89 @@ export default function Hero() {
 
           {/* Cards do UltimasPostagensCarrossel com imagem acima e texto abaixo */}
           <div className="mb-8">
+            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
             <UltimasPostagensCarrossel artigos={allArticles} />
           </div>
+          <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
         </>
       )}
 
       {/* Espaço para AdSense */}
-      <div className="w-full h-24 flex items-center justify-center bg-slate-100 rounded-xl border border-slate-200 mb-8">
+      <div className=" w-full h-24 flex items-center justify-center bg-slate-100 rounded-md border border-slate-200 mb-8">
         <span className="text-slate-500 font-semibold text-lg">
           Publicidade
         </span>
       </div>
 
       {/* Produtos afiliados do banco */}
+      {/* Linha divisória */}
+      <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
       <AfiliadosCarrossel />
+
+      <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+
+      <h2 className="text-2xl font-bold text-slate-100 mb-6">
+        VIAGENS & TURISMO
+      </h2>
+
+      {viagensArticles.length > 0 && (
+        <div className="-mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5 mb-8">
+          <ArtigosCarrossel artigos={viagensArticles} />
+        </div>
+      )}
+
+      {/* Cards do UltimasPostagensCarrossel para categoria viagens */}
+      {viagensArticles.length > 0 && (
+        <div className="mb-8">
+          <UltimasPostagensCarrossel artigos={viagensArticles} />
+        </div>
+      )}
+
+      <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+
+      {/* Produtos afiliados abaixo do carrossel de viagens */}
+      <AfiliadosCarrossel />
+
+      <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+
+      {/* Espaço para AdSense */}
+      <div className=" w-full h-24 flex items-center justify-center bg-slate-100 rounded-md border border-slate-200 mb-8">
+        <span className="text-slate-500 font-semibold text-lg">
+          Publicidade
+        </span>
+      </div>
+      <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+
+      <h2 className="text-2xl font-bold text-slate-100 mb-6">
+        TV, FILMES & SÉRIES
+      </h2>
+
+      {filmesSeriesArticles.length > 0 && (
+        <div className="-mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5 mb-8">
+          <ArtigosCarrossel artigos={filmesSeriesArticles} />
+        </div>
+      )}
+
+      {/* Cards do UltimasPostagensCarrossel para categoria filmes-e-series */}
+      {filmesSeriesArticles.length > 0 && (
+        <div className="mb-8">
+          <UltimasPostagensCarrossel artigos={filmesSeriesArticles} />
+        </div>
+      )}
+
+      <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+
+      {/* Produtos afiliados abaixo do carrossel de filmes-séries */}
+      <AfiliadosCarrossel />
+
+      <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+
+      {/* Espaço para AdSense */}
+      <div className=" w-full h-24 flex items-center justify-center bg-slate-100 rounded-md border border-slate-200 mb-8">
+        <span className="text-slate-500 font-semibold text-lg">
+          Publicidade
+        </span>
+      </div>
     </>
   );
 }

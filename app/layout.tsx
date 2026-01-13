@@ -1,5 +1,6 @@
 import "./globals.css";
 import { LayoutWrapper } from "./LayoutWrapper";
+import { Inter } from "next/font/google";
 
 export const metadata = {
   metadataBase: new URL("https://www.fujiviewtech.com"),
@@ -57,6 +58,11 @@ export const metadata = {
 
 import { AuthProvider } from "./context/AuthContext";
 
+const inter = Inter({
+  subsets: ["latin"],
+  weight: ["400", "600", "800", "900"],
+});
+
 export default function RootLayout({
   children,
 }: {
@@ -64,7 +70,9 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
-      <body className="bg-slate-50 text-slate-900 antialiased selection:bg-indigo-100 selection:text-indigo-700">
+      <body
+        className={`${inter.className} bg-slate-50 text-slate-900 antialiased selection:bg-indigo-100 selection:text-indigo-700`}
+      >
         <AuthProvider>
           <LayoutWrapper>{children}</LayoutWrapper>
         </AuthProvider>
