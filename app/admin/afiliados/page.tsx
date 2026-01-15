@@ -16,6 +16,8 @@ type AfiliadoProduto = {
   loja: string;
   preco: string;
   afiliado_url: string;
+  button_text: string;
+  button_color: string;
 };
 
 export default function AdminAfiliadosPage() {
@@ -31,6 +33,8 @@ export default function AdminAfiliadosPage() {
       loja: "",
       preco: "",
       afiliado_url: "",
+      button_text: "COMPRAR",
+      button_color: "#3b82f6",
     }),
     []
   );
@@ -41,6 +45,7 @@ export default function AdminAfiliadosPage() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
+  const [filterCategoria, setFilterCategoria] = useState<string>("");
 
   async function handleUploadImagem(file: File) {
     try {
@@ -63,6 +68,11 @@ export default function AdminAfiliadosPage() {
     () => Array.from(new Set(produtos.map((p) => p.categoria).filter(Boolean))),
     [produtos]
   );
+
+  const produtosFiltrados = useMemo(() => {
+    if (!filterCategoria) return produtos;
+    return produtos.filter((p) => p.categoria === filterCategoria);
+  }, [produtos, filterCategoria]);
 
   const previewData = useMemo(() => {
     const imagens =
@@ -88,6 +98,8 @@ export default function AdminAfiliadosPage() {
         {
           nome: "Afiliado",
           url: form.afiliado_url || "#",
+          texto: form.button_text || "COMPRAR",
+          cor: form.button_color || "#3b82f6",
         },
       ],
     };
@@ -195,17 +207,25 @@ export default function AdminAfiliadosPage() {
       return;
     }
     if (key === "preco") {
+      // Remove tudo que não é dígito
       const digits = value.replace(/\D/g, "");
+
+      // Se vazio, deixa vazio
       if (!digits) {
         setForm((prev) => ({ ...prev, preco: "" }));
         return;
       }
-      const cents = digits.padStart(3, "0");
-      const integerPart = cents
-        .slice(0, -2)
-        .replace(/\B(?=(\d{3})+(?!\d))/g, ".");
-      const decimalPart = cents.slice(-2);
-      next = `R$ ${integerPart},${decimalPart}`;
+
+      // Converte para centavos (ex: "1000" = 1000 centavos = R$ 10,00)
+      const cents = parseInt(digits, 10);
+      const reais = Math.floor(cents / 100);
+      const centavos = cents % 100;
+
+      // Formata reais com separador de milhares
+      const reaisFormatted = reais.toLocaleString("pt-BR");
+      const centavosFormatted = centavos.toString().padStart(2, "0");
+
+      next = `R$ ${reaisFormatted},${centavosFormatted}`;
     }
     setForm((prev) => ({ ...prev, [key]: next }));
   };
@@ -356,10 +376,28 @@ export default function AdminAfiliadosPage() {
                 Recarregar
               </button>
             </div>
+            <div className="mb-4">
+              <select
+                className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white text-sm"
+                value={filterCategoria}
+                onChange={(e) => setFilterCategoria(e.target.value)}
+              >
+                <option value="">Todas as categorias</option>
+                {categoriasSugeridas.map((cat) => (
+                  <option key={cat} value={cat}>
+                    {cat}
+                  </option>
+                ))}
+              </select>
+            </div>
             {loading ? (
               <div className="text-[#9ca3af]">Carregando...</div>
-            ) : !produtos.length ? (
-              <div className="text-[#9ca3af]">Nenhum afiliado encontrado.</div>
+            ) : !produtosFiltrados.length ? (
+              <div className="text-[#9ca3af]">
+                {filterCategoria
+                  ? `Nenhum afiliado encontrado na categoria "${filterCategoria}".`
+                  : "Nenhum afiliado encontrado."}
+              </div>
             ) : (
               <div className="overflow-x-auto border border-[#2c313c] rounded-xl">
                 <table className="min-w-full text-sm text-left text-[#cbd5e1]">
@@ -371,7 +409,7 @@ export default function AdminAfiliadosPage() {
                     </tr>
                   </thead>
                   <tbody>
-                    {produtos.map((item) => (
+                    {produtosFiltrados.map((item) => (
                       <tr
                         key={item.id}
                         className={`border-t border-[#2c313c] cursor-pointer ${
@@ -586,8 +624,8 @@ export default function AdminAfiliadosPage() {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
-              <fieldset className="border border-[#2c313c] rounded-lg p-4 space-y-3">
+            <div className="grid grid-cols-1">
+              <fieldset className="border border-[#2c313c] rounded-lg p-2">
                 <legend className="px-2 text-sm text-[#9ca3af]">
                   Link de Afiliado
                 </legend>
@@ -596,7 +634,41 @@ export default function AdminAfiliadosPage() {
                   value={form.afiliado_url}
                   onChange={(e) => handleChange("afiliado_url", e.target.value)}
                   placeholder="URL de afiliado"
-                />
+                />{" "}
+                <div className="space-y-2">
+                  <label className="text-sm text-[#9ca3af]">
+                    Texto do Botão (padrão: COMPRAR)
+                  </label>
+                  <input
+                    className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
+                    value={form.button_text}
+                    onChange={(e) =>
+                      handleChange("button_text", e.target.value)
+                    }
+                    placeholder="COMPRAR"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm text-[#9ca3af]">Cor do Botão</label>
+                  <div className="flex gap-3 items-center">
+                    <input
+                      type="color"
+                      className="h-10 w-20 rounded border border-[#2c313c] cursor-pointer"
+                      value={form.button_color}
+                      onChange={(e) =>
+                        handleChange("button_color", e.target.value)
+                      }
+                    />
+                    <input
+                      className="flex-1 bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
+                      value={form.button_color}
+                      onChange={(e) =>
+                        handleChange("button_color", e.target.value)
+                      }
+                      placeholder="#ac3e3e"
+                    />
+                  </div>
+                </div>{" "}
               </fieldset>
             </div>
 

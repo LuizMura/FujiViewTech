@@ -1,13 +1,26 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
 import { generateUniqueSlug } from "@/lib/hooks/useArticles";
-import React from "react";
+import React, { useState, useEffect, useMemo } from "react";
 
 interface CardBase {
   title: string;
   image?: string;
   category?: string;
   [key: string]: any;
+}
+
+interface Afiliado {
+  id: string;
+  titulo: string;
+  categoria: string;
+  button_text?: string;
+  button_color?: string;
+  afiliado_url?: string;
+  imagem?: string;
+  descricao?: string;
+  loja?: string;
+  preco?: string;
 }
 
 interface ArticleFormProps<T extends CardBase> {
@@ -60,6 +73,38 @@ export default function ArticleForm<T extends CardBase>({
   onContentChange,
   onSubmit,
 }: ArticleFormProps<T>) {
+  const [afiliados, setAfiliados] = useState<Afiliado[]>([]);
+  const [filterCategoria, setFilterCategoria] = useState<string>("");
+  const [loadingAfiliados, setLoadingAfiliados] = useState(false);
+
+  // Carrega afiliados
+  useEffect(() => {
+    async function loadAfiliados() {
+      setLoadingAfiliados(true);
+      try {
+        const res = await fetch("/api/afiliados");
+        const data = await res.json();
+        setAfiliados(Array.isArray(data) ? data : []);
+      } catch (error) {
+        console.error("Erro ao carregar afiliados", error);
+      } finally {
+        setLoadingAfiliados(false);
+      }
+    }
+    loadAfiliados();
+  }, []);
+
+  const categoriasSugeridas = useMemo(
+    () =>
+      Array.from(new Set(afiliados.map((a) => a.categoria).filter(Boolean))),
+    [afiliados]
+  );
+
+  const afiliadosFiltrados = useMemo(() => {
+    if (!filterCategoria) return afiliados;
+    return afiliados.filter((a) => a.categoria === filterCategoria);
+  }, [afiliados, filterCategoria]);
+
   // Remove campos duplicados pelo name
   const allFieldsMap = new Map();
   [...fields, ...(extraFields[cardType] || [])].forEach((field) => {
@@ -232,31 +277,29 @@ export default function ArticleForm<T extends CardBase>({
                 />
               </div>
             )}
+
+            {/* Upload imagem principal - aparece após o campo Imagem (URL) */}
+            {field.name === "image" && (
+              <div className="mb-3">
+                <label
+                  className="block text-[#bfc7d5] mb-1"
+                  htmlFor="image-upload"
+                >
+                  Upload Imagem Principal
+                </label>
+                <input
+                  id="image-upload"
+                  name="image-upload"
+                  type="file"
+                  accept="image/*"
+                  onChange={(e) => handleFileUpload(e, false)}
+                  className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                />
+              </div>
+            )}
           </div>
         );
       })}
-
-      {/* Upload imagem principal */}
-      <div className="mb-3">
-        <label className="block text-[#bfc7d5] mb-1" htmlFor="image-upload">
-          Upload Imagem Principal
-        </label>
-        <input
-          id="image-upload"
-          name="image-upload"
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleFileUpload(e, false)}
-          className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-        />
-        {form.image && (
-          <img
-            src={form.image}
-            alt="Preview"
-            className="mt-2 max-h-40 rounded-lg border border-[#4b6b57]"
-          />
-        )}
-      </div>
 
       {/* Upload imagem MDX */}
       <div className="mb-3">
@@ -287,6 +330,97 @@ export default function ArticleForm<T extends CardBase>({
             </button>
           </div>
         )}
+      </div>
+
+      {/* Imagem URL MDX */}
+      <div className="mb-3">
+        <label className="block text-[#bfc7d5] mb-1" htmlFor="mdxImageUrl">
+          Imagem URL MDX
+        </label>
+        <input
+          id="mdxImageUrl"
+          name="mdxImageUrl"
+          type="text"
+          value={form.mdxImageUrl || ""}
+          onChange={handleChange}
+          className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+          placeholder="https://exemplo.com/imagem.jpg"
+        />
+      </div>
+
+      {/* Afiliados Cadastrados */}
+      <div className="mb-3 border-t border-[#4b6b57] pt-4">
+        <h3 className="text-[#bfc7d5] font-semibold mb-2">
+          Afiliados Cadastrados
+        </h3>
+        <p className="text-xs text-[#9ca3af] mb-2">
+          Clique para copiar o código MDX do card
+        </p>
+
+        {/* Filtro */}
+        <select
+          className="w-full mb-2 bg-[#18181b] text-white px-3 py-1.5 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+          value={filterCategoria}
+          onChange={(e) => setFilterCategoria(e.target.value)}
+        >
+          <option value="">Todas as categorias</option>
+          {categoriasSugeridas.map((cat) => (
+            <option key={cat} value={cat}>
+              {cat}
+            </option>
+          ))}
+        </select>
+
+        {/* Lista */}
+        <div className="max-h-48 overflow-y-auto border border-[#4b6b57] rounded-lg">
+          {loadingAfiliados ? (
+            <div className="text-[#9ca3af] text-xs p-2">Carregando...</div>
+          ) : !afiliadosFiltrados.length ? (
+            <div className="text-[#9ca3af] text-xs p-2">
+              {filterCategoria
+                ? `Nenhum afiliado na categoria "${filterCategoria}"`
+                : "Nenhum afiliado encontrado"}
+            </div>
+          ) : (
+            <div className="divide-y divide-[#4b6b57]">
+              {afiliadosFiltrados.map((afiliado) => (
+                <button
+                  key={afiliado.id}
+                  type="button"
+                  onClick={() => {
+                    const esc = (v: string | number | null | undefined) =>
+                      String(v ?? "").replace(/'/g, "\\'");
+                    const mdxCode = `<AfiliadosCard
+  titulo='${esc(afiliado.titulo)}'
+  descricao='${esc(afiliado.descricao || "Descrição do produto")}'
+  loja='${esc(afiliado.loja || "Loja")}'
+  preco='${esc(afiliado.preco || "R$ 0,00")}'
+  imagem='${esc(afiliado.imagem || "/images/og-default.png")}'
+  afiliados={[
+    {
+      nome: '${esc(afiliado.titulo)}',
+      url: '${esc(afiliado.afiliado_url || "#")}',
+      texto: '${esc(afiliado.button_text || "COMPRAR")}',
+      cor: '${esc(afiliado.button_color || "#3b82f6")}'
+    }
+  ]}
+/>`;
+                    navigator.clipboard.writeText(mdxCode);
+                    alert("Código MDX copiado!");
+                  }}
+                  className="w-full text-left p-2 hover:bg-[#2a2e38] transition-colors"
+                >
+                  <div className="text-white text-sm truncate">
+                    {afiliado.titulo}
+                  </div>
+                  <div className="text-[#9ca3af] text-xs">
+                    {afiliado.categoria}
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
       </div>
 
       {/* Editor Markdown */}

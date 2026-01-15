@@ -34,6 +34,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
     const [loading, setLoading] = useState(true);
     const [category, setCategory] = useState(externalCategory || "");
     const [categories, setCategories] = useState<string[]>([]);
+    const [statusFilter, setStatusFilter] = useState<string>("");
 
     // Sincronizar filtro externo com interno
     useEffect(() => {
@@ -67,7 +68,13 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
     const loadArticles = async () => {
       setLoading(true);
       try {
-        const data = await getArticles(category ? { category } : undefined);
+        const filters: any = {};
+        if (category) filters.category = category;
+        if (statusFilter && statusFilter !== "") filters.status = statusFilter;
+
+        const data = await getArticles(
+          Object.keys(filters).length > 0 ? filters : undefined
+        );
         setArticles(data);
       } catch (error) {
         console.error("Error loading articles:", error);
@@ -82,7 +89,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
 
     useEffect(() => {
       loadArticles();
-    }, [category]);
+    }, [category, statusFilter]);
 
     return (
       <div>
@@ -137,26 +144,47 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
             </div>
           </div>
         )}
-        <div className="mb-4">
-          <label
-            htmlFor="category-select"
-            className="block text-sm font-medium text-gray-300 mb-1"
-          >
-            Filtrar por categoria:
-          </label>
-          <select
-            id="category-select"
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-          >
-            <option value="">Todas</option>
-            {categories.map((cat) => (
-              <option key={cat} value={cat}>
-                {cat}
-              </option>
-            ))}
-          </select>
+        <div className="mb-4 flex gap-4">
+          <div className="flex-1">
+            <label
+              htmlFor="category-select"
+              className="block text-sm font-medium text-gray-300 mb-1"
+            >
+              Filtrar por categoria:
+            </label>
+            <select
+              id="category-select"
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+            >
+              <option value="">Todas</option>
+              {categories.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1">
+            <label
+              htmlFor="status-select"
+              className="block text-sm font-medium text-gray-300 mb-1"
+            >
+              Filtrar por status:
+            </label>
+            <select
+              id="status-select"
+              value={statusFilter}
+              onChange={(e) => setStatusFilter(e.target.value)}
+              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+            >
+              <option value="">Todos</option>
+              <option value="draft">Rascunho</option>
+              <option value="published">Publicado</option>
+              <option value="archived">Arquivado</option>
+            </select>
+          </div>
         </div>
         {loading ? (
           <div className="flex items-center justify-center h-32">

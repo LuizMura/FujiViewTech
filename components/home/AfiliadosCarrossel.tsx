@@ -81,7 +81,23 @@ const AfiliadosCarrossel: React.FC = () => {
     fetchAfiliados();
   }, []);
 
-  if (loading) return <div>Carregando afiliados...</div>;
+  if (loading) {
+    return (
+      <div className="afiliados-carrossel px-2 md:px-0 w-full">
+        <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
+          SELECIONADOS PARA VOCÊ
+        </h2>
+        <div className="flex gap-3 md:gap-6 mb-8">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <div
+              key={n}
+              className="flex-shrink-0 w-[150px] md:w-[200px] lg:w-[200px] h-[280px] bg-slate-800/50 rounded-xl animate-pulse"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
   if (!produtos.length) return <div>Nenhum produto afiliado encontrado.</div>;
 
   const totalPages = Math.ceil(produtos.length / itemsPerPage);
@@ -119,39 +135,32 @@ const AfiliadosCarrossel: React.FC = () => {
   return (
     <div className="px-2 md:px-0 w-full">
       <div className="relative">
-        {/* Controles de navegação */}
-        {!isMobile && produtos.length > itemsPerPage && (
-          <CarrosselNavigation
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPrev={goToPrev}
-            onNext={goToNext}
-            onPageClick={(idx) => {
-              const target = idx * itemsPerPage;
-              setCurrentIndex(target);
-              scrollToIndex(target);
-            }}
-            title="SELECIONADOS PARA VOCÊ"
-          />
-        )}
-
-        {isMobile && (
-          <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
-            SELECIONADOS PARA VOCÊ
-          </h2>
-        )}
+        <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
+          SELECIONADOS PARA VOCÊ
+        </h2>
 
         {/* Grid de cards */}
         <div className="relative">
           {/* Setas de navegação */}
           {produtos.length > 0 && (
             <>
-              <div className="absolute left-[-12px] top-1/2 -translate-y-1/2 z-10 pointer-events-none p-1.5 md:p-2 rounded-full bg-black/30 backdrop-blur-sm">
-                <ChevronLeft size={24} className="text-white" />
-              </div>
-              <div className="absolute right-[-12px] top-1/2 -translate-y-1/2 z-10 pointer-events-none p-1.5 md:p-2 rounded-full bg-black/30 backdrop-blur-sm">
-                <ChevronRight size={24} className="text-white" />
-              </div>
+              <button
+                onClick={goToPrev}
+                className="absolute left-[-12px] md:left-[-40px] top-1/2 -translate-y-1/2 z-10 p-1.5 md:p-2 rounded-full bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition-colors shadow-lg"
+                aria-label="Anterior"
+              >
+                <ChevronLeft size={isMobile ? 36 : 46} className="text-white" />
+              </button>
+              <button
+                onClick={goToNext}
+                className="absolute right-[-12px] md:right-[-40px] top-1/2 -translate-y-1/2 z-10 p-1.5 md:p-2 rounded-full bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition-colors shadow-lg"
+                aria-label="Próximo"
+              >
+                <ChevronRight
+                  size={isMobile ? 36 : 46}
+                  className="text-white"
+                />
+              </button>
             </>
           )}
           <div

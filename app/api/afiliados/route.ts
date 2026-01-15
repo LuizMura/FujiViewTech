@@ -104,6 +104,8 @@ export async function POST(request: NextRequest) {
           ...rest,
           preco: precoParsed,
           imagem: imagemCapa,
+          button_text: body.button_text || "COMPRAR",
+          button_color: body.button_color || "#3b82f6",
           views: body.views ?? 0,
           clicks: body.clicks ?? 0,
           compras: body.compras ?? 0,
@@ -194,6 +196,10 @@ export async function PUT(request: NextRequest) {
       .update({
         ...updateRest,
         ...(imagemCapa !== undefined ? { imagem: imagemCapa } : {}),
+        button_text:
+          (update as any).button_text || updateRest.button_text || "COMPRAR",
+        button_color:
+          (update as any).button_color || updateRest.button_color || "#3b82f6",
         publicado_em: (update as any).publicado_em || null,
       })
       .eq("id", id)

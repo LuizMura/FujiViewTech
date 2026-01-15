@@ -84,7 +84,7 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
                     {post.updatedAt
                       ? new Date(post.updatedAt).toLocaleDateString("pt-BR", {
                           day: "numeric",
-                          month: "long",
+                          month: "numeric",
                           year: "numeric",
                         })
                       : ""}
@@ -159,22 +159,18 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
       {/* MDX Content colado no ArtigoCard */}
       {children && (
         <div
-          className="px-4 md:px-8 py-8 md:py-12 bg-white text-black prose prose-lg max-w-none rounded-b-3xl 
+          className="px-6 md:px-44 py-6 md:py-8 bg-white text-black prose prose-base md:prose-lg max-w-none rounded-b-3xl 
           prose-headings:font-bold prose-headings:text-black prose-headings:tracking-tight
-          prose-h1:text-4xl prose-h2:text-3xl prose-h2:mt-12 prose-h2:mb-6
-          prose-h3:text-2xl prose-h3:text-black
-          prose-p:text-black prose-p:leading-8 prose-p:mb-6
-          prose-a:text-indigo-600 prose-a:font-semibold prose-a:no-underline hover:prose-a:underline hover:prose-a:text-indigo-700
+          prose-p:text-black prose-a:text-indigo-600 prose-a:font-semibold prose-a:no-underline hover:prose-a:underline hover:prose-a:text-indigo-700
           prose-strong:text-black prose-strong:font-bold
-          prose-ul:list-disc prose-ul:pl-6 prose-ul:space-y-2
           prose-li:text-black prose-li:marker:text-indigo-400
-          prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-10
-          prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 prose-blockquote:py-2 prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-black
-          [&_h1]:text-4xl [&_h1]:font-extrabold [&_h1]:leading-tight [&_h1]:mt-0 [&_h1]:mb-6
-          [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:leading-tight [&_h2]:mt-10 [&_h2]:mb-4
-          [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:leading-tight [&_h3]:mt-6 [&_h3]:mb-3
-          [&_p]:text-lg [&_p]:leading-8 [&_p]:mb-6
-          [&_ul]:list-disc [&_ul]:pl-6 [&_li]:mb-2"
+          prose-img:rounded-xl md:prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-6 md:prose-img:my-10
+          prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/50 prose-blockquote:py-2 prose-blockquote:px-4 md:prose-blockquote:px-6 prose-blockquote:rounded-r-lg prose-blockquote:italic prose-blockquote:text-black
+          [&_h1]:text-2xl md:[&_h1]:text-4xl [&_h1]:font-extrabold [&_h1]:leading-tight [&_h1]:mt-0 [&_h1]:mb-4 md:[&_h1]:mb-6
+          [&_h2]:text-xl md:[&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:mt-6 md:[&_h2]:mt-10 [&_h2]:mb-3 md:[&_h2]:mb-4
+          [&_h3]:text-lg md:[&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:leading-tight [&_h3]:mt-5 md:[&_h3]:mt-6 [&_h3]:mb-2 md:[&_h3]:mb-3
+          [&_p]:text-base md:[&_p]:text-lg [&_p]:leading-7 md:[&_p]:leading-8 [&_p]:mb-4 md:[&_p]:mb-6
+          [&_ul]:list-disc [&_ul]:pl-5 md:[&_ul]:pl-6 [&_li]:mb-1 md:[&_li]:mb-2"
         >
           {children}
         </div>

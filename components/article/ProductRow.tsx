@@ -4,19 +4,36 @@ import React from "react";
 type ProductRowProps = {
   image: string;
   title: string;
+  url?: string;
   children?: React.ReactNode;
 };
 
 export default function ProductRow({
   image,
   title,
+  url,
   children,
 }: ProductRowProps) {
+  const imageElement = (
+    <img src={image} alt={title} className="w-84 rounded-xl" />
+  );
+
   return (
-    <div className="flex flex-col md:flex-row gap-6 items-center my-10">
-      <img src={image} alt={title} className="w-64 rounded-xl" />
+    <div className="flex flex-col md:flex-row gap-6 items-center my-0">
+      {url ? (
+        <a
+          href={url}
+          target="_blank"
+          rel="nofollow noopener noreferrer sponsored"
+          className="hover:opacity-80 transition-opacity"
+        >
+          {imageElement}
+        </a>
+      ) : (
+        imageElement
+      )}
       <div
-        className="space-y-3 text-slate-900 max-w-none
+        className="space-y-3 text-slate-900 max-w-none 
         [&_h1]:text-3xl [&_h1]:font-extrabold [&_h1]:leading-tight [&_h1]:mt-0 [&_h1]:mb-3
         [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:leading-tight [&_h2]:mt-0 [&_h2]:mb-3
         [&_h3]:text-xl [&_h3]:font-bold [&_h3]:leading-tight [&_h3]:mt-0 [&_h3]:mb-2

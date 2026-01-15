@@ -70,6 +70,7 @@ const AfiliadosCard: React.FC<AfiliadosCardProps> = ({
           src={imagesList[current] || cover}
           alt={titulo}
           fill
+          unoptimized
           style={{ objectFit: "cover", padding: "0.5rem" }}
           sizes="300px"
         />
@@ -123,9 +124,10 @@ const AfiliadosCard: React.FC<AfiliadosCardProps> = ({
           href={afiliados[0].url}
           target="_blank"
           rel="noopener noreferrer"
-          className="w-full h-7 md:h-10 rounded-lg bg-[#ac3e3e] text-white text-sm font-semibold transition-transform duration-200 hover:-translate-y-0.5 flex items-center justify-center"
+          className="w-full h-7 md:h-10 rounded-lg text-white text-sm font-semibold transition-transform duration-200 hover:-translate-y-0.5 flex items-center justify-center"
+          style={{ backgroundColor: afiliados[0]?.cor || "#ac3e3e" }}
         >
-          COMPRAR
+          {afiliados[0]?.texto || "COMPRAR"}
         </a>
       ) : (
         <div className="w-full h-7 md:h-10 rounded-lg bg-gray-400 text-white text-sm font-semibold flex items-center justify-center cursor-not-allowed">

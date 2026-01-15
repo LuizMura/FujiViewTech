@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState, useEffect } from "react";
 import AfiliadosCard from "@/components/home/AfiliadosCard";
 import ProductRow from "@/components/article/ProductRow";
 
@@ -12,6 +12,25 @@ type Afiliado = {
   logo?: string;
 };
 
+type AfiliadoProduto = {
+  id: string;
+  titulo: string;
+  descricao: string;
+  categoria: string;
+  loja: string;
+  preco: number;
+  afiliado_url: string;
+  status: string;
+  publicado_em: string;
+  imagem: string;
+  button_text: string;
+  button_color: string;
+  views?: number;
+  clicks?: number;
+  compras?: number;
+  receita?: number;
+};
+
 type AfiliadosCardProps = {
   imagem?: string;
   imagens?: string[];
@@ -19,7 +38,9 @@ type AfiliadosCardProps = {
   descricao: string;
   loja: string;
   preco: string;
-  afiliados: Afiliado[];
+  afiliados?: Afiliado[];
+  // Props para MDX - apenas ID
+  afiliadoId?: string;
 };
 
 export function Affiliate({
@@ -135,7 +156,18 @@ export function SpecsTable({ specs }: { specs: Record<string, string> }) {
 }
 
 export function AfiliadosCardBlock(props: AfiliadosCardProps) {
-  return <AfiliadosCard {...props} />;
+  // Se já veio com afiliados array (compatibilidade anterior)
+  if (props.afiliados && props.afiliados.length > 0) {
+    return <AfiliadosCard {...props} afiliados={props.afiliados} />;
+  }
+
+  // Se veio com todos os campos necessários para renderizar
+  if (props.titulo && props.loja && props.preco) {
+    return <AfiliadosCard {...props} afiliados={props.afiliados || []} />;
+  }
+
+  // Fallback vazio se não tem dados
+  return null;
 }
 
 export const components = {

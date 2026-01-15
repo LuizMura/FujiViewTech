@@ -1,6 +1,6 @@
 import "./globals.css";
 import { LayoutWrapper } from "./LayoutWrapper";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 
 export const metadata = {
   metadataBase: new URL("https://www.fujiviewtech.com"),
@@ -58,7 +58,7 @@ export const metadata = {
 
 import { AuthProvider } from "./context/AuthContext";
 
-const inter = Inter({
+const inter = Poppins({
   subsets: ["latin"],
   weight: ["400", "600", "800", "900"],
 });

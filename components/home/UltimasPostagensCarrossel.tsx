@@ -4,7 +4,6 @@ import React, { useState, useRef } from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Article } from "@/lib/types/article";
-import CarrosselNavigation from "./CarrosselNavigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface UltimasPostagensCarrosselProps {
@@ -32,7 +31,23 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
   // Pega aleatórios dos penúltimos
   const shuffled = sorted.sort(() => 0.5 - Math.random());
 
-  if (shuffled.length === 0) return null;
+  if (shuffled.length === 0) {
+    return (
+      <div className="px-2 md:px-0 w-full">
+        <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
+          ÚLTIMAS POSTAGENS
+        </h2>
+        <div className="flex gap-3 md:gap-6 mb-8">
+          {[1, 2, 3, 4, 5].map((n) => (
+            <div
+              key={n}
+              className="flex-shrink-0 w-[180px] md:w-[250px] lg:w-[220px] h-[280px] bg-slate-800/50 rounded-xl animate-pulse"
+            />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   const totalPages = Math.ceil(shuffled.length / itemsPerPage);
   const currentPage = Math.floor(currentIndex / itemsPerPage);
@@ -71,38 +86,32 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
   return (
     <div className="px-2 md:px-0 w-full">
       <div className="relative">
-        {/* Controles de navegação */}
-        {!isMobile && shuffled.length > itemsPerPage && (
-          <CarrosselNavigation
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPrev={goToPrev}
-            onNext={goToNext}
-            onPageClick={(idx) => {
-              setCurrentIndex(idx * itemsPerPage);
-              scrollToIndex(idx * itemsPerPage);
-            }}
-            title="ÚLTIMAS POSTAGENS"
-          />
-        )}
-
-        {isMobile && (
-          <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
-            ÚLTIMAS POSTAGENS
-          </h2>
-        )}
+        <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
+          ÚLTIMAS POSTAGENS
+        </h2>
 
         {/* Grid de cards */}
         <div className="relative">
           {/* Setas de navegação */}
           {shuffled.length > 0 && (
             <>
-              <div className="absolute left-[-12px] md:left-0 top-1/2 -translate-y-1/2 z-10 pointer-events-none p-1.5 md:p-2 rounded-full bg-white/30 backdrop-blur-sm">
-                <ChevronLeft size={24} className="text-white" />
-              </div>
-              <div className="absolute right-[-12px] md:right-0 top-1/2 -translate-y-1/2 z-10 pointer-events-none p-1.5 md:p-2 rounded-full bg-white/30 backdrop-blur-sm">
-                <ChevronRight size={24} className="text-white" />
-              </div>
+              <button
+                onClick={goToPrev}
+                className="absolute left-[-12px] md:left-[-40px] top-1/2 -translate-y-1/2 z-10 p-1.5 md:p-2 rounded-full bg-white/30 backdrop-blur-sm cursor-pointer hover:bg-white/50 transition-colors shadow-lg"
+                aria-label="Anterior"
+              >
+                <ChevronLeft size={isMobile ? 36 : 46} className="text-white" />
+              </button>
+              <button
+                onClick={goToNext}
+                className="absolute right-[-12px] md:right-[-40px] top-1/2 -translate-y-1/2 z-10 p-1.5 md:p-2 rounded-full bg-white/30 backdrop-blur-sm cursor-pointer hover:bg-white/50 transition-colors shadow-lg"
+                aria-label="Próximo"
+              >
+                <ChevronRight
+                  size={isMobile ? 36 : 46}
+                  className="text-white"
+                />
+              </button>
             </>
           )}
           <div
