@@ -13,7 +13,6 @@ async function fetchDashboardCategorias(): Promise<any[]> {
   return data;
 }
 
-
 interface CategoriaInfo {
   categoria: string;
   totalArtigos: number;
@@ -21,7 +20,6 @@ interface CategoriaInfo {
   artigosMes: number;
   artigosSemana: number;
 }
-
 
 export default function DashboardCategoryTable() {
   const [categorias, setCategorias] = useState<CategoriaInfo[]>([]);
@@ -43,10 +41,18 @@ export default function DashboardCategoryTable() {
   }, []);
 
   const totalArtigos = categorias.reduce((acc, c) => acc + c.totalArtigos, 0);
-  const totalVisualizacoes = categorias.reduce((acc, c) => acc + c.totalVisualizacoes, 0);
-  const totalArtigosMes = categorias.reduce((acc, c) => acc + (c.artigosMes || 0), 0);
-  const totalArtigosSemana = categorias.reduce((acc, c) => acc + (c.artigosSemana || 0), 0);
-
+  const totalVisualizacoes = categorias.reduce(
+    (acc, c) => acc + c.totalVisualizacoes,
+    0
+  );
+  const totalArtigosMes = categorias.reduce(
+    (acc, c) => acc + (c.artigosMes || 0),
+    0
+  );
+  const totalArtigosSemana = categorias.reduce(
+    (acc, c) => acc + (c.artigosSemana || 0),
+    0
+  );
 
   if (loading) return <div className="text-[#bfc7d5]">Carregando...</div>;
   if (error) return <div className="text-red-400">Erro: {error}</div>;
@@ -55,33 +61,65 @@ export default function DashboardCategoryTable() {
     <div className="overflow-x-auto">
       <table className="min-w-full bg-[#23272f] rounded-xl shadow-lg text-[#e3e8f0] border border-[#353a45]">
         <thead>
-          <tr className="bg-gradient-to-r from-[#7f8fa6] to-[#4b6b57] text-[#23272f] font-bold uppercase text-sm">
-            <th className="px-5 py-2 text-left rounded-tl-xl">Categoria</th>
-            <th className="px-5 py-2 text-right">Total de Artigos</th>
-            <th className="px-5 py-2 text-right">Artigos no mês</th>
-            <th className="px-5 py-2 text-right">Artigos na semana</th>
-            <th className="px-5 py-2 text-right rounded-tr-xl">Visualizações</th>
+          <tr className="bg-gradient-to-r from-[#7f8fa6] to-[#4b6b57] text-[#23272f] font-bold uppercase text-xs md:text-sm">
+            <th className="px-2 md:px-5 py-2 md:py-3 text-left rounded-tl-xl">
+              Categoria
+            </th>
+            <th className="px-2 md:px-5 py-2 md:py-3 text-right hidden sm:table-cell">
+              Total
+            </th>
+            <th className="px-2 md:px-5 py-2 md:py-3 text-right hidden md:table-cell">
+              Mês
+            </th>
+            <th className="px-2 md:px-5 py-2 md:py-3 text-right hidden md:table-cell">
+              Semana
+            </th>
+            <th className="px-2 md:px-5 py-2 md:py-3 text-right rounded-tr-xl">
+              Views
+            </th>
           </tr>
         </thead>
         <tbody>
           {categorias.map((cat, idx) => (
             <tr
               key={cat.categoria}
-              className={`transition-colors ${idx % 2 === 0 ? "bg-[#23272f]" : "bg-[#2d313a]"} hover:bg-[#353a45] border-b border-[#353a45]`}
+              className={`transition-colors ${
+                idx % 2 === 0 ? "bg-[#23272f]" : "bg-[#2d313a]"
+              } hover:bg-[#353a45] border-b border-[#353a45]`}
             >
-              <td className="px-5 py-2 font-medium">{cat.categoria}</td>
-              <td className="px-5 py-2 text-right">{cat.totalArtigos}</td>
-              <td className="px-5 py-2 text-right">{cat.artigosMes}</td>
-              <td className="px-5 py-2 text-right">{cat.artigosSemana}</td>
-              <td className="px-5 py-2 text-right">{cat.totalVisualizacoes}</td>
+              <td className="px-2 md:px-5 py-2 md:py-3 font-medium text-xs md:text-sm">
+                {cat.categoria}
+              </td>
+              <td className="px-2 md:px-5 py-2 md:py-3 text-right hidden sm:table-cell text-xs md:text-sm">
+                {cat.totalArtigos}
+              </td>
+              <td className="px-2 md:px-5 py-2 md:py-3 text-right hidden md:table-cell text-xs md:text-sm">
+                {cat.artigosMes}
+              </td>
+              <td className="px-2 md:px-5 py-2 md:py-3 text-right hidden md:table-cell text-xs md:text-sm">
+                {cat.artigosSemana}
+              </td>
+              <td className="px-2 md:px-5 py-2 md:py-3 text-right text-xs md:text-sm font-semibold">
+                {cat.totalVisualizacoes}
+              </td>
             </tr>
           ))}
           <tr className="font-bold bg-gradient-to-r from-[#353a45] to-[#23272f] text-[#7f8fa6]">
-            <td className="px-5 py-2 rounded-bl-xl">Total</td>
-            <td className="px-5 py-2 text-right">{totalArtigos}</td>
-            <td className="px-5 py-2 text-right">{totalArtigosMes}</td>
-            <td className="px-5 py-2 text-right">{totalArtigosSemana}</td>
-            <td className="px-5 py-2 text-right rounded-br-xl">{totalVisualizacoes}</td>
+            <td className="px-2 md:px-5 py-2 md:py-3 rounded-bl-xl text-xs md:text-sm">
+              Total
+            </td>
+            <td className="px-2 md:px-5 py-2 md:py-3 text-right hidden sm:table-cell text-xs md:text-sm">
+              {totalArtigos}
+            </td>
+            <td className="px-2 md:px-5 py-2 md:py-3 text-right hidden md:table-cell text-xs md:text-sm">
+              {totalArtigosMes}
+            </td>
+            <td className="px-2 md:px-5 py-2 md:py-3 text-right hidden md:table-cell text-xs md:text-sm">
+              {totalArtigosSemana}
+            </td>
+            <td className="px-2 md:px-5 py-2 md:py-3 text-right rounded-br-xl text-xs md:text-sm">
+              {totalVisualizacoes}
+            </td>
           </tr>
         </tbody>
       </table>

@@ -37,26 +37,44 @@ export default function TopArticlesRanking() {
   }, []);
 
   return (
-    <div className="bg-[#23272f] rounded-xl shadow-lg border border-[#353a45] p-4">
-      <h3 className="text-lg font-bold text-[#7f8fa6] mb-4 text-center">Ranking: Mais Visualizados</h3>
+    <div className="bg-[#23272f] rounded-xl shadow-lg border border-[#353a45] p-3 md:p-4">
+      <h3 className="text-base md:text-lg font-bold text-[#7f8fa6] mb-3 md:mb-4 text-center">
+        Ranking: Mais Visualizados
+      </h3>
       {loading ? (
-        <div className="text-[#bfc7d5] text-center">Carregando...</div>
+        <div className="text-[#bfc7d5] text-center text-sm">Carregando...</div>
       ) : error ? (
-        <div className="text-red-400 text-center">Erro: {error}</div>
+        <div className="text-red-400 text-center text-sm">Erro: {error}</div>
       ) : (
         <ol className="space-y-2">
           {articles.map((art, idx) => (
-            <li key={art.id} className="flex items-center gap-2 bg-[#2d313a] rounded-lg px-3 py-2 shadow-sm">
-              <span className="font-bold text-[#7f8fa6] w-5 text-center">{idx + 1}</span>
-              <div className="flex-1">
-                <div className="font-semibold text-[#e3e8f0] truncate" title={art.title}>{art.title}</div>
-                <div className="text-xs text-[#bfc7d5]">{art.category}</div>
+            <li
+              key={art.id}
+              className="flex items-center gap-2 bg-[#2d313a] rounded-lg px-2 md:px-3 py-2 shadow-sm"
+            >
+              <span className="font-bold text-[#7f8fa6] w-5 text-center text-xs md:text-sm">
+                {idx + 1}
+              </span>
+              <div className="flex-1 min-w-0">
+                <div
+                  className="font-semibold text-[#e3e8f0] truncate text-xs md:text-sm"
+                  title={art.title}
+                >
+                  {art.title}
+                </div>
+                <div className="text-xs text-[#bfc7d5] truncate">
+                  {art.category}
+                </div>
               </div>
-              <span className="font-mono text-[#bfc7d5] min-w-[2.5rem] text-right">{art.views}</span>
+              <span className="font-mono text-[#bfc7d5] min-w-[2rem] md:min-w-[2.5rem] text-right text-xs md:text-sm flex-shrink-0">
+                {art.views}
+              </span>
             </li>
           ))}
           {articles.length === 0 && (
-            <li className="text-[#bfc7d5] text-center">Nenhum artigo encontrado</li>
+            <li className="text-[#bfc7d5] text-center text-sm">
+              Nenhum artigo encontrado
+            </li>
           )}
         </ol>
       )}

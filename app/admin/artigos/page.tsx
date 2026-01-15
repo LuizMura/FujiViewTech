@@ -47,12 +47,12 @@ export default function AdminArtigosPage() {
   return (
     <div className="min-h-screen bg-[#23272f] flex flex-col">
       <AdminHeader />
-      <main className="flex-1 p-8">
-        <div className="grid grid-cols-3 gap-6 h-full">
+      <main className="flex-1 p-4 md:p-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 h-full">
           {/* Lista + Formulário: 1 coluna (esquerda) */}
-          <div className="col-span-1 h-full flex flex-col gap-3">
+          <div className="md:col-span-1 h-full flex flex-col gap-3">
             {/* Lista em cima */}
-            <div className="overflow-y-auto">
+            <div className="overflow-y-auto max-h-60 md:max-h-none">
               <ArticleList
                 ref={articleListRef}
                 onSelect={(id, data) => setSelectedArticle(data)}
@@ -79,7 +79,7 @@ export default function AdminArtigosPage() {
             </div>
 
             {/* Formulário em baixo */}
-            <div className="overflow-y-auto flex-1">
+            <div className="overflow-y-auto flex-1 max-h-96 md:max-h-none">
               <ArticleForm
                 form={selectedArticle || { status: "published" }}
                 cardType="ArtigoCard"
@@ -144,7 +144,7 @@ export default function AdminArtigosPage() {
                 }}
               />
               {feedback && (
-                <div className="text-center text-green-400 font-bold mt-2">
+                <div className="text-center text-sm md:text-base text-green-400 font-bold mt-2">
                   {feedback}
                 </div>
               )}
@@ -152,7 +152,7 @@ export default function AdminArtigosPage() {
           </div>
 
           {/* Preview: 2 colunas (direita) */}
-          <div className="col-span-2 h-full">
+          <div className="md:col-span-2 h-full max-h-96 md:max-h-none">
             <ArticlePreview
               cardType="ArtigoCard"
               form={selectedArticle || {}}

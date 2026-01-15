@@ -15,10 +15,25 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
+    // Helper: converte número para formato pt-BR (ex: 4999.99 -> "R$ 4.999,99")
+    const formatPtBRMoney = (v: unknown): string => {
+      if (typeof v === "number" && Number.isFinite(v)) {
+        return new Intl.NumberFormat("pt-BR", {
+          style: "currency",
+          currency: "BRL",
+        }).format(v);
+      }
+      if (typeof v === "string") return v;
+      return "R$ 0,00";
+    };
+
     // Normaliza a chave da imagem: usa `imagem` (minúsculo) no payload da API
+    // E formata valores monetários de volta para string formatada
     const normalized = (data || []).map((row: any) => ({
       ...row,
       imagem: row.imagem || row.Imagem || null,
+      preco: formatPtBRMoney(row.preco),
+      receita: formatPtBRMoney(row.receita),
     }));
 
     return NextResponse.json(normalized);

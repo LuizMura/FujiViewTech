@@ -399,7 +399,7 @@ export default function AdminAfiliadosPage() {
                   : "Nenhum afiliado encontrado."}
               </div>
             ) : (
-              <div className="overflow-x-auto border border-[#2c313c] rounded-xl">
+              <div className="overflow-y-auto max-h-112 border border-[#2c313c] rounded-xl">
                 <table className="min-w-full text-sm text-left text-[#cbd5e1]">
                   <thead className="bg-[#1a1e25] text-[#9ca3af]">
                     <tr>
@@ -427,19 +427,9 @@ export default function AdminAfiliadosPage() {
                           <button
                             onClick={(e) => {
                               e.stopPropagation();
-                              handleEdit(item);
-                            }}
-                            className="p-2 rounded bg-indigo-600 text-white hover:bg-indigo-500"
-                            title="Editar"
-                          >
-                            <Edit size={16} />
-                          </button>
-                          <button
-                            onClick={(e) => {
-                              e.stopPropagation();
                               handleDelete(item.id);
                             }}
-                            className="p-2 rounded bg-red-600 text-white hover:bg-red-500"
+                            className="p-1.5 rounded bg-slate-600 text-white hover:bg-red-500"
                             disabled={saving}
                             title="Excluir"
                           >
