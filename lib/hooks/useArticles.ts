@@ -89,8 +89,6 @@ export async function getArticleById(id: string): Promise<Article | null> {
  * Buscar artigo por slug
  */
 export async function getArticleBySlug(slug: string): Promise<Article | null> {
-  console.log("Supabase URL:", process.env.NEXT_PUBLIC_SUPABASE_URL);
-  console.log("Supabase Key:", process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY);
   const supabase = createClient();
 
   const { data, error } = await supabase
