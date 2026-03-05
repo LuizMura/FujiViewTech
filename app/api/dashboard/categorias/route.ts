@@ -16,7 +16,10 @@ export async function GET() {
 
     if (statsError) {
       console.error("[API dashboard/categorias] Supabase error:", statsError);
-      return NextResponse.json({ error: statsError.message, details: statsError }, { status: 500 });
+      return NextResponse.json(
+        { error: statsError.message, details: statsError },
+        { status: 500 },
+      );
     }
 
     // Datas de referência
@@ -25,47 +28,54 @@ export async function GET() {
     const startOfWeek = new Date(now);
     startOfWeek.setDate(now.getDate() - now.getDay()); // Domingo
 
-    const categoriaMap: Record<string, {
-      totalArtigos: number;
-      totalVisualizacoes: number;
-      artigosMes: number;
-      artigosSemana: number;
-    }> = {};
-    (stats || []).forEach((row: any) => {
-      if (!row.category) return;
-      if (!categoriaMap[row.category]) {
-        categoriaMap[row.category] = {
-          totalArtigos: 0,
-          totalVisualizacoes: 0,
-          artigosMes: 0,
-          artigosSemana: 0,
-        };
+    const categoriaMap: Record<
+      string,
+      {
+        totalArtigos: number;
+        totalVisualizacoes: number;
+        artigosMes: number;
+        artigosSemana: number;
       }
-      categoriaMap[row.category].totalArtigos += 1;
-      categoriaMap[row.category].totalVisualizacoes += row.views || 0;
-      const createdAt = row.created_at ? new Date(row.created_at) : null;
-      if (createdAt) {
-        if (createdAt >= startOfMonth) {
-          categoriaMap[row.category].artigosMes += 1;
+    > = {};
+    (stats || []).forEach(
+      (row: { category?: string; views?: number; created_at?: string }) => {
+        if (!row.category) return;
+        if (!categoriaMap[row.category]) {
+          categoriaMap[row.category] = {
+            totalArtigos: 0,
+            totalVisualizacoes: 0,
+            artigosMes: 0,
+            artigosSemana: 0,
+          };
         }
-        if (createdAt >= startOfWeek) {
-          categoriaMap[row.category].artigosSemana += 1;
+        categoriaMap[row.category].totalArtigos += 1;
+        categoriaMap[row.category].totalVisualizacoes += row.views || 0;
+        const createdAt = row.created_at ? new Date(row.created_at) : null;
+        if (createdAt) {
+          if (createdAt >= startOfMonth) {
+            categoriaMap[row.category].artigosMes += 1;
+          }
+          if (createdAt >= startOfWeek) {
+            categoriaMap[row.category].artigosSemana += 1;
+          }
         }
-      }
-    });
+      },
+    );
 
-    const resultFinal = Object.entries(categoriaMap).map(([categoria, valores]) => ({
-      categoria,
-      totalArtigos: valores.totalArtigos,
-      totalVisualizacoes: valores.totalVisualizacoes,
-      artigosMes: valores.artigosMes,
-      artigosSemana: valores.artigosSemana,
-    }));
+    const resultFinal = Object.entries(categoriaMap).map(
+      ([categoria, valores]) => ({
+        categoria,
+        totalArtigos: valores.totalArtigos,
+        totalVisualizacoes: valores.totalVisualizacoes,
+        artigosMes: valores.artigosMes,
+        artigosSemana: valores.artigosSemana,
+      }),
+    );
 
     return NextResponse.json(resultFinal);
 
     // (removido: código morto)
-  } catch (e) {
+  } catch {
     return NextResponse.json([], { status: 200 });
   }
 }

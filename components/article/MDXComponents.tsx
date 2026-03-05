@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React from "react";
+import Image from "next/image";
 import AfiliadosCard from "@/components/home/AfiliadosCard";
 import ProductRow from "@/components/article/ProductRow";
 
@@ -10,25 +11,6 @@ type Afiliado = {
   cor?: string;
   texto?: string;
   logo?: string;
-};
-
-type AfiliadoProduto = {
-  id: string;
-  titulo: string;
-  descricao: string;
-  categoria: string;
-  loja: string;
-  preco: number;
-  afiliado_url: string;
-  status: string;
-  publicado_em: string;
-  imagem: string;
-  button_text: string;
-  button_color: string;
-  views?: number;
-  clicks?: number;
-  compras?: number;
-  receita?: number;
 };
 
 type AfiliadosCardProps = {
@@ -112,7 +94,15 @@ export function ProductCard({
   return (
     <div className="my-6 overflow-hidden bg-white border border-gray-200 rounded-xl shadow-md hover:shadow-xl transition-shadow">
       {image && (
-        <img src={image} alt={title} className="w-full h-48 object-cover" />
+        <div className="relative w-full h-48">
+          <Image
+            src={image}
+            alt={title}
+            fill
+            unoptimized
+            className="object-cover"
+          />
+        </div>
       )}
       <div className="p-6">
         <h3 className="text-xl font-bold text-gray-900 mb-2">{title}</h3>
@@ -158,12 +148,20 @@ export function SpecsTable({ specs }: { specs: Record<string, string> }) {
 export function AfiliadosCardBlock(props: AfiliadosCardProps) {
   // Se já veio com afiliados array (compatibilidade anterior)
   if (props.afiliados && props.afiliados.length > 0) {
-    return <AfiliadosCard {...props} afiliados={props.afiliados} />;
+    return (
+      <div className="not-prose my-3 mx-auto w-[150px] md:w-[200px] lg:w-[200px]">
+        <AfiliadosCard {...props} afiliados={props.afiliados} />
+      </div>
+    );
   }
 
   // Se veio com todos os campos necessários para renderizar
   if (props.titulo && props.loja && props.preco) {
-    return <AfiliadosCard {...props} afiliados={props.afiliados || []} />;
+    return (
+      <div className="not-prose my-3 mx-auto w-[150px] md:w-[200px] lg:w-[200px]">
+        <AfiliadosCard {...props} afiliados={props.afiliados || []} />
+      </div>
+    );
   }
 
   // Fallback vazio se não tem dados
@@ -181,6 +179,7 @@ export const components = {
     // Verifica se há elementos block dentro do parágrafo
     const hasBlockElement = React.Children.toArray(children).some((child) => {
       if (!React.isValidElement(child)) return false;
+      if (typeof child.type !== "string") return true;
       const blockElements = [
         "h1",
         "h2",
@@ -196,7 +195,7 @@ export const components = {
         "p",
       ];
       return blockElements.includes(
-        typeof child.type === "string" ? child.type : ""
+        typeof child.type === "string" ? child.type : "",
       );
     });
 

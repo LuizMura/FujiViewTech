@@ -1,5 +1,6 @@
 // components/ProductRow.tsx
 import React from "react";
+import Image from "next/image";
 
 type ProductRowProps = {
   image: string;
@@ -14,8 +15,22 @@ export default function ProductRow({
   url,
   children,
 }: ProductRowProps) {
+  const safeTitle =
+    typeof title === "string" && title.trim().length > 0
+      ? title.trim()
+      : "Imagem do produto";
+
   const imageElement = (
-    <img src={image} alt={title} className="w-84 rounded-xl" />
+    <div className="w-84 h-84 rounded-xl overflow-hidden flex items-center justify-center">
+      <Image
+        src={image}
+        alt={safeTitle}
+        width={336}
+        height={336}
+        unoptimized
+        className="w-full h-full object-contain"
+      />
+    </div>
   );
 
   return (
@@ -40,7 +55,7 @@ export default function ProductRow({
         [&_p]:text-base [&_p]:leading-7 [&_p]:text-slate-800
         [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-1"
       >
-        <h3 className="text-xl font-bold mb-2 !mb-3 !mt-0">{title}</h3>
+        <h3 className="text-xl font-bold mb-2 !mb-3 !mt-0">{safeTitle}</h3>
         {children}
       </div>
     </div>

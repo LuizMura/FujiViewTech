@@ -1,14 +1,6 @@
 import React, { useEffect, useState } from "react";
 import AfiliadosCard from "./AfiliadosCard";
 
-interface Afiliado {
-  nome: string;
-  url: string;
-  cor?: string;
-  texto?: string;
-  logo?: string;
-}
-
 interface ProdutoAfiliado {
   imagem: string;
   titulo: string;

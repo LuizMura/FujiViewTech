@@ -2,16 +2,7 @@
 
 import React, { useEffect, useRef, useState } from "react";
 import AfiliadosCard from "./AfiliadosCard";
-import CarrosselNavigation from "./CarrosselNavigation";
 import { ChevronLeft, ChevronRight } from "lucide-react";
-
-interface Afiliado {
-  nome: string;
-  url: string;
-  cor?: string;
-  texto?: string;
-  logo?: string;
-}
 
 interface ProdutoAfiliado {
   imagem: string;
@@ -100,8 +91,6 @@ const AfiliadosCarrossel: React.FC = () => {
   }
   if (!produtos.length) return <div>Nenhum produto afiliado encontrado.</div>;
 
-  const totalPages = Math.ceil(produtos.length / itemsPerPage);
-  const currentPage = Math.floor(currentIndex / itemsPerPage);
   const visibleItems = produtos;
 
   const scrollToIndex = (index: number) => {

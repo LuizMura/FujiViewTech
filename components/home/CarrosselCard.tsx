@@ -1,6 +1,6 @@
 import React from "react";
 import Image from "next/image";
-import { ArrowLeft, Calendar, User, Clock } from "lucide-react";
+import { Calendar } from "lucide-react";
 import Link from "next/link";
 import { Article } from "@/lib/types/article";
 
@@ -9,10 +9,7 @@ interface CarrosselCardProps {
   showAuthor?: boolean;
 }
 
-const CarrosselCard: React.FC<CarrosselCardProps> = ({
-  article,
-  showAuthor = true,
-}) => {
+const CarrosselCard: React.FC<CarrosselCardProps> = ({ article }) => {
   return (
     <>
       {/* Featured Image with Title Overlay */}
@@ -26,7 +23,7 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({
             priority
           />
           {/* Dark Gradient Overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-slate-900 via-slate-900/60 to-transparent"></div>
+          <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/60 to-transparent"></div>
           {/* Title and Metadata on top of image */}
           <div className="absolute inset-0 flex flex-col justify-start mt-6 p-8 md:p-15">
             <div className="space-y-2 md:space-y-4">
@@ -43,9 +40,9 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({
                           "pt-BR",
                           {
                             day: "numeric",
-                            month: "long",
+                            month: "numeric",
                             year: "numeric",
-                          }
+                          },
                         )
                       : ""}
                   </span>

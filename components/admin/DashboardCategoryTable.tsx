@@ -1,18 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 
-// Função utilitária para buscar categorias do dashboard
-async function fetchDashboardCategorias(): Promise<any[]> {
-  const res = await fetch("/api/dashboard/categorias");
-  const data = await res.json();
-  // Log para debug
-  if (typeof window !== "undefined") {
-    // eslint-disable-next-line no-console
-    console.log("[Dashboard] API categorias resposta bruta:", data);
-  }
-  return data;
-}
-
 interface CategoriaInfo {
   categoria: string;
   totalArtigos: number;
@@ -21,20 +9,28 @@ interface CategoriaInfo {
   artigosSemana: number;
 }
 
+// Função utilitária para buscar categorias do dashboard
+async function fetchDashboardCategorias(): Promise<CategoriaInfo[]> {
+  const res = await fetch("/api/dashboard/categorias");
+  const data = await res.json();
+  if (typeof window !== "undefined") {
+    console.log("[Dashboard] API categorias resposta bruta:", data);
+  }
+  return Array.isArray(data) ? (data as CategoriaInfo[]) : [];
+}
+
 export default function DashboardCategoryTable() {
   const [categorias, setCategorias] = useState<CategoriaInfo[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    setLoading(true);
-    setError(null);
     fetchDashboardCategorias()
       .then((data) => {
         setCategorias(data || []);
       })
-      .catch((e) => {
-        setError(e.message || "Erro de rede ou servidor");
+      .catch((e: unknown) => {
+        setError(e instanceof Error ? e.message : "Erro de rede ou servidor");
         setCategorias([]);
       })
       .finally(() => setLoading(false));
@@ -43,15 +39,15 @@ export default function DashboardCategoryTable() {
   const totalArtigos = categorias.reduce((acc, c) => acc + c.totalArtigos, 0);
   const totalVisualizacoes = categorias.reduce(
     (acc, c) => acc + c.totalVisualizacoes,
-    0
+    0,
   );
   const totalArtigosMes = categorias.reduce(
     (acc, c) => acc + (c.artigosMes || 0),
-    0
+    0,
   );
   const totalArtigosSemana = categorias.reduce(
     (acc, c) => acc + (c.artigosSemana || 0),
-    0
+    0,
   );
 
   if (loading) return <div className="text-[#bfc7d5]">Carregando...</div>;

@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useMemo, useState } from "react";
-import { Edit, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import AdminHeader from "../AdminHeader";
 import AfiliadosCard from "@/components/home/AfiliadosCard";
 
@@ -21,6 +21,9 @@ type AfiliadoProduto = {
 };
 
 export default function AdminAfiliadosPage() {
+  const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error ? error.message : fallback;
+
   const emptyForm: AfiliadoProduto = useMemo(
     () => ({
       imagem: "",
@@ -34,9 +37,9 @@ export default function AdminAfiliadosPage() {
       preco: "",
       afiliado_url: "",
       button_text: "COMPRAR",
-      button_color: "#3b82f6",
+      button_color: "#ac3e3e",
     }),
-    []
+    [],
   );
 
   const [form, setForm] = useState<AfiliadoProduto>(emptyForm);
@@ -59,14 +62,14 @@ export default function AdminAfiliadosPage() {
       if (!res.ok) throw new Error(data?.error || "Falha no upload");
       setForm((prev) => ({ ...prev, imagem: data.url }));
       setMessage("Imagem enviada com sucesso");
-    } catch (err: any) {
-      setMessage(err?.message || "Erro ao enviar imagem");
+    } catch (err: unknown) {
+      setMessage(getErrorMessage(err, "Erro ao enviar imagem"));
     }
   }
 
   const categoriasSugeridas = useMemo(
     () => Array.from(new Set(produtos.map((p) => p.categoria).filter(Boolean))),
-    [produtos]
+    [produtos],
   );
 
   const produtosFiltrados = useMemo(() => {
@@ -79,8 +82,8 @@ export default function AdminAfiliadosPage() {
       form.imagens && form.imagens.length
         ? form.imagens
         : form.imagem
-        ? [form.imagem]
-        : [];
+          ? [form.imagem]
+          : [];
     const imagem = imagens[0] || "/images/og-default.png";
     const titulo = form.titulo || "Título do produto";
     const descricao =
@@ -99,7 +102,7 @@ export default function AdminAfiliadosPage() {
           nome: "Afiliado",
           url: form.afiliado_url || "#",
           texto: form.button_text || "COMPRAR",
-          cor: form.button_color || "#3b82f6",
+          cor: form.button_color || "#ac3e3e",
         },
       ],
     };
@@ -114,7 +117,7 @@ export default function AdminAfiliadosPage() {
       "images.samsung.com",
       "m.media-amazon.com",
     ],
-    []
+    [],
   );
 
   const isValidImgInput = (s?: string) => {
@@ -171,8 +174,8 @@ export default function AdminAfiliadosPage() {
       new Set(
         details
           .filter((d) => d.valid && d.host && !d.allowed)
-          .map((d) => d.host as string)
-      )
+          .map((d) => d.host as string),
+      ),
     );
     return { details, invalidCount, disallowedHosts };
   }, [form.imagens, allowedHosts]);
@@ -245,12 +248,10 @@ export default function AdminAfiliadosPage() {
         "afiliado_url",
         "status",
       ];
-      const missing = required.filter(
-        (k) => !String((form as any)[k] || "").trim()
-      );
+      const missing = required.filter((k) => !String(form[k] || "").trim());
       if (missing.length) {
         throw new Error(
-          `Preencha os campos obrigatórios: ${missing.join(", ")}`
+          `Preencha os campos obrigatórios: ${missing.join(", ")}`,
         );
       }
 
@@ -271,7 +272,7 @@ export default function AdminAfiliadosPage() {
         status: form.status,
         publicado_em: form.publicado_em,
         imagem: imagemFinal || undefined,
-      } as any;
+      };
 
       const payload = selectedId
         ? { id: selectedId, ...basePayload }
@@ -289,8 +290,8 @@ export default function AdminAfiliadosPage() {
       setSelectedId(null);
       setForm(emptyForm);
       loadProdutos();
-    } catch (error: any) {
-      setMessage(error?.message || "Erro ao salvar afiliado");
+    } catch (error: unknown) {
+      setMessage(getErrorMessage(error, "Erro ao salvar afiliado"));
     } finally {
       setSaving(false);
     }
@@ -339,8 +340,8 @@ export default function AdminAfiliadosPage() {
         handleReset();
       }
       loadProdutos();
-    } catch (error: any) {
-      setMessage(error?.message || "Erro ao excluir afiliado");
+    } catch (error: unknown) {
+      setMessage(getErrorMessage(error, "Erro ao excluir afiliado"));
     } finally {
       setSaving(false);
     }

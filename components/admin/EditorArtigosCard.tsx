@@ -1,5 +1,5 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import ArticleForm from "./ArticleForm";
 import ArticlePreview from "./ArticlePreview";
 
@@ -7,7 +7,7 @@ interface CardBase {
   title: string;
   image?: string;
   category?: string;
-  [key: string]: any;
+  [key: string]: unknown;
 }
 
 interface EditorProps<T extends CardBase> {
@@ -24,18 +24,12 @@ export default function EditorArtigosCard<T extends CardBase>({
   cardType,
   initialData,
   onSave,
-  previewOnTop = false,
 }: EditorArtigosCardProps<T>) {
   const [form, setForm] = useState<T>(
-    initialData || ({ status: "published" } as unknown as T)
+    initialData || ({ status: "published" } as unknown as T),
   );
 
-  // Atualiza o formulário quando initialData muda
-  useEffect(() => {
-    setForm(initialData || ({ status: "published" } as unknown as T));
-  }, [initialData]);
-
-  const handleFormChange = (field: string, value: any) => {
+  const handleFormChange = (field: string, value: unknown) => {
     setForm((prev) => ({
       ...prev,
       [field]: value,

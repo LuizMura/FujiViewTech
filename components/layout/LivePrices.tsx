@@ -6,6 +6,7 @@ interface PriceData {
   btc: number;
   eth: number;
   bnb: number;
+  xrp: number;
   sol: number;
   usdt: number;
   usd: number;
@@ -16,6 +17,7 @@ interface PriceChange {
   btc: number;
   eth: number;
   bnb: number;
+  xrp: number;
   sol: number;
   usdt: number;
   usd: number;
@@ -30,41 +32,53 @@ export default function LivePrices() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        // Fetch all prices from AwesomeAPI
-        const response = await fetch(
-          "https://economia.awesomeapi.com.br/last/BTC-BRL,ETH-BRL,BNB-BRL,SOL-BRL,USDT-BRL,USD-BRL,EUR-BRL",
-          {
-            method: "GET",
-            headers: {
-              Accept: "application/json",
-            },
-          }
-        );
+        // Fetch cryptos from CoinGecko (BRL) and fiat rates (USD/EUR -> BRL) from AwesomeAPI
+        const cgUrl =
+          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,tether,ripple&vs_currencies=brl&include_24hr_change=true";
+        const fiatUrl =
+          "https://economia.awesomeapi.com.br/last/USDT-BRL,USD-BRL,EUR-BRL";
 
-        if (!response.ok) {
+        const [cgResp, fiatResp] = await Promise.all([
+          fetch(cgUrl, { headers: { Accept: "application/json" } }),
+          fetch(fiatUrl, { headers: { Accept: "application/json" } }),
+        ]);
+
+        if (!cgResp.ok || !fiatResp.ok) {
           throw new Error("API request failed");
         }
 
-        const data = await response.json();
+        const cgData = await cgResp.json();
+        const fiatData = await fiatResp.json();
 
         const newPrices = {
-          btc: parseFloat(data.BTCBRL?.bid) || 0,
-          eth: parseFloat(data.ETHBRL?.bid) || 0,
-          bnb: parseFloat(data.BNBBRL?.bid) || 0,
-          sol: parseFloat(data.SOLBRL?.bid) || 0,
-          usdt: parseFloat(data.USDTBRL?.bid) || 0,
-          usd: parseFloat(data.USDBRL?.bid) || 0,
-          eur: parseFloat(data.EURBRL?.bid) || 0,
+          btc: parseFloat(cgData?.bitcoin?.brl) || 0,
+          eth: parseFloat(cgData?.ethereum?.brl) || 0,
+          bnb: parseFloat(cgData?.binancecoin?.brl) || 0,
+          sol: parseFloat(cgData?.solana?.brl) || 0,
+          xrp: parseFloat(cgData?.ripple?.brl) || 0,
+          // Prefer AwesomeAPI USDT if available (fallback to CoinGecko tether)
+          usdt:
+            parseFloat(fiatData?.USDTBRL?.bid) ||
+            parseFloat(cgData?.tether?.brl) ||
+            0,
+          usd: parseFloat(fiatData?.USDBRL?.bid) || 0,
+          eur: parseFloat(fiatData?.EURBRL?.bid) || 0,
         };
 
+        // CoinGecko returns 24h change as e.g. brl_24h_change
         const newChanges = {
-          btc: parseFloat(data.BTCBRL?.pctChange) || 0,
-          eth: parseFloat(data.ETHBRL?.pctChange) || 0,
-          bnb: parseFloat(data.BNBBRL?.pctChange) || 0,
-          sol: parseFloat(data.SOLBRL?.pctChange) || 0,
-          usdt: parseFloat(data.USDTBRL?.pctChange) || 0,
-          usd: parseFloat(data.USDBRL?.pctChange) || 0,
-          eur: parseFloat(data.EURBRL?.pctChange) || 0,
+          btc: parseFloat(cgData?.bitcoin?.brl_24h_change) || 0,
+          eth: parseFloat(cgData?.ethereum?.brl_24h_change) || 0,
+          bnb: parseFloat(cgData?.binancecoin?.brl_24h_change) || 0,
+          sol: parseFloat(cgData?.solana?.brl_24h_change) || 0,
+          xrp: parseFloat(cgData?.ripple?.brl_24h_change) || 0,
+          usdt:
+            parseFloat(fiatData?.USDTBRL?.pctChange) ||
+            parseFloat(cgData?.tether?.brl_24h_change) ||
+            0,
+          // fiat percent changes come from AwesomeAPI's pctChange field
+          usd: parseFloat(fiatData?.USDBRL?.pctChange) || 0,
+          eur: parseFloat(fiatData?.EURBRL?.pctChange) || 0,
         };
 
         setPrices(newPrices);
@@ -77,6 +91,7 @@ export default function LivePrices() {
           btc: 0,
           eth: 0,
           bnb: 0,
+          xrp: 0,
           sol: 0,
           usdt: 0,
           usd: 0,
@@ -86,6 +101,7 @@ export default function LivePrices() {
           btc: 0,
           eth: 0,
           bnb: 0,
+          xrp: 0,
           sol: 0,
           usdt: 0,
           usd: 0,
@@ -154,7 +170,7 @@ export default function LivePrices() {
         </span>
         <span
           className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
-            changes.btc
+            changes.btc,
           )}`}
         >
           {formatPrice(prices.btc, true)}
@@ -171,7 +187,7 @@ export default function LivePrices() {
         </span>
         <span
           className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
-            changes.eth
+            changes.eth,
           )}`}
         >
           {formatPrice(prices.eth, true)}
@@ -217,13 +233,24 @@ export default function LivePrices() {
       </div>
 
       <span className="hidden md:inline text-slate-300">|</span>
+      <div className="hidden lg:flex items-center gap-1 whitespace-nowrap">
+        <span className="font-bold text-slate-900 text-sm">XRP</span>
+        <span
+          className={`font-semibold text-sm ${getChangeColor(changes.xrp)}`}
+        >
+          {formatPrice(prices.xrp, true)}
+        </span>
+        <span className="hidden md:inline">{getChangeIcon(changes.xrp)}</span>
+      </div>
+
+      <span className="hidden md:inline text-slate-300">|</span>
       <div className="flex items-center gap-1 whitespace-nowrap">
         <span className="font-bold text-slate-900 text-[12px] md:text-sm">
           USD
         </span>
         <span
           className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
-            changes.usd
+            changes.usd,
           )}`}
         >
           {formatPrice(prices.usd)}
@@ -240,7 +267,7 @@ export default function LivePrices() {
         </span>
         <span
           className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
-            changes.eur
+            changes.eur,
           )}`}
         >
           {formatPrice(prices.eur)}
@@ -257,7 +284,7 @@ export default function LivePrices() {
           e.preventDefault();
           window.open(
             "https://www.binance.com/referral/earn-together/refer2earn-usdc/claim?hl=pt-BR&ref=GRO_28502_CQT0Y&utm_source=default",
-            "_blank"
+            "_blank",
           );
         }}
         className="hidden md:flex items-center gap-1 text-slate-900 hover:text-indigo-600 font-bold whitespace-nowrap transition-colors underline decoration-2 underline-offset-2 cursor-pointer bg-transparent border-0 p-0"

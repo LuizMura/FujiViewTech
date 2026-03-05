@@ -37,7 +37,9 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-1 text-center md:text-left">
             <span className="flex justify-center items-center gap-2 mb-2">
               <Link href="/">
-                <LogoBrand />
+                <div className="scale-75 origin-left">
+                  <LogoBrand />
+                </div>
               </Link>
             </span>
             <p className="px-4 text-slate-500 text-sm leading-relaxed mb-6 md:px-0">
@@ -45,10 +47,22 @@ export default function Footer() {
               tecnologia.
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
-              <SocialLink href="#" icon={<Twitter size={18} />} />
-              <SocialLink href="#" icon={<Instagram size={18} />} />
-              <SocialLink href="#" icon={<Linkedin size={18} />} />
-              <SocialLink href="#" icon={<Github size={18} />} />
+              <SocialLink
+                href="https://x.com/LuizMurak"
+                icon={<Twitter size={18} />}
+              />
+              <SocialLink
+                href="https://www.instagram.com/luizmurak"
+                icon={<Instagram size={18} />}
+              />
+              <SocialLink
+                href="https://www.linkedin.com/in/luizmura/"
+                icon={<Linkedin size={18} />}
+              />
+              <SocialLink
+                href="https://github.com/LuizMura"
+                icon={<Github size={18} />}
+              />
             </div>
           </div>
           <div className="text-center md:text-left">
@@ -94,9 +108,20 @@ export default function Footer() {
             </form>
           </div>
         </div>
-        <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
+        <div className="border-t border-slate-100 pt-8 flex flex-col md:flex-row justify-around items-center gap-4">
           <p className="text-slate-500 text-sm">
             © {currentYear} FujiviewTech. Todos os direitos reservados.
+          </p>
+          <p className="text-slate-500 text-sm">
+            Desenvolvido por:{" "}
+            <a
+              href="https://luizmura.github.io/Profile/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-slate-600 transition-colors border-silver border-1 rounded-2xl px-3 py-1 font-semibold bg-teal-600 text-white"
+            >
+              Luiz Murakami
+            </a>
           </p>
         </div>
       </div>

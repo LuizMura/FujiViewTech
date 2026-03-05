@@ -1,5 +1,11 @@
 "use client";
-import { forwardRef, useImperativeHandle, useState, useEffect } from "react";
+import {
+  forwardRef,
+  useImperativeHandle,
+  useState,
+  useEffect,
+  useCallback,
+} from "react";
 import { Article } from "@/lib/types/article";
 import { getArticles } from "@/lib/hooks/useArticles";
 import { createClient } from "@/lib/supabase/client";
@@ -27,7 +33,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
       onDelete,
       loadingAction,
     },
-    ref
+    ref,
   ) {
     const [showConfirm, setShowConfirm] = useState(false);
     const [articles, setArticles] = useState<Article[]>([]);
@@ -38,8 +44,10 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
 
     // Sincronizar filtro externo com interno
     useEffect(() => {
-      if (externalCategory !== undefined && externalCategory !== category) {
-        setCategory(externalCategory);
+      if (externalCategory !== undefined) {
+        setCategory((prev) =>
+          prev !== externalCategory ? externalCategory : prev,
+        );
       }
     }, [externalCategory]);
 
@@ -56,7 +64,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
           setCategories([]);
         } else {
           const unique = Array.from(
-            new Set((data || []).map((a) => a.category))
+            new Set((data || []).map((a) => a.category)),
           );
           setCategories(unique);
         }
@@ -65,15 +73,15 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
     }, []);
 
     // Carregar artigos filtrados
-    const loadArticles = async () => {
+    const loadArticles = useCallback(async () => {
       setLoading(true);
       try {
-        const filters: any = {};
+        const filters: Record<string, string> = {};
         if (category) filters.category = category;
         if (statusFilter && statusFilter !== "") filters.status = statusFilter;
 
         const data = await getArticles(
-          Object.keys(filters).length > 0 ? filters : undefined
+          Object.keys(filters).length > 0 ? filters : undefined,
         );
         setArticles(data);
       } catch (error) {
@@ -81,7 +89,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
       } finally {
         setLoading(false);
       }
-    };
+    }, [category, statusFilter]);
 
     useImperativeHandle(ref, () => ({
       reload: loadArticles,
@@ -89,7 +97,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
 
     useEffect(() => {
       loadArticles();
-    }, [category, statusFilter]);
+    }, [loadArticles]);
 
     return (
       <div>
@@ -191,36 +199,42 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
             <div className="text-gray-500">Carregando artigos...</div>
           </div>
         ) : (
-          <ul className="h-30 overflow-auto space-y-px border border-[#4b6b57] rounded-lg bg-[#18181b]">
-            {articles.map((article) => (
-              <li key={article.id}>
-                <button
-                  className={`w-full text-left px-4 py-1 rounded-lg transition flex flex-col border ${
-                    selectedId === article.id
-                      ? "bg-[#4b6b57] text-white border-[#4b6b57] shadow-lg"
-                      : "bg-[#18181b] text-white border-transparent hover:bg-[#23232a] hover:border-[#4b6b57]"
-                  }`}
-                  onClick={() => onSelect?.(article.id, article)}
-                >
-                  <span className="font-semibold text-base mb-1">
-                    {article.title}
-                  </span>
-                  <span className="text-xs text-gray-400">
-                    {article.category}
-                  </span>
-                </button>
-              </li>
-            ))}
+          <div className="space-y-2">
+            <label
+              htmlFor="article-select"
+              className="block text-sm font-medium text-gray-300"
+            >
+              Selecione um artigo:
+            </label>
+            <select
+              id="article-select"
+              value={selectedId || ""}
+              onChange={(e) => {
+                const id = e.target.value;
+                const selectedArticle = articles.find((a) => a.id === id);
+                if (id && selectedArticle) {
+                  onSelect?.(id, selectedArticle);
+                }
+              }}
+              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+            >
+              <option value="">Selecione...</option>
+              {articles.map((article) => (
+                <option key={article.id} value={article.id}>
+                  {article.title} - {article.category}
+                </option>
+              ))}
+            </select>
             {articles.length === 0 && (
-              <li className="text-gray-500 px-3 py-2">
+              <div className="text-gray-500 px-1 py-1 text-sm">
                 Nenhum artigo encontrado
-              </li>
+              </div>
             )}
-          </ul>
+          </div>
         )}
       </div>
     );
-  }
+  },
 );
 
 export default ArticleList;

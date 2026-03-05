@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 
 import Image from "next/image";
 import { Article } from "@/lib/types/article";
@@ -15,7 +15,7 @@ const NoticiasCard: React.FC<NoticiasCardProps> = ({ artigos }) => {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .trim()
-        .toLowerCase() === "noticias"
+        .toLowerCase() === "noticias",
   );
 
   if (noticias.length === 0) return null;

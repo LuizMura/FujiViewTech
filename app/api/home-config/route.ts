@@ -4,11 +4,6 @@ import { createAdminClient } from "@/lib/supabase/admin";
 const TABLE = "home_config";
 const SINGLE_ID = 1;
 
-type HomeConfig = {
-  article_slugs: string[] | null;
-  afiliado_ids: string[] | null;
-};
-
 export async function GET() {
   try {
     const supabase = createAdminClient();
@@ -21,7 +16,7 @@ export async function GET() {
     if (error) {
       return NextResponse.json(
         { article_slugs: [], afiliado_ids: [] },
-        { status: 200 }
+        { status: 200 },
       );
     }
 
@@ -33,7 +28,7 @@ export async function GET() {
     console.error("Home config GET error", error);
     return NextResponse.json(
       { article_slugs: [], afiliado_ids: [] },
-      { status: 200 }
+      { status: 200 },
     );
   }
 }
@@ -58,7 +53,7 @@ export async function POST(request: NextRequest) {
           afiliado_ids: afiliadoIds,
           updated_at: new Date().toISOString(),
         },
-        { onConflict: "id" }
+        { onConflict: "id" },
       )
       .select()
       .single();
@@ -72,7 +67,7 @@ export async function POST(request: NextRequest) {
     console.error("Home config POST error", error);
     return NextResponse.json(
       { error: "Erro ao salvar configuração" },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

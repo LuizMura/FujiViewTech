@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import LogoBrand from "./LogoBrand";
-import { Menu, X, Search } from "lucide-react";
+import { Menu, X } from "lucide-react";
 
 function Header() {
   const pathname = usePathname();

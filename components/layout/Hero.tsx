@@ -1,9 +1,6 @@
 import AfiliadosCarrossel from "@/components/home/AfiliadosCarrossel";
 
 import React, { useEffect, useState } from "react";
-import Link from "next/link";
-import Image from "next/image";
-import { useHero } from "@/app/context/HeroContext";
 import ArtigosCarrossel from "@/components/home/ArtigosCarrossel";
 import CategoryCard from "@/components/home/CategoryCard";
 import UltimasPostagensCarrossel from "@/components/home/UltimasPostagensCarrossel";
@@ -12,14 +9,12 @@ import { getArticles } from "@/lib/hooks/useArticles";
 import { Article } from "@/lib/types/article";
 
 export default function Hero() {
-  const { heroContent, topCard, bottomCard } = useHero();
-  const safeHeroContent = heroContent || {};
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
   const [noticiasArticles, setNoticiasArticles] = useState<Article[]>([]);
   const [economiaArticles, setEconomiaArticles] = useState<Article[]>([]);
   const [viagensArticles, setViagensArticles] = useState<Article[]>([]);
   const [filmesSeriesArticles, setFilmesSeriesArticles] = useState<Article[]>(
-    []
+    [],
   );
   const [allArticles, setAllArticles] = useState<Article[]>([]);
 

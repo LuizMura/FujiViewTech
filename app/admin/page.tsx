@@ -25,10 +25,6 @@ export default function AdminPage() {
     }
   };
 
-  const handleLogout = async () => {
-    await supabase.auth.signOut();
-  };
-
   if (loading) {
     return (
       <div className="flex min-h-screen items-center justify-center bg-gray-100">
@@ -44,7 +40,9 @@ export default function AdminPage() {
           onSubmit={handleLogin}
           className="bg-[#232946]/90 p-8 rounded-2xl shadow-xl w-full max-w-sm flex flex-col gap-4 border border-[#393e5c]"
         >
-          <h2 className="text-2xl font-bold mb-2 text-center text-[#eebbc3]">Login Admin</h2>
+          <h2 className="text-2xl font-bold mb-2 text-center text-[#eebbc3]">
+            Login Admin
+          </h2>
           <input
             type="email"
             placeholder="E-mail"
@@ -62,7 +60,9 @@ export default function AdminPage() {
             required
           />
           {loginError && (
-            <div className="text-[#eebbc3] bg-[#b8c1ec]/20 rounded p-2 text-sm text-center">{loginError}</div>
+            <div className="text-[#eebbc3] bg-[#b8c1ec]/20 rounded p-2 text-sm text-center">
+              {loginError}
+            </div>
           )}
           <button
             type="submit"

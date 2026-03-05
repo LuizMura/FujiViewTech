@@ -37,10 +37,13 @@ interface AfiliadoProduto {
 }
 
 export default function AdminHomePage() {
+  const getErrorMessage = (error: unknown, fallback: string) =>
+    error instanceof Error ? error.message : fallback;
+
   const [articles, setArticles] = useState<ArticleDB[]>([]);
   const [afiliados, setAfiliados] = useState<AfiliadoProduto[]>([]);
   const [selectedArticleSlugs, setSelectedArticleSlugs] = useState<string[]>(
-    []
+    [],
   );
   const [selectedAfiliadoIds, setSelectedAfiliadoIds] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
@@ -59,7 +62,7 @@ export default function AdminHomePage() {
       const { data: articlesData } = await supabase
         .from("articles")
         .select(
-          "id, slug, category, title, description, image, read_time, published_date, created_at, status"
+          "id, slug, category, title, description, image, read_time, published_date, created_at, status",
         )
         .eq("status", "published")
         .order("published_date", { ascending: false });
@@ -73,10 +76,10 @@ export default function AdminHomePage() {
       setArticles(Array.isArray(articlesData) ? articlesData : []);
       setAfiliados(Array.isArray(afiliadosData) ? afiliadosData : []);
       setSelectedArticleSlugs(
-        Array.isArray(configData.article_slugs) ? configData.article_slugs : []
+        Array.isArray(configData.article_slugs) ? configData.article_slugs : [],
       );
       setSelectedAfiliadoIds(
-        Array.isArray(configData.afiliado_ids) ? configData.afiliado_ids : []
+        Array.isArray(configData.afiliado_ids) ? configData.afiliado_ids : [],
       );
     } catch (error) {
       console.error(error);
@@ -88,14 +91,14 @@ export default function AdminHomePage() {
 
   const toggleArticle = (slug: string) => {
     setSelectedArticleSlugs((prev) =>
-      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug]
+      prev.includes(slug) ? prev.filter((s) => s !== slug) : [...prev, slug],
     );
   };
 
   const toggleAfiliado = (id?: string) => {
     if (!id) return;
     setSelectedAfiliadoIds((prev) =>
-      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id]
+      prev.includes(id) ? prev.filter((s) => s !== id) : [...prev, id],
     );
   };
 
@@ -114,8 +117,8 @@ export default function AdminHomePage() {
       const data = await res.json();
       if (!res.ok) throw new Error(data?.error || "Erro ao salvar");
       setMessage("Configuração salva");
-    } catch (error: any) {
-      setMessage(error?.message || "Erro ao salvar");
+    } catch (error: unknown) {
+      setMessage(getErrorMessage(error, "Erro ao salvar"));
     } finally {
       setSaving(false);
     }
@@ -123,15 +126,15 @@ export default function AdminHomePage() {
 
   const selectedArticles = useMemo(
     () => articles.filter((a) => selectedArticleSlugs.includes(a.slug)),
-    [articles, selectedArticleSlugs]
+    [articles, selectedArticleSlugs],
   );
 
   const selectedAfiliadosData = useMemo(
     () =>
       afiliados.filter(
-        (a) => a.id && selectedAfiliadoIds.includes(String(a.id))
+        (a) => a.id && selectedAfiliadoIds.includes(String(a.id)),
       ),
-    [afiliados, selectedAfiliadoIds]
+    [afiliados, selectedAfiliadoIds],
   );
 
   return (
@@ -299,32 +302,30 @@ export default function AdminHomePage() {
                         descricao={item.descricao}
                         loja={item.loja || "Loja"}
                         preco={item.preco}
-                        afiliados={
-                          [
-                            {
-                              nome: item.afiliado1_nome,
-                              url: item.afiliado1_url,
-                              logo: item.afiliado1_nome
-                                ?.toLowerCase()
-                                .includes("amazon")
-                                ? "/images/amazon-logo.png"
-                                : undefined,
-                              cor: item.afiliado1_cor,
-                              texto: item.afiliado1_texto,
-                            },
-                            {
-                              nome: item.afiliado2_nome,
-                              url: item.afiliado2_url,
-                              logo: item.afiliado2_nome
-                                ?.toLowerCase()
-                                .includes("mercado")
-                                ? "/images/mercadolivre-logo.png"
-                                : undefined,
-                              cor: item.afiliado2_cor,
-                              texto: item.afiliado2_texto,
-                            },
-                          ] as any
-                        }
+                        afiliados={[
+                          {
+                            nome: item.afiliado1_nome,
+                            url: item.afiliado1_url,
+                            logo: item.afiliado1_nome
+                              ?.toLowerCase()
+                              .includes("amazon")
+                              ? "/images/amazon-logo.png"
+                              : undefined,
+                            cor: item.afiliado1_cor,
+                            texto: item.afiliado1_texto,
+                          },
+                          {
+                            nome: item.afiliado2_nome,
+                            url: item.afiliado2_url,
+                            logo: item.afiliado2_nome
+                              ?.toLowerCase()
+                              .includes("mercado")
+                              ? "/images/mercadolivre-logo.png"
+                              : undefined,
+                            cor: item.afiliado2_cor,
+                            texto: item.afiliado2_texto,
+                          },
+                        ]}
                       />
                     ))}
                   </div>

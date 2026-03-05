@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 
 interface UseAutoSaveOptions {
   key: string;
-  data: any;
+  data: unknown;
   delay?: number; // ms para debounce (padrão: 1000ms)
   enabled?: boolean; // permite desabilitar autosave
 }
@@ -56,7 +56,7 @@ export function useAutoSave({
  * @param key - chave no localStorage
  * @returns dados salvos ou null
  */
-export function restoreAutoSave<T = any>(key: string): T | null {
+export function restoreAutoSave<T = unknown>(key: string): T | null {
   try {
     const saved = localStorage.getItem(key);
     if (saved) {

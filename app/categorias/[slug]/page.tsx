@@ -11,8 +11,8 @@ export default function CategoriaPage() {
     typeof params.slug === "string"
       ? params.slug
       : Array.isArray(params.slug)
-      ? params.slug[0]
-      : "";
+        ? params.slug[0]
+        : "";
   const [posts, setPosts] = useState<Article[]>([]);
   const [loading, setLoading] = useState(true);
 
@@ -34,19 +34,19 @@ export default function CategoriaPage() {
   return (
     <main className="container-custom py-12">
       <div className="mt-5 mb-12">
-        <h1 className="text-4xl font-bold text-slate-900 mb-4 capitalize">
+        <h1 className="text-4xl font-bold text-slate-100 mb-4 capitalize">
           {slug}
         </h1>
-        <p className="text-lg text-slate-600">Artigos da categoria {slug}</p>
+        <p className="text-lg text-slate-500">Artigos da categoria {slug}</p>
       </div>
 
       {loading ? (
         <div className="text-center py-12">
-          <p className="text-slate-600">Carregando artigos...</p>
+          <p className="text-slate-500">Carregando artigos...</p>
         </div>
       ) : posts.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-slate-600">Nenhum artigo publicado ainda.</p>
+          <p className="text-slate-500">Nenhum artigo publicado ainda.</p>
         </div>
       ) : (
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-8">

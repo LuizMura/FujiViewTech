@@ -7,8 +7,9 @@ export async function GET() {
     const results = [];
 
     // 1. Create 'uploads' bucket
-    const { data: bucketData, error: bucketError } =
-      await supabase.storage.createBucket("uploads", {
+    const { error: bucketError } = await supabase.storage.createBucket(
+      "uploads",
+      {
         public: true,
         fileSizeLimit: 5242880, // 5MB
         allowedMimeTypes: [
@@ -17,7 +18,8 @@ export async function GET() {
           "image/gif",
           "image/webp",
         ],
-      });
+      },
+    );
 
     if (bucketError) {
       if (bucketError.message.includes("already exists")) {
@@ -42,7 +44,7 @@ export async function GET() {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

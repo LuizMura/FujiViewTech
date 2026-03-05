@@ -32,7 +32,7 @@ interface HeroContextType {
   saveAll: (
     hero: HeroContent,
     top: CardContent,
-    bottom: CardContent
+    bottom: CardContent,
   ) => Promise<void>;
   refreshData: () => Promise<void>;
   isSaving: boolean;
@@ -78,7 +78,6 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
   const [bottomCard, setBottomCard] = useState<CardContent>(defaultBottomCard);
   const [isSaving, setIsSaving] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
-  const [isLoaded, setIsLoaded] = useState(false);
 
   // Carrega dados salvos ao montar o componente
   useEffect(() => {
@@ -93,11 +92,8 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
       if (data.heroContent) setHeroContent(data.heroContent);
       if (data.topCard) setTopCard(data.topCard);
       if (data.bottomCard) setBottomCard(data.bottomCard);
-
-      setIsLoaded(true);
     } catch (error) {
       console.error("Erro ao carregar dados:", error);
-      setIsLoaded(true);
     }
   };
 
@@ -108,7 +104,7 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
   const saveToServer = async (
     newHeroContent: HeroContent,
     newTopCard: CardContent,
-    newBottomCard: CardContent
+    newBottomCard: CardContent,
   ) => {
     setIsSaving(true);
     setSaveError(null);
@@ -166,7 +162,7 @@ export function HeroProvider({ children }: { children: React.ReactNode }) {
   const saveAll = async (
     hero: HeroContent,
     top: CardContent,
-    bottom: CardContent
+    bottom: CardContent,
   ) => {
     setHeroContent(hero);
     setTopCard(top);

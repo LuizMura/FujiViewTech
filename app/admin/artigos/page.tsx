@@ -11,9 +11,24 @@ import {
   restoreAutoSave,
   clearAutoSave,
 } from "@/lib/hooks/useAutoSave";
+import type {
+  CreateArticleInput,
+  UpdateArticleInput,
+} from "@/lib/types/article";
+
+type ArticleDraft = Record<string, unknown> & {
+  title?: string;
+  id?: string;
+  status?: string;
+  content?: string;
+  mdxImage?: string;
+  image?: string;
+};
 
 export default function AdminArtigosPage() {
-  const [selectedArticle, setSelectedArticle] = useState<any>(null);
+  const [selectedArticle, setSelectedArticle] = useState<ArticleDraft | null>(
+    null,
+  );
   const [feedback, setFeedback] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState(false);
 
@@ -30,10 +45,11 @@ export default function AdminArtigosPage() {
 
   // Restaurar autosave ao carregar página
   useEffect(() => {
-    const saved = restoreAutoSave("admin-article-draft");
-    if (saved && !selectedArticle) {
+    if (selectedArticle) return;
+    const saved = restoreAutoSave<ArticleDraft>("admin-article-draft");
+    if (saved) {
       const shouldRestore = window.confirm(
-        "Encontramos um rascunho não salvo. Deseja restaurá-lo?"
+        "Encontramos um rascunho não salvo. Deseja restaurá-lo?",
       );
       if (shouldRestore) {
         setSelectedArticle(saved);
@@ -42,7 +58,7 @@ export default function AdminArtigosPage() {
         clearAutoSave("admin-article-draft");
       }
     }
-  }, []);
+  }, [selectedArticle]);
 
   return (
     <div className="min-h-screen bg-[#23272f] flex flex-col">
@@ -55,13 +71,17 @@ export default function AdminArtigosPage() {
             <div className="overflow-y-auto max-h-60 md:max-h-none">
               <ArticleList
                 ref={articleListRef}
-                onSelect={(id, data) => setSelectedArticle(data)}
+                onSelect={(id, data) =>
+                  setSelectedArticle(
+                    data ? ({ ...data } as ArticleDraft) : null,
+                  )
+                }
                 selectedId={selectedArticle?.id || null}
                 onNew={() => setSelectedArticle(null)}
                 onDelete={async () => {
                   if (
                     !window.confirm(
-                      "Tem certeza que deseja excluir este artigo?"
+                      "Tem certeza que deseja excluir este artigo?",
                     )
                   )
                     return;
@@ -81,28 +101,32 @@ export default function AdminArtigosPage() {
             {/* Formulário em baixo */}
             <div className="overflow-y-auto flex-1 max-h-96 md:max-h-none">
               <ArticleForm
-                form={selectedArticle || { status: "published" }}
+                form={{
+                  title: "",
+                  ...(selectedArticle || {}),
+                  status: String(selectedArticle?.status || "published"),
+                }}
                 cardType="ArtigoCard"
                 onFormChange={(field, value) => {
-                  setSelectedArticle((prev: any) => ({
+                  setSelectedArticle((prev) => ({
                     ...prev,
                     [field]: value,
                   }));
                 }}
                 onImageUpload={(url) => {
-                  setSelectedArticle((prev: any) => ({
+                  setSelectedArticle((prev) => ({
                     ...prev,
                     image: url,
                   }));
                 }}
                 onMdxImageUpload={(url) => {
-                  setSelectedArticle((prev: any) => ({
+                  setSelectedArticle((prev) => ({
                     ...prev,
                     mdxImage: url,
                   }));
                 }}
                 onContentChange={(value) => {
-                  setSelectedArticle((prev: any) => ({
+                  setSelectedArticle((prev) => ({
                     ...prev,
                     content: value,
                   }));
@@ -112,21 +136,23 @@ export default function AdminArtigosPage() {
                   setLoadingAction(true);
                   setFeedback(null);
                   try {
-                    const { createArticle, updateArticle } = await import(
-                      "@/lib/hooks/useArticles"
-                    );
+                    const { createArticle, updateArticle } =
+                      await import("@/lib/hooks/useArticles");
                     let result;
                     if (selectedArticle?.id) {
-                      let fullData = {
-                        ...selectedArticle,
+                      const fullData: UpdateArticleInput = {
+                        ...(selectedArticle as Partial<UpdateArticleInput>),
+                        id: String(selectedArticle.id),
                       };
                       result = await updateArticle(fullData);
                       setFeedback("Artigo atualizado com sucesso!");
                     } else {
-                      result = await createArticle(selectedArticle);
+                      result = await createArticle(
+                        selectedArticle as unknown as CreateArticleInput,
+                      );
                       setFeedback("Artigo criado com sucesso!");
                     }
-                    setSelectedArticle(result);
+                    setSelectedArticle({ ...result } as ArticleDraft);
                     articleListRef.current?.reload();
                     // Limpar autosave após salvar com sucesso
                     clearAutoSave("admin-article-draft");

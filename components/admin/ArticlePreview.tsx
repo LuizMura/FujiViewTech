@@ -2,17 +2,26 @@
 import { MDXRemote } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import type { MDXRemoteSerializeResult } from "next-mdx-remote";
+import Image from "next/image";
 import { components as mdxComponents } from "@/components/article/MDXComponents";
 import React, { useState, useEffect } from "react";
 import matter from "gray-matter";
 import ArtigoCard from "@/app/artigos/ArtigoCard";
 import type { Article } from "@/lib/types/article";
 
+type PreviewForm = Partial<Omit<Article, "status">> & {
+  status?: Article["status"] | string;
+  source?: string;
+  price?: number | string;
+  variation?: number | string;
+  [key: string]: unknown;
+};
+
 class MDXErrorBoundary extends React.Component<
   { children: React.ReactNode },
   { hasError: boolean; errorMessage?: string }
 > {
-  constructor(props: any) {
+  constructor(props: { children: React.ReactNode }) {
     super(props);
     this.state = { hasError: false };
   }
@@ -38,7 +47,14 @@ class MDXErrorBoundary extends React.Component<
   }
 }
 
-function getPreviewArticle(form: any): Article {
+function getPreviewArticle(form: PreviewForm): Article {
+  const normalizedStatus =
+    form.status === "published" ||
+    form.status === "draft" ||
+    form.status === "archived"
+      ? form.status
+      : "draft";
+
   return {
     id: form.id || "preview-id",
     slug: form.slug || "preview-slug",
@@ -49,7 +65,7 @@ function getPreviewArticle(form: any): Article {
     image: form.image || "",
     category: form.category || "Categoria",
     authorId: form.authorId || "Autor",
-    status: form.status || "draft",
+    status: normalizedStatus,
     publishedAt: form.publishedAt || new Date().toISOString(),
     createdAt: form.createdAt || new Date().toISOString(),
     updatedAt: form.updatedAt || new Date().toISOString(),
@@ -77,7 +93,7 @@ function getPreviewArticle(form: any): Article {
 
 interface ArticlePreviewProps {
   cardType: string;
-  form: any;
+  form: PreviewForm;
 }
 
 export default function ArticlePreview({
@@ -85,7 +101,7 @@ export default function ArticlePreview({
   form,
 }: ArticlePreviewProps) {
   const [mdxSource, setMdxSource] = useState<MDXRemoteSerializeResult | null>(
-    null
+    null,
   );
   const [mdxError, setMdxError] = useState<string | null>(null);
 
@@ -141,9 +157,12 @@ export default function ArticlePreview({
       {cardType === "NoticiasCard" && (
         <div className="w-full p-6">
           {form.image && (
-            <img
-              src={form.image}
+            <Image
+              src={String(form.image)}
               alt="Imagem"
+              width={800}
+              height={160}
+              unoptimized
               className="w-full h-40 object-cover rounded-lg mb-3"
             />
           )}
@@ -165,9 +184,12 @@ export default function ArticlePreview({
       {cardType === "EconomiaCard" && (
         <div className="w-full p-6">
           {form.image && (
-            <img
-              src={form.image}
+            <Image
+              src={String(form.image)}
               alt="Imagem"
+              width={800}
+              height={160}
+              unoptimized
               className="w-full h-40 object-cover rounded-lg mb-3"
             />
           )}

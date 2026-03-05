@@ -28,8 +28,8 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
     })
     .slice(1);
 
-  // Pega aleatórios dos penúltimos
-  const shuffled = sorted.sort(() => 0.5 - Math.random());
+  // Mantém ordem estável após remover o destaque principal
+  const shuffled = sorted;
 
   if (shuffled.length === 0) {
     return (
@@ -49,8 +49,6 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
     );
   }
 
-  const totalPages = Math.ceil(shuffled.length / itemsPerPage);
-  const currentPage = Math.floor(currentIndex / itemsPerPage);
   const visibleItems = shuffled;
 
   const goToPrev = () => {

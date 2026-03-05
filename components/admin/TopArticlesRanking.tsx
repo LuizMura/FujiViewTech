@@ -27,8 +27,8 @@ export default function TopArticlesRanking() {
           const data = await res.json();
           setArticles(data || []);
         }
-      } catch (e: any) {
-        setError(e.message || "Erro de rede ou servidor");
+      } catch (e: unknown) {
+        setError(e instanceof Error ? e.message : "Erro de rede ou servidor");
         setArticles([]);
       }
       setLoading(false);

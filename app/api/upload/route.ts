@@ -14,7 +14,7 @@ export async function POST(request: NextRequest) {
     if (!file.type.startsWith("image/")) {
       return NextResponse.json(
         { error: "File must be an image" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -22,7 +22,7 @@ export async function POST(request: NextRequest) {
     if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json(
         { error: "File size must be less than 5MB" },
-        { status: 400 }
+        { status: 400 },
       );
     }
 
@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
 
     // Upload to Supabase Storage
     const supabase = createAdminClient();
-    const { data, error } = await supabase.storage
+    const { error } = await supabase.storage
       .from("uploads")
       .upload(filename, buffer, {
         contentType: file.type,
@@ -47,7 +47,7 @@ export async function POST(request: NextRequest) {
       console.error("Supabase storage error:", error);
       return NextResponse.json(
         { error: error.message, details: error },
-        { status: 500 }
+        { status: 500 },
       );
     }
 

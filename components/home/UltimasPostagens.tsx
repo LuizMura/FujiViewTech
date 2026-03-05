@@ -23,9 +23,8 @@ const UltimasPostagens: React.FC<CardProps> = ({ artigos }) => {
     })
     .slice(1); // Remove o mais recente (está no carrossel)
 
-  // Pega 5 aleatórios dos penúltimos
-  const shuffled = sorted.sort(() => 0.5 - Math.random());
-  const penultimos = shuffled.slice(0, 5);
+  // Pega os 5 próximos após o destaque principal
+  const penultimos = sorted.slice(0, 5);
 
   if (penultimos.length === 0) return null;
 
