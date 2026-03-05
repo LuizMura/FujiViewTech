@@ -20,7 +20,7 @@ import {
  * Buscar todos os artigos com filtros
  */
 export async function getArticles(
-  filters?: ArticleFilters
+  filters?: ArticleFilters,
 ): Promise<Article[]> {
   const supabase = createClient();
 
@@ -40,7 +40,7 @@ export async function getArticles(
 
   if (filters?.search) {
     query = query.or(
-      `title.ilike.%${filters.search}%,excerpt.ilike.%${filters.search}%`
+      `title.ilike.%${filters.search}%,excerpt.ilike.%${filters.search}%`,
     );
   }
 
@@ -51,7 +51,7 @@ export async function getArticles(
   if (filters?.offset) {
     query = query.range(
       filters.offset,
-      filters.offset + (filters.limit || 10) - 1
+      filters.offset + (filters.limit || 10) - 1,
     );
   }
 
@@ -111,12 +111,11 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
  * Criar novo artigo
  */
 export async function createArticle(
-  input: CreateArticleInput
+  input: CreateArticleInput,
 ): Promise<Article> {
   const supabase = createClient();
 
   const dbData = articleToDB(input);
-
 
   const { data, error } = await supabase
     .from("articles")
@@ -142,7 +141,7 @@ export async function createArticle(
  * Atualizar artigo
  */
 export async function updateArticle(
-  input: UpdateArticleInput
+  input: UpdateArticleInput,
 ): Promise<Article> {
   const supabase = createClient();
 
@@ -356,7 +355,7 @@ export async function getDashboardStats(): Promise<DashboardStats> {
  */
 export async function slugExists(
   slug: string,
-  excludeId?: string
+  excludeId?: string,
 ): Promise<boolean> {
   const supabase = createClient();
 
