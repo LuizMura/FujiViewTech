@@ -127,7 +127,7 @@ export default function PostPage() {
 
   return (
     <article className="-mt-13 md:mt-0 pb-20 rounded-0 md:rounded-3xl shadow-xl">
-      {/* grid wrapper: three columns on md+, content lives in columns 1-2 */}
+      {/* Estrutura em 4 colunas no desktop: conteúdo principal ocupa 3. */}
       <div className="container-custom bg-white">
         <div className="md:grid md:grid-cols-4 md:gap-0">
           <div className="md:col-span-3 bg-white">
@@ -141,7 +141,7 @@ export default function PostPage() {
               )}
             </ArtigoCard>
 
-            {/* Footer / Share / Tags placeholder */}
+            {/* Rodapé do artigo com CTA de compartilhamento */}
             <div className="mt-16 py-8 border-t border-slate-200 px-4 md:px-8">
               <div className="text-gray-500 italic flex items-center justify-center gap-2">
                 <span>Gostou deste artigo? Compartilhe!</span>

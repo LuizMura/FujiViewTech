@@ -1,10 +1,10 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// GET: Get a specific article content
+// GET: Retorna conteúdo de um artigo específico
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ slug: string }> }
+  { params }: { params: Promise<{ slug: string }> },
 ) {
   try {
     const { slug } = await params;
@@ -21,9 +21,13 @@ export async function GET(
       .single();
 
     if (error || !article) {
-      return NextResponse.json({ error: "Article not found" }, { status: 404 });
+      return NextResponse.json(
+        { error: "Artigo não encontrado" },
+        { status: 404 },
+      );
     }
 
+    // Mantém metadados + conteúdo no formato esperado pelo editor.
     return NextResponse.json({
       slug: article.slug,
       frontmatter: {
@@ -39,9 +43,6 @@ export async function GET(
     });
   } catch (error) {
     console.error("Error reading article:", error);
-    return NextResponse.json(
-      { error: "Failed to read article" },
-      { status: 500 }
-    );
+    return NextResponse.json({ error: "Falha ao ler artigo" }, { status: 500 });
   }
 }

@@ -9,7 +9,7 @@ export async function GET() {
     const supabase = createAdminClient();
     const results = [];
 
-    // Categories to migrate
+    // Categorias que serão migradas do conteúdo local para o banco.
     const categories = ["reviews", "noticias", "tutoriais"];
 
     for (const category of categories) {
@@ -30,7 +30,7 @@ export async function GET() {
         const fileContent = fs.readFileSync(filePath, "utf-8");
         const { data, content } = matter(fileContent);
 
-        // Insert into Supabase
+        // Insere (ou atualiza) o artigo no Supabase.
         const { error } = await supabase.from("articles").upsert(
           {
             slug,
@@ -44,12 +44,12 @@ export async function GET() {
             published_date: data.date || new Date().toISOString().split("T")[0],
             status: "published",
           },
-          { onConflict: "slug,category" }
+          { onConflict: "slug,category" },
         );
 
         if (error) {
           results.push(
-            `❌ Failed to migrate ${category}/${slug}: ${error.message}`
+            `❌ Failed to migrate ${category}/${slug}: ${error.message}`,
           );
         } else {
           results.push(`✅ Migrated ${category}/${slug}`);
@@ -59,7 +59,7 @@ export async function GET() {
 
     return NextResponse.json({
       success: true,
-      message: "Migration completed",
+      message: "Migração concluída",
       results,
     });
   } catch (error) {
@@ -69,7 +69,7 @@ export async function GET() {
         success: false,
         error: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }

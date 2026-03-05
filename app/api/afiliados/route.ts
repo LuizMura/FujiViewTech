@@ -15,7 +15,7 @@ export async function GET() {
       return NextResponse.json({ error: error.message }, { status: 500 });
     }
 
-    // Helper: converte número para formato pt-BR (ex: 4999.99 -> "R$ 4.999,99")
+    // Função utilitária: converte número para formato pt-BR (ex: 4999.99 -> "R$ 4.999,99")
     const formatPtBRMoney = (v: unknown): string => {
       if (typeof v === "number" && Number.isFinite(v)) {
         return new Intl.NumberFormat("pt-BR", {
@@ -72,7 +72,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Helper: converte valores monetários pt-BR (ex: "R$ 6.099,00") para número (6099.00)
+    // Função utilitária: converte valores pt-BR (ex: "R$ 6.099,00") para número (6099.00)
     const parsePtBRMoney = (v: unknown): number | null => {
       if (typeof v === "number" && Number.isFinite(v)) return v;
       if (typeof v !== "string") return null;
@@ -157,7 +157,7 @@ export async function PUT(request: NextRequest) {
       return NextResponse.json({ error: "ID é obrigatório" }, { status: 400 });
     }
 
-    // Helper: converte valores monetários pt-BR (ex: "R$ 6.099,00") para número (6099.00)
+    // Função utilitária: converte valores pt-BR (ex: "R$ 6.099,00") para número (6099.00)
     const parsePtBRMoney = (v: unknown): number | null => {
       if (typeof v === "number" && Number.isFinite(v)) return v;
       if (typeof v !== "string") return null;

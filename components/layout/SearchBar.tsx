@@ -19,7 +19,7 @@ export default function SearchBar({
     const fetchArticles = async () => {
       if (search.length > 1) {
         setSearching(true);
-        // Busca separada em title e summary
+        // Busca separada por título e resumo.
         const [titleRes, summaryRes] = await Promise.all([
           supabase
             .from("articles")
@@ -36,7 +36,7 @@ export default function SearchBar({
         // Unir resultados sem duplicatas
         const results = [...dataTitle, ...dataSummary]
           .filter(
-            (item, idx, arr) => arr.findIndex((i) => i.id === item.id) === idx
+            (item, idx, arr) => arr.findIndex((i) => i.id === item.id) === idx,
           )
           .map((item) => ({
             id: item.id,

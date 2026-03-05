@@ -94,28 +94,28 @@ export default function Hero() {
               </div>
             </div>
 
-            {/* ----------------------------------Cards do UltimasPostagensCarrossel com imagem acima e texto abaixo----------------- */}
+            {/* Bloco de últimas postagens com imagem acima e texto abaixo */}
             <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
             <UltimasPostagensCarrossel artigos={allArticles} />
             <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
           </>
         )}
 
-        {/* ---------------------------------------------------Espaço para AdSense----------------------------------------------- */}
+        {/* Espaço para bloco de publicidade */}
         <div className="w-full h-24 flex items-center justify-center bg-slate-100 rounded-md border border-slate-200 mb-8">
           <span className="text-slate-500 font-semibold text-lg">
             Publicidade
           </span>
         </div>
 
-        {/* ---------------------------------------------------AFILIADOS CARROSSEL---------------------------------------------- */}
+        {/* Carrossel de afiliados */}
         {/* Linha divisória */}
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
         <AfiliadosCarrossel />
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
-        {/* ---------------------------------------------------VIAGENS & TURISMO---------------------------------------------- */}
+        {/* Seção de viagens e turismo */}
         <h2 className="px-3 text-2xl md:text-4xl text-slate-100 mb-6">
           VIAGENS & TURISMO
         </h2>

@@ -1,5 +1,5 @@
 // =====================================================
-// TypeScript Types - Articles
+// Tipos TypeScript - Artigos
 // =====================================================
 
 export type ArticleStatus = "draft" | "published" | "archived";
@@ -16,7 +16,7 @@ export interface Article {
   image: string | null;
   category: string;
 
-  // Metadata
+  // Metadados
   authorId: string | null;
   status: ArticleStatus;
   publishedAt: string | null;
@@ -39,7 +39,7 @@ export interface Article {
   buttonFontSize: number;
   buttonBorderRadius: number;
 
-  // Analytics
+  // Métricas
   views: number;
   clicks: number;
 
@@ -192,7 +192,7 @@ export function articleToDB(
   } as Partial<ArticleDB>;
 }
 
-// Dashboard Stats
+// Estatísticas do dashboard
 export interface DashboardStats {
   publishedCount: number;
   draftCount: number;

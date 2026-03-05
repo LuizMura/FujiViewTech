@@ -18,7 +18,7 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const containerRef = useRef<HTMLDivElement>(null);
 
-  // Ordena por createdAt descending, ignora o 1º (no carrossel) e pega aleatórios dos penúltimos
+  // Ordena por data de criação (mais novo primeiro) e ignora o destaque do carrossel.
   const sorted = artigos
     .filter((a) => a.status === "published")
     .sort((a, b) => {
@@ -28,7 +28,7 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
     })
     .slice(1);
 
-  // Mantém ordem estável após remover o destaque principal
+  // Mantém ordem estável após remover o item de destaque.
   const shuffled = sorted;
 
   if (shuffled.length === 0) {

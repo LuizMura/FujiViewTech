@@ -6,7 +6,7 @@ export async function GET() {
     const supabase = createAdminClient();
     const results = [];
 
-    // 1. Create 'uploads' bucket
+    // 1. Cria o bucket "uploads" para arquivos de imagem.
     const { error: bucketError } = await supabase.storage.createBucket(
       "uploads",
       {
@@ -23,16 +23,16 @@ export async function GET() {
 
     if (bucketError) {
       if (bucketError.message.includes("already exists")) {
-        results.push("✅ Bucket 'uploads' already exists.");
+        results.push("✅ Bucket 'uploads' já existe.");
       } else {
-        results.push(`❌ Failed to create bucket: ${bucketError.message}`);
+        results.push(`❌ Falha ao criar bucket: ${bucketError.message}`);
       }
     } else {
-      results.push("✅ Bucket 'uploads' created successfully.");
+      results.push("✅ Bucket 'uploads' criado com sucesso.");
     }
 
-    // 2. Check/Create 'hero_content' table (via SQL is best, but we can't run raw SQL easily via JS client without RPC)
-    // We will just report on the bucket status for now as that is the blocker.
+    // 2. A tabela hero_content deve ser criada via SQL (setup separado).
+    // Aqui validamos apenas o bucket, que costuma ser o principal bloqueio.
 
     return NextResponse.json({
       success: true,

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
 
-// GET: List all articles from a category
+// GET: Lista artigos publicados de uma categoria
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -21,7 +21,7 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ files: [] });
     }
 
-    // Transform to match expected format
+    // Normaliza a resposta para o formato consumido pelo admin.
     const files = articles.map((article) => ({
       slug: article.slug,
       filename: `${article.slug}.mdx`,
@@ -46,13 +46,13 @@ export async function GET(request: NextRequest) {
   } catch (error) {
     console.error("Error listing articles:", error);
     return NextResponse.json(
-      { error: "Failed to list articles" },
-      { status: 500 }
+      { error: "Falha ao listar artigos" },
+      { status: 500 },
     );
   }
 }
 
-// POST: Create or update an article
+// POST: Cria ou atualiza um artigo
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
@@ -60,14 +60,14 @@ export async function POST(request: NextRequest) {
 
     if (!category || !slug) {
       return NextResponse.json(
-        { error: "Category and slug are required" },
-        { status: 400 }
+        { error: "Category e slug são obrigatórios" },
+        { status: 400 },
       );
     }
 
     const supabase = createAdminClient();
 
-    // Upsert article
+    // Upsert evita duplicidade e mantém slug+categoria como chave lógica.
     const { data, error } = await supabase
       .from("articles")
       .upsert(
@@ -84,7 +84,7 @@ export async function POST(request: NextRequest) {
             frontmatter.date || new Date().toISOString().split("T")[0],
           status: "published",
         },
-        { onConflict: "slug,category" }
+        { onConflict: "slug,category" },
       )
       .select();
 
@@ -92,26 +92,26 @@ export async function POST(request: NextRequest) {
       console.error("Supabase upsert error:", error);
       return NextResponse.json(
         { error: error.message, details: error },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     return NextResponse.json({
       success: true,
-      message: "Article saved successfully",
+      message: "Artigo salvo com sucesso",
       slug,
       data,
     });
   } catch (error) {
     console.error("Error saving article:", error);
     return NextResponse.json(
-      { error: "Failed to save article" },
-      { status: 500 }
+      { error: "Falha ao salvar artigo" },
+      { status: 500 },
     );
   }
 }
 
-// DELETE: Delete an article
+// DELETE: Remove um artigo por slug e categoria
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
@@ -120,8 +120,8 @@ export async function DELETE(request: NextRequest) {
 
     if (!category || !slug) {
       return NextResponse.json(
-        { error: "Category and slug are required" },
-        { status: 400 }
+        { error: "Category e slug são obrigatórios" },
+        { status: 400 },
       );
     }
 
@@ -140,13 +140,13 @@ export async function DELETE(request: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: "Article deleted successfully",
+      message: "Artigo excluído com sucesso",
     });
   } catch (error) {
     console.error("Error deleting article:", error);
     return NextResponse.json(
-      { error: "Failed to delete article" },
-      { status: 500 }
+      { error: "Falha ao excluir artigo" },
+      { status: 500 },
     );
   }
 }

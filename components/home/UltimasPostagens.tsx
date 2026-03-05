@@ -13,7 +13,7 @@ interface CardProps {
 const UltimasPostagens: React.FC<CardProps> = ({ artigos }) => {
   if (!artigos || artigos.length === 0) return null;
 
-  // Ordena por createdAt descending, ignora o 1º (no carrossel) e pega 5 aleatórios dos penúltimos
+  // Ordena por data de criação (mais novo primeiro) e ignora o destaque do carrossel.
   const sorted = artigos
     .filter((a) => a.status === "published")
     .sort((a, b) => {
@@ -23,7 +23,7 @@ const UltimasPostagens: React.FC<CardProps> = ({ artigos }) => {
     })
     .slice(1); // Remove o mais recente (está no carrossel)
 
-  // Pega os 5 próximos após o destaque principal
+  // Usa os 5 próximos itens após o destaque principal.
   const penultimos = sorted.slice(0, 5);
 
   if (penultimos.length === 0) return null;

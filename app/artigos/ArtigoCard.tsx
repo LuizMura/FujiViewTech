@@ -17,9 +17,9 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
 }) => {
   return (
     <>
-      {/* Featured Image with Title Overlay */}
+      {/* Capa do artigo com título sobreposto */}
       <div className="mb-0 md:mb-0 w-full bg-white text-black">
-        {/* Metadata placed above the image */}
+        {/* Metadados exibidos acima da imagem */}
         <div className="px-2 md:px-0 py-2 md:py-4 flex flex-wrap items-center gap-1 md:gap-3 text-xs md:text-sm font-medium text-slate-700 overflow-x-auto">
           <Link
             href={`/categorias/${post.category}`}
@@ -70,9 +70,9 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
             className="object-cover"
             priority
           />
-          {/* Dark Gradient Overlay */}
+          {/* Gradiente para melhorar contraste do texto na capa */}
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/60 to-transparent"></div>
-          {/* Title overlay on image (keeps title/excerpt on image) */}
+          {/* Título e resumo ficam sobre a imagem de capa */}
           <div className="absolute inset-0 flex flex-col justify-end p-0 px-6 md:px-12 mb-5 md:mb-8 md:w-[90%]">
             <div className="space-y-3 ">
               <h1
@@ -119,7 +119,7 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
         {/* Autor inline no mobile já renderizado na linha de metadados acima */}
       </div>
 
-      {/* MDX Content colado no ArtigoCard */}
+      {/* Conteúdo MDX logo abaixo da capa */}
       {children && (
         <div
           className={`py-8 px-5 md:pl-6 bg-white text-black prose prose-base md:prose-lg max-w-none rounded-b-3xl

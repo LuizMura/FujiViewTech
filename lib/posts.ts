@@ -19,6 +19,7 @@ export interface PostData {
 }
 
 function getAllFiles(dirPath: string, arrayOfFiles: string[] = []) {
+  // Percorre pastas recursivamente e retorna apenas arquivos .md/.mdx.
   if (!fs.existsSync(dirPath)) {
     return arrayOfFiles;
   }
@@ -44,7 +45,7 @@ export function getAllPosts(): PostData[] {
     const fileContents = fs.readFileSync(filePath, "utf8");
     const { data, content } = matter(fileContents);
 
-    // Extract slug from filename if not in frontmatter, or use the filename itself
+    // Usa o nome do arquivo como slug quando não há slug no frontmatter.
     const fileName = path.basename(filePath);
     const slug = fileName.replace(/\.mdx?$/, "");
 
@@ -63,7 +64,7 @@ export function getAllPosts(): PostData[] {
     };
   });
 
-  // Sort posts by date
+  // Ordena do mais recente para o mais antigo.
   return posts.sort((a, b) => {
     if (a.date < b.date) {
       return 1;

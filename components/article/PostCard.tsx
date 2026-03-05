@@ -22,7 +22,7 @@ export default function PostCard({ post }: PostCardProps) {
   return (
     <Link href={`/artigos/${post.slug}`}>
       <article className="relative group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full cursor-pointer">
-        {/* Image */}
+        {/* Imagem de destaque */}
         <div className="relative h-56 overflow-hidden bg-slate-200">
           {post.image ? (
             <Image
@@ -38,7 +38,7 @@ export default function PostCard({ post }: PostCardProps) {
           )}
         </div>
 
-        {/* Content */}
+        {/* Conteúdo textual */}
         <div className="p-6 flex flex-col flex-grow">
           <span className="px-3 py-1 bg-indigo-50 text-indigo-600 text-xs font-bold uppercase tracking-wider rounded-full self-start mb-3">
             {post.category}

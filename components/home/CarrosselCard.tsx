@@ -12,7 +12,7 @@ interface CarrosselCardProps {
 const CarrosselCard: React.FC<CarrosselCardProps> = ({ article }) => {
   return (
     <>
-      {/* Featured Image with Title Overlay */}
+      {/* Capa em destaque com título sobreposto */}
       <div className="w-full">
         <div className="relative w-full aspect-video h-[270px] md:h-[450px] rounded-none md:rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
           <Image
@@ -22,9 +22,9 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({ article }) => {
             className="object-cover"
             priority
           />
-          {/* Dark Gradient Overlay */}
+          {/* Gradiente para dar contraste ao texto */}
           <div className="absolute inset-0 bg-gradient-to-t from-neutral-900 via-neutral-900/60 to-transparent"></div>
-          {/* Title and Metadata on top of image */}
+          {/* Título e metadados por cima da imagem */}
           <div className="absolute inset-0 flex flex-col justify-start mt-6 p-8 md:p-15">
             <div className="space-y-2 md:space-y-4">
               <div className="flex flex-wrap items-center gap-4 text-xs md:text-sm font-medium text-white/90">

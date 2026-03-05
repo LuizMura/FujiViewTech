@@ -32,7 +32,7 @@ export default function LivePrices() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        // Fetch cryptos from CoinGecko (BRL) and fiat rates (USD/EUR -> BRL) from AwesomeAPI
+        // Busca criptoativos na CoinGecko (em BRL) e câmbio na AwesomeAPI.
         const cgUrl =
           "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,tether,ripple&vs_currencies=brl&include_24hr_change=true";
         const fiatUrl =
@@ -56,7 +56,7 @@ export default function LivePrices() {
           bnb: parseFloat(cgData?.binancecoin?.brl) || 0,
           sol: parseFloat(cgData?.solana?.brl) || 0,
           xrp: parseFloat(cgData?.ripple?.brl) || 0,
-          // Prefer AwesomeAPI USDT if available (fallback to CoinGecko tether)
+          // Prioriza USDT da AwesomeAPI; se falhar, usa o valor da CoinGecko.
           usdt:
             parseFloat(fiatData?.USDTBRL?.bid) ||
             parseFloat(cgData?.tether?.brl) ||
@@ -65,7 +65,7 @@ export default function LivePrices() {
           eur: parseFloat(fiatData?.EURBRL?.bid) || 0,
         };
 
-        // CoinGecko returns 24h change as e.g. brl_24h_change
+        // A variação de 24h da CoinGecko vem no campo brl_24h_change.
         const newChanges = {
           btc: parseFloat(cgData?.bitcoin?.brl_24h_change) || 0,
           eth: parseFloat(cgData?.ethereum?.brl_24h_change) || 0,
@@ -76,7 +76,7 @@ export default function LivePrices() {
             parseFloat(fiatData?.USDTBRL?.pctChange) ||
             parseFloat(cgData?.tether?.brl_24h_change) ||
             0,
-          // fiat percent changes come from AwesomeAPI's pctChange field
+          // Para moedas fiat, usamos o pctChange retornado pela AwesomeAPI.
           usd: parseFloat(fiatData?.USDBRL?.pctChange) || 0,
           eur: parseFloat(fiatData?.EURBRL?.pctChange) || 0,
         };
@@ -86,7 +86,7 @@ export default function LivePrices() {
         setLoading(false);
       } catch (error) {
         console.error("Error fetching prices:", error);
-        // Set default values on error so component still renders
+        // Mantém o componente renderizável mesmo em falha de API.
         setPrices({
           btc: 0,
           eth: 0,
@@ -112,7 +112,7 @@ export default function LivePrices() {
     };
 
     fetchPrices();
-    // Update every 60 seconds
+    // Atualiza os valores a cada 60 segundos.
     const interval = setInterval(fetchPrices, 60000);
 
     return () => clearInterval(interval);
@@ -163,7 +163,7 @@ export default function LivePrices() {
     <div className="flex items-center gap-1 md:gap-2 text- md:text-sm overflow-x-auto scrollbar-hide px-1 md:px-0">
       <span className="hidden md:inline text-slate-300">|</span>
 
-      {/* BTC */}
+      {/* Bitcoin */}
       <div className="flex items-center gap-1 whitespace-nowrap">
         <span className="font-bold text-slate-900 text-[12px] md:text-sm">
           BTC
@@ -180,7 +180,7 @@ export default function LivePrices() {
 
       <span className="hidden md:inline text-slate-300">|</span>
 
-      {/* ETH */}
+      {/* Ethereum */}
       <div className="flex items-center gap-1 whitespace-nowrap">
         <span className="font-bold text-slate-900 text-[12px] md:text-sm">
           ETH
@@ -208,7 +208,7 @@ export default function LivePrices() {
 
       <span className="hidden md:inline text-slate-300">|</span>
 
-      {/* SOL */}
+      {/* Solana */}
       <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
         <span className="font-bold text-slate-900 text-sm">SOL</span>
         <span
@@ -221,7 +221,7 @@ export default function LivePrices() {
 
       <span className="hidden md:inline text-slate-300">|</span>
 
-      {/* USDT */}
+      {/* Tether */}
       <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
         <span className="font-bold text-slate-900 text-sm">USDT</span>
         <span
@@ -260,7 +260,7 @@ export default function LivePrices() {
 
       <span className="hidden md:inline text-slate-300">|</span>
 
-      {/* EUR */}
+      {/* Euro */}
       <div className="flex items-center gap-1 whitespace-nowrap">
         <span className="font-bold text-slate-900 text-[12px] md:text-sm">
           EUR
@@ -277,7 +277,7 @@ export default function LivePrices() {
 
       <span className="hidden md:inline text-slate-300">|</span>
 
-      {/* More Prices Link */}
+      {/* Atalho para oferta da Binance */}
       <button
         onClick={(e) => {
           e.stopPropagation();

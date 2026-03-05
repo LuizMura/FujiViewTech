@@ -1,24 +1,24 @@
 @import "tailwindcss";
 
 :root {
-  /* Brand Colors */
+  /* Cores da marca */
   --primary: #4f46e5; /* Indigo 600 */
   --primary-dark: #4338ca; /* Indigo 700 */
   --secondary: #0ea5e9; /* Sky 500 */
 
-  /* Neutral Colors */
-  --background: #161616; /* white background */
+  /* Cores neutras */
+  --background: #161616; /* fundo escuro padrão */
   --background-gradient: none;
-  --foreground: #000000; /* black text on light background */
-  --muted: #9ca3af; /* Slate 400 - muted on dark */
-  --muted-light: #cbd5e1; /* lighter muted */
+  --foreground: #000000; /* texto principal */
+  --muted: #9ca3af; /* Slate 400 - texto secundário */
+  --muted-light: #cbd5e1; /* variação mais clara */
 
-  /* Surface Colors */
-  --surface: #0b1220; /* dark surface for cards */
-  --surface-hover: #0f1724; /* slightly lighter hover */
+  /* Cores de superfície */
+  --surface: #0b1220; /* fundo de cartões */
+  --surface-hover: #0f1724; /* hover um pouco mais claro */
 
-  /* Borders */
-  --border: #111827; /* dark border */
+  /* Bordas */
+  --border: #111827; /* borda padrão */
 }
 
 body {
@@ -48,7 +48,7 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
-/* Custom Utilities */
+/* Utilitários customizados */
 .container-custom {
   max-width: 1300px;
   margin: 0 auto;
@@ -74,12 +74,12 @@ body {
   background-clip: text;
 }
 
-/* Hide scrollbar but keep functionality */
+/* Esconde scrollbar sem perder rolagem */
 .scrollbar-hide {
-  -ms-overflow-style: none; /* IE and Edge */
+  -ms-overflow-style: none; /* IE e Edge */
   scrollbar-width: none; /* Firefox */
 }
 
 .scrollbar-hide::-webkit-scrollbar {
-  display: none; /* Chrome, Safari and Opera */
+  display: none; /* Chrome, Safari e Opera */
 }

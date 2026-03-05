@@ -10,7 +10,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ error: "No file provided" }, { status: 400 });
     }
 
-    // Validate file type
+    // Valida se o arquivo enviado é uma imagem.
     if (!file.type.startsWith("image/")) {
       return NextResponse.json(
         { error: "File must be an image" },
@@ -18,7 +18,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Validate file size (max 5MB)
+    // Limita o tamanho para 5MB para evitar uploads pesados.
     if (file.size > 5 * 1024 * 1024) {
       return NextResponse.json(
         { error: "File size must be less than 5MB" },
@@ -29,12 +29,12 @@ export async function POST(request: NextRequest) {
     const bytes = await file.arrayBuffer();
     const buffer = Buffer.from(bytes);
 
-    // Create filename with timestamp
+    // Gera nome único com timestamp para reduzir risco de colisão.
     const timestamp = Date.now();
     const ext = file.name.split(".").pop();
     const filename = `image-${timestamp}.${ext}`;
 
-    // Upload to Supabase Storage
+    // Envia o arquivo para o bucket público "uploads".
     const supabase = createAdminClient();
     const { error } = await supabase.storage
       .from("uploads")
@@ -51,7 +51,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Get public URL
+    // Retorna a URL pública para uso imediato no front-end.
     const { data: publicData } = supabase.storage
       .from("uploads")
       .getPublicUrl(filename);
