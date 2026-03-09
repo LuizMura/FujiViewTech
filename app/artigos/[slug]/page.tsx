@@ -8,10 +8,12 @@ import { Article } from "@/lib/types/article";
 import { MDXRemote } from "next-mdx-remote";
 import { MDXRemoteSerializeResult } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
+import remarkGfm from "remark-gfm";
 import { components as mdxComponents } from "@/components/article/MDXComponents";
 import TopTenList from "@/components/article/TopTenList";
 import matter from "gray-matter";
 import { Share2 } from "lucide-react";
+import { useAuth } from "@/app/context/AuthContext";
 
 class MDXErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -48,6 +50,7 @@ class MDXErrorBoundary extends React.Component<
 }
 
 export default function PostPage() {
+  const { user, loading: authLoading } = useAuth();
   const params = useParams() || {};
   const rawSlug =
     typeof params.slug === "string"
@@ -85,7 +88,11 @@ export default function PostPage() {
         if (data?.content) {
           // Remover frontmatter do conteúdo antes de serializar
           const { content } = matter(data.content);
-          const mdxSource = await serialize(content);
+          const mdxSource = await serialize(content, {
+            mdxOptions: {
+              remarkPlugins: [remarkGfm],
+            },
+          });
           setMdx(mdxSource);
         } else {
           setMdx(null);
@@ -131,6 +138,19 @@ export default function PostPage() {
       <div className="container-custom bg-white">
         <div className="md:grid md:grid-cols-4 md:gap-0">
           <div className="md:col-span-3 bg-white">
+            {!authLoading && user && (
+              <div className="sticky top-20 z-30 h-0">
+                <div className="flex justify-end px-4 md:px-8 pointer-events-none">
+                  <Link
+                    href={`/admin/artigos?slug=${encodeURIComponent(slug)}&category=${encodeURIComponent(post.category || "")}`}
+                    className="h-10 px-4 flex items-center justify-center bg-slate-800 text-white rounded-full hover:bg-slate-900 transition-colors pointer-events-auto"
+                  >
+                    Editar artigo
+                  </Link>
+                </div>
+              </div>
+            )}
+
             <ArtigoCard post={post}>
               {mdx ? (
                 <MDXErrorBoundary>

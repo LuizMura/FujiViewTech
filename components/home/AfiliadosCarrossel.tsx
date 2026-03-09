@@ -74,7 +74,7 @@ const AfiliadosCarrossel: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="afiliados-carrossel px-2 md:px-0 w-full">
+      <div className="afiliados-carrossel w-full">
         <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
           SELECIONADOS PARA VOCÊ
         </h2>
@@ -122,9 +122,9 @@ const AfiliadosCarrossel: React.FC = () => {
   };
 
   return (
-    <div className="px-2 md:px-0 w-full">
+    <div className="w-full">
       <div className="relative">
-        <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
+        <h2 className="text-lg md:text-2xl font-bold text-slate-700 mb-2 md:mb-8">
           SELECIONADOS PARA VOCÊ
         </h2>
 

@@ -13,7 +13,7 @@ export default function LogoBrand({ invert = false }: { invert?: boolean }) {
         }`}
       />
 
-      <span className="font-black md:font-extrabold text-3xl md:text-4xl tracking-tight text-neutral-400 transition-colors group-hover:text-[#4a7c59]">
+      <span className="font-black md:font-extrabold text-3xl md:text-4xl tracking-tight text-neutral-900 transition-colors group-hover:text-[#4a7c59]">
         Fujiview<span className="text-[#ac3e3e]">Tech</span>
       </span>
     </span>

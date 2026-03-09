@@ -2,6 +2,7 @@
 import { MDXRemote } from "next-mdx-remote";
 import { serialize } from "next-mdx-remote/serialize";
 import type { MDXRemoteSerializeResult } from "next-mdx-remote";
+import remarkGfm from "remark-gfm";
 import Image from "next/image";
 import { components as mdxComponents } from "@/components/article/MDXComponents";
 import React, { useState, useEffect } from "react";
@@ -110,7 +111,11 @@ export default function ArticlePreview({
       if (form.content) {
         try {
           const { content } = matter(form.content);
-          const mdx = await serialize(content);
+          const mdx = await serialize(content, {
+            mdxOptions: {
+              remarkPlugins: [remarkGfm],
+            },
+          });
           setMdxSource(mdx);
           setMdxError(null);
         } catch (err) {
@@ -132,7 +137,7 @@ export default function ArticlePreview({
         <div className="p-6">
           <ArtigoCard post={getPreviewArticle(form)} showAuthor={true} />
           {form.content && (
-            <div className="max-w-none mt-8 px-2 bg-white rounded-b-3xl py-8 [&_*]:text-black [&_h1]:text-4xl [&_h1]:font-extrabold [&_h1]:mb-6 [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:text-lg [&_p]:leading-8 [&_p]:mb-6 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_li]:text-black [&_a]:text-indigo-600 [&_a]:font-semibold">
+            <div className="max-w-none mt-8 px-2 bg-white rounded-b-3xl py-8 [&_*]:text-black [&_h1]:text-4xl [&_h1]:font-extrabold [&_h1]:mb-6 [&_h2]:text-3xl [&_h2]:font-bold [&_h2]:mt-10 [&_h2]:mb-4 [&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:mt-6 [&_h3]:mb-3 [&_p]:text-lg [&_p]:leading-8 [&_p]:mb-6 [&_strong]:font-bold [&_ul]:list-disc [&_ul]:pl-6 [&_ul]:space-y-2 [&_li]:text-black [&_a]:text-indigo-600 [&_a]:font-semibold [&_table]:w-full [&_table]:my-6 [&_table]:border-collapse [&_th]:border [&_th]:border-slate-300 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_td]:border [&_td]:border-slate-200 [&_td]:px-3 [&_td]:py-2">
               {mdxError && (
                 <div className="rounded-lg border border-red-200 bg-red-50 text-red-800 p-4 text-sm">
                   <p className="font-bold">Erro ao compilar MDX:</p>

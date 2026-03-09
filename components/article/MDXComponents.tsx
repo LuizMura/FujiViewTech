@@ -4,6 +4,7 @@ import React from "react";
 import Image from "next/image";
 import AfiliadosCard from "@/components/home/AfiliadosCard";
 import ProductRow from "@/components/article/ProductRow";
+import WrapImageText from "@/components/article/WrapImageText";
 
 type Afiliado = {
   nome: string;
@@ -175,6 +176,8 @@ export const components = {
   p: (props: React.HTMLAttributes<HTMLParagraphElement>) => {
     // Evita <p> dentro de <p> filtrando children que já são elementos block
     const { children, ...rest } = props;
+    const mergedClassName =
+      `${rest.className || ""} whitespace-pre-line`.trim();
 
     // Verifica se há elementos block dentro do parágrafo
     const hasBlockElement = React.Children.toArray(children).some((child) => {
@@ -200,10 +203,31 @@ export const components = {
     });
 
     if (hasBlockElement) {
-      return <div {...rest}>{children}</div>;
+      return (
+        <div {...rest} className={mergedClassName}>
+          {children}
+        </div>
+      );
     }
 
-    return <p {...rest}>{children}</p>;
+    const preserveLineBreaks = (node: React.ReactNode): React.ReactNode => {
+      if (typeof node !== "string") return node;
+
+      const parts = node.split("\n");
+      return parts.flatMap((part, index) =>
+        index < parts.length - 1 ? [part, <br key={`br-${index}`} />] : [part],
+      );
+    };
+
+    const normalizedChildren = React.Children.map(children, (child) =>
+      preserveLineBreaks(child),
+    );
+
+    return (
+      <p {...rest} className={mergedClassName}>
+        {normalizedChildren}
+      </p>
+    );
   },
   Affiliate,
   AffiliateBox,
@@ -212,4 +236,40 @@ export const components = {
   AfiliadosCard: AfiliadosCardBlock,
   AfiliadosCardBlock,
   ProductRow,
+  WrapImageText,
+  ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
+    <ul
+      {...props}
+      className={`list-disc pl-6 mt-0 mb-6 space-y-1 ${props.className || ""}`.trim()}
+    />
+  ),
+  ol: (props: React.HTMLAttributes<HTMLOListElement>) => (
+    <ol
+      {...props}
+      className={`list-decimal pl-6 mt-0 mb-6 space-y-1 ${props.className || ""}`.trim()}
+    />
+  ),
+  li: (props: React.LiHTMLAttributes<HTMLLIElement>) => (
+    <li {...props} className={`leading-7 ${props.className || ""}`.trim()} />
+  ),
+  table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (
+    <div className="my-6 w-full overflow-x-auto">
+      <table
+        {...props}
+        className={`min-w-[640px] w-full border-collapse ${props.className || ""}`.trim()}
+      />
+    </div>
+  ),
+  th: (props: React.ThHTMLAttributes<HTMLTableCellElement>) => (
+    <th
+      {...props}
+      className={`border border-slate-300 px-3 py-2 text-left font-semibold ${props.className || ""}`.trim()}
+    />
+  ),
+  td: (props: React.TdHTMLAttributes<HTMLTableCellElement>) => (
+    <td
+      {...props}
+      className={`border border-slate-200 px-3 py-2 ${props.className || ""}`.trim()}
+    />
+  ),
 };

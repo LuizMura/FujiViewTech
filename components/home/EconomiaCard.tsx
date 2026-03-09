@@ -1,5 +1,6 @@
 import React from "react";
 import Image from "next/image";
+import Link from "next/link";
 import { Article } from "@/lib/types/article";
 
 interface EconomiaCardProps {
@@ -14,7 +15,7 @@ const EconomiaCard: React.FC<EconomiaCardProps> = ({ artigos }) => {
         .normalize("NFD")
         .replace(/[\u0300-\u036f]/g, "")
         .trim()
-        .toLowerCase() === "economia"
+        .toLowerCase() === "economia",
   );
 
   if (economia.length === 0) return null;
@@ -29,36 +30,38 @@ const EconomiaCard: React.FC<EconomiaCardProps> = ({ artigos }) => {
   if (!economiaMaisRecente) return null;
 
   return (
-    <div className="-mt-1 md:mt-0 w-full max-w-xl mx-auto relative flex items-start h-[120px] md:h-[215px] bg-white rounded-sm md:rounded-2xl shadow border overflow-hidden">
-      <span className="absolute top-3 left-3 z-10 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
-        Economia
-      </span>
-      {/* Imagem quadrada à esquerda cobrindo 100% da altura */}
-      {economiaMaisRecente.image ? (
-        <div className="flex-shrink-0 h-full aspect-[14/9] md:aspect-square relative">
-          <Image
-            src={economiaMaisRecente.image}
-            alt={economiaMaisRecente.title}
-            fill
-            className="object-cover rounded-xl max-md:rounded-none"
-            sizes="(max-width: 768px) 100vw, 215px"
-          />
-        </div>
-      ) : (
-        <div className="flex-shrink-0 h-full aspect-square bg-slate-200 rounded-xl ml-2" />
-      )}
-      {/* Título e descrição à direita */}
-      <div className="flex-1 flex flex-col justify-start pt-3 px-2">
-        <h3 className="text-base md:text-lg font-bold text-slate-900 line-clamp-2 mb-1">
-          {economiaMaisRecente.title}
-        </h3>
-        {economiaMaisRecente.excerpt && (
-          <p className="text-xs md:text-sm text-slate-600 line-clamp-2">
-            {economiaMaisRecente.excerpt}
-          </p>
+    <Link href={`/artigos/${economiaMaisRecente.slug}`} className="block">
+      <div className="-mt-1 md:mt-0 w-full max-w-xl mx-auto relative flex items-start h-[120px] md:h-[215px] bg-white rounded-sm md:rounded-2xl shadow border overflow-hidden cursor-pointer">
+        <span className="absolute top-3 left-3 z-10 bg-green-600 text-white text-xs font-semibold px-3 py-1 rounded-full">
+          Economia
+        </span>
+        {/* Imagem quadrada à esquerda cobrindo 100% da altura */}
+        {economiaMaisRecente.image ? (
+          <div className="flex-shrink-0 h-full aspect-[14/9] md:aspect-square relative">
+            <Image
+              src={economiaMaisRecente.image}
+              alt={economiaMaisRecente.title}
+              fill
+              className="object-cover rounded-xl max-md:rounded-none"
+              sizes="(max-width: 768px) 100vw, 215px"
+            />
+          </div>
+        ) : (
+          <div className="flex-shrink-0 h-full aspect-square bg-slate-200 rounded-xl ml-2" />
         )}
+        {/* Título e descrição à direita */}
+        <div className="flex-1 flex flex-col justify-start pt-3 px-2">
+          <h3 className="text-base md:text-lg font-bold text-slate-900 line-clamp-2 mb-1">
+            {economiaMaisRecente.title}
+          </h3>
+          {economiaMaisRecente.excerpt && (
+            <p className="text-xs md:text-sm text-slate-600 line-clamp-2">
+              {economiaMaisRecente.excerpt}
+            </p>
+          )}
+        </div>
       </div>
-    </div>
+    </Link>
   );
 };
 

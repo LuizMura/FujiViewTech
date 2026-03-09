@@ -32,7 +32,7 @@ const UltimasPostagens: React.FC<CardProps> = ({ artigos }) => {
     <>
       {penultimos.map((artigo) => (
         <Link key={artigo.id} href={`/${artigo.category}/${artigo.slug}`}>
-          <div className="relative flex flex-col items-center bg-white rounded-xl shadow border overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
+          <div className="relative flex flex-col items-center bg-white rounded-xl shadow border border-slate-200 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
             {artigo.image ? (
               <div className="w-full h-48 relative">
                 <Image

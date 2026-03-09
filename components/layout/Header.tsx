@@ -39,13 +39,12 @@ function Header() {
     { name: "Filmes e Séries", href: "/categorias/filmes-e-series" },
     { name: "Viagens", href: "/categorias/viagens" },
     { name: "Sobre", href: "/sobre" },
-    { name: "Admin", href: "/admin" },
   ];
 
   return (
     <header
       className={`fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300 backdrop-blur-md border-b border-slate-100 ${
-        showHeader ? "translate-y-0" : "-translate-y-full"
+        showHeader ? "translate-y-0" : "-translate-y-[72%]"
       }`}
     >
       <div className="container-custom h-16 md:h-18 flex items-center justify-between">
@@ -59,9 +58,15 @@ function Header() {
           </div>
           <Link
             href="/newsletter"
-            className="px-4 py-2 bg-neutral-600 text-white text-sm font-medium rounded-full hover:bg-indigo-900 transition-all duration-300 shadow-md hover:shadow-lg"
+            className="px-4 py-2 bg-neutral-800 text-white text-sm font-medium rounded-full hover:bg-indigo-900 transition-all duration-300 shadow-md hover:shadow-lg"
           >
             Inscrever-se
+          </Link>
+          <Link
+            href="/admin"
+            className="px-4 py-2 bg-slate-800 text-white text-sm font-medium rounded-full hover:bg-slate-900 transition-all duration-300 shadow-md hover:shadow-lg"
+          >
+            Entrar
           </Link>
         </div>
         <button
@@ -71,7 +76,7 @@ function Header() {
           {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
         </button>
       </div>
-      <nav className="hidden md:flex border-t border-neutral-600 bg-stone-300 py-0.5 backdrop-blur-md">
+      <nav className="hidden md:flex border-t border-neutral-400 bg-stone-200 py-0.5 backdrop-blur-md">
         <div className="container-custom flex items-center gap-4">
           {navLinks.map((link, idx) => (
             <React.Fragment key={link.name}>

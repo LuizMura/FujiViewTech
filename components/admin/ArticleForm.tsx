@@ -1,7 +1,7 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
 import { generateUniqueSlug } from "@/lib/hooks/useArticles";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useState, useEffect, useMemo, useRef } from "react";
 import Image from "next/image";
 
 interface CardBase {
@@ -87,7 +87,9 @@ export default function ArticleForm<T extends CardBase>({
   const [selectedMdxTemplate, setSelectedMdxTemplate] = useState<string>("");
   const [affiliateCopied, setAffiliateCopied] = useState(false);
   const [templateCopied, setTemplateCopied] = useState(false);
+  const [contentSanitized, setContentSanitized] = useState(false);
   const [loadingAfiliados, setLoadingAfiliados] = useState(false);
+  const lineNumbersRef = useRef<HTMLDivElement>(null);
 
   // Carrega afiliados
   useEffect(() => {
@@ -151,6 +153,12 @@ export default function ArticleForm<T extends CardBase>({
     window.setTimeout(() => setAffiliateCopied(false), 1800);
   };
 
+  const contentValue = String(form.content ?? "");
+  const totalLines = Math.max(1, contentValue.split("\n").length);
+  const lineNumbers = Array.from({ length: totalLines }, (_, i) => i + 1).join(
+    "\n",
+  );
+
   const copyMdxTemplate = (template: string) => {
     if (template === "ProductRow") {
       const mdxTemplate = `## Título
@@ -164,7 +172,43 @@ image="
       navigator.clipboard.writeText(mdxTemplate);
       setTemplateCopied(true);
       window.setTimeout(() => setTemplateCopied(false), 1800);
+      return;
     }
+
+    if (template === "WrapImageText") {
+      const mdxTemplate = `## Seção Com Imagem Lateral
+
+<WrapImageText
+  src="https://exemplo.com/minha-imagem.jpg"
+  // ou use caminho local: /images/minha-imagem.jpg
+  alt="Descrição da imagem"
+  side="left"
+  width={320}
+  height={200}
+  caption="Legenda opcional"
+>
+Texto do artigo ao redor da imagem. Você pode escrever parágrafos maiores aqui e eles vão contornar a imagem no desktop.
+
+No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura confortável.
+</WrapImageText>`;
+      navigator.clipboard.writeText(mdxTemplate);
+      setTemplateCopied(true);
+      window.setTimeout(() => setTemplateCopied(false), 1800);
+    }
+  };
+
+  const sanitizeMdxContent = () => {
+    const raw = String(form.content ?? "");
+    const sanitized = raw
+      .replace(/\r\n?/g, "\n")
+      .replace(/[\u200B\u200C\u200D\uFEFF]/g, "")
+      .replace(/[\u2028\u2029]/g, "\n")
+      .replace(/\u00A0/g, " ")
+      .replace(/[ \t]+$/gm, "");
+
+    onContentChange(sanitized);
+    setContentSanitized(true);
+    window.setTimeout(() => setContentSanitized(false), 1800);
   };
 
   // Remove campos duplicados pelo name
@@ -506,6 +550,7 @@ image="
         >
           <option value="">Selecione um template...</option>
           <option value="ProductRow">ProductRow</option>
+          <option value="WrapImageText">WrapImageText</option>
         </select>
         {templateCopied && (
           <p className="mt-2 text-xs text-green-400">Template copiado!</p>
@@ -514,18 +559,46 @@ image="
 
       {/* Editor Markdown */}
       <div className="mb-3">
-        <label className="block text-[#bfc7d5] mb-1" htmlFor="content">
-          Conteúdo do Artigo (Markdown)
-        </label>
-        <textarea
-          id="content"
-          name="content"
-          value={String(form.content ?? "")}
-          onChange={(e) => onContentChange(e.target.value)}
-          rows={20}
-          className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none font-mono text-sm"
-          placeholder="Digite o conteúdo do artigo em Markdown..."
-        />
+        <div className="mb-1 flex items-center justify-between gap-2">
+          <label className="block text-[#bfc7d5]" htmlFor="content">
+            Conteúdo do Artigo (Markdown)
+          </label>
+          <button
+            type="button"
+            onClick={sanitizeMdxContent}
+            className="px-2 py-1 text-xs bg-[#eebbc3] text-[#232946] rounded hover:bg-[#d9aab2] transition"
+          >
+            Limpar formatação invisível
+          </button>
+        </div>
+        <div className="flex w-full bg-[#18181b] text-white rounded-lg border border-[#4b6b57] focus-within:border-[#6b8c77] overflow-hidden">
+          <div
+            ref={lineNumbersRef}
+            aria-hidden="true"
+            className="min-w-12 px-2 py-2 text-right text-[#6b7280] bg-[#14161a] border-r border-[#2f3e36] font-mono text-sm leading-6 whitespace-pre select-none overflow-hidden"
+          >
+            {lineNumbers}
+          </div>
+          <textarea
+            id="content"
+            name="content"
+            value={contentValue}
+            onChange={(e) => onContentChange(e.target.value)}
+            onScroll={(e) => {
+              if (lineNumbersRef.current) {
+                lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
+              }
+            }}
+            rows={20}
+            className="w-full bg-transparent text-white px-3 py-2 focus:outline-none font-mono text-sm leading-6"
+            placeholder="Digite o conteúdo do artigo em Markdown..."
+          />
+        </div>
+        {contentSanitized && (
+          <p className="mt-2 text-xs text-green-400">
+            Formatação invisível removida do conteúdo.
+          </p>
+        )}
       </div>
 
       {/* Botões */}

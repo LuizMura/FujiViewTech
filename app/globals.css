@@ -7,7 +7,7 @@
   --secondary: #0ea5e9; /* Sky 500 */
 
   /* Cores neutras */
-  --background: #161616; /* fundo escuro padrão */
+  --background: #ffffff; /* fundo escuro padrão */
   --background-gradient: none;
   --foreground: #000000; /* texto principal */
   --muted: #9ca3af; /* Slate 400 - texto secundário */
@@ -50,6 +50,7 @@ body {
 
 /* Utilitários customizados */
 .container-custom {
+  width: 100%;
   max-width: 1300px;
   margin: 0 auto;
   padding: 0 1.5rem;
@@ -59,10 +60,28 @@ body {
   .container-custom {
     padding: 0;
   }
+
+  .content-inset {
+    padding: 0;
+  }
+}
+
+/* Fundo pode ocupar largura total, mantendo conteúdo na margem padrão */
+.full-width-bg {
+  width: 100vw;
+  margin-left: calc(50% - 50vw);
+  margin-right: calc(50% - 50vw);
+}
+
+.content-inset {
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 0 1.5rem;
 }
 
 .glass-nav {
-  background: rgb(19, 19, 19);
+  background: rgba(74, 117, 103, 0.877);
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgba(0, 0, 0, 0.6);
 }

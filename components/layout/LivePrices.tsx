@@ -196,8 +196,12 @@ export default function LivePrices() {
       </div>
 
       <span className="hidden md:inline text-slate-300">|</span>
+
+      {/* BNB */}
       <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-sm">BNB</span>
+        <span className="font-bold text-slate-900text-[12px] md:text-sm">
+          BNB
+        </span>
         <span
           className={`font-semibold text-sm ${getChangeColor(changes.bnb)}`}
         >
@@ -287,9 +291,9 @@ export default function LivePrices() {
             "_blank",
           );
         }}
-        className="hidden md:flex items-center gap-1 text-slate-900 hover:text-indigo-600 font-bold whitespace-nowrap transition-colors underline decoration-2 underline-offset-2 cursor-pointer bg-transparent border-0 p-0"
+        className="hidden md:flex items-center gap-1 text-slate-900 hover:text-indigo-600 font-semibold whitespace-nowrap transition-colors underline decoration-2 underline-offset-2 cursor-pointer bg-transparent border-0 p-0"
       >
-        Ganhe USDC Grátis na Binance →
+        USDC Grátis na Binance →
       </button>
     </div>
   );

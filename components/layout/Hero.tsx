@@ -21,8 +21,23 @@ export default function Hero() {
   useEffect(() => {
     async function fetchArticles() {
       try {
-        const articles: Article[] = await getArticles({ limit: 5 });
-        setLatestArticles(articles);
+        const articles: Article[] = await getArticles({ limit: 20 });
+        const latestWithoutNewsAndEconomy = articles
+          .filter((article) => {
+            const normalizedCategory = (article.category || "")
+              .normalize("NFD")
+              .replace(/[\u0300-\u036f]/g, "")
+              .trim()
+              .toLowerCase();
+
+            return (
+              normalizedCategory !== "noticias" &&
+              normalizedCategory !== "economia"
+            );
+          })
+          .slice(0, 5);
+
+        setLatestArticles(latestWithoutNewsAndEconomy);
         const noticias: Article[] = await getArticles({
           category: "noticias",
           limit: 5,
@@ -58,8 +73,7 @@ export default function Hero() {
 
   return (
     <>
-      {/* ---------------------------------------------------------LIVEPRICES----------------------------------------------- */}
-      <div className="z-40 -mt-13 md:mt-2 mb-5 bg-white py-0.5 justify-center flex items-center rounded-none md:rounded-2xl shadow-md border border-slate-200">
+      <div className="z-40 -mt-13 md:mt-2 mb-5 bg-white py-0.5 justify-center flex items-center rounded-sm shadow-md border border-slate-200">
         <LivePrices />
       </div>
       <div className="px-1 md:px-0">
@@ -68,7 +82,7 @@ export default function Hero() {
           <>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 md:mb-8">
               <div className="md:col-span-2 order-1 md:order-1">
-                <div className="-mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
+                <div className="-mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-sm overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
                   <ArtigosCarrossel artigos={latestArticles} />
                 </div>
               </div>
@@ -95,14 +109,18 @@ export default function Hero() {
             </div>
 
             {/* Bloco de últimas postagens com imagem acima e texto abaixo */}
-            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
-            <UltimasPostagensCarrossel artigos={allArticles} />
-            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+
+            <div className="full-width-bg bg-gray-300 py-3 md:py-4">
+              <div className="content-inset">
+                <UltimasPostagensCarrossel artigos={allArticles} />
+              </div>
+            </div>
+            <hr className="my-8 border-slate-500 mb-4 md:mb-6" />
           </>
         )}
 
         {/* Espaço para bloco de publicidade */}
-        <div className="w-full h-24 flex items-center justify-center bg-slate-100 rounded-md border border-slate-200 mb-8">
+        <div className="w-full h-24 flex items-center justify-center bg-slate-100 mb-8">
           <span className="text-slate-500 font-semibold text-lg">
             Publicidade
           </span>
@@ -110,18 +128,22 @@ export default function Hero() {
 
         {/* Carrossel de afiliados */}
         {/* Linha divisória */}
-        <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+        <hr className="my-8 border-slate-900 mb-4 md:mb-6" />
 
-        <AfiliadosCarrossel />
-        <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+        <div className="full-width-bg bg-gray-100 py-3 md:py-4">
+          <div className="content-inset">
+            <AfiliadosCarrossel />
+          </div>
+        </div>
+        <hr className="my-8 border-slate-900   mb-4 md:mb-6" />
 
         {/* Seção de viagens e turismo */}
-        <h2 className="px-3 text-2xl md:text-4xl text-slate-100 mb-6">
+        <h2 className="px-3 text-2xl md:text-4xl text-slate-700 mb-6">
           VIAGENS & TURISMO
         </h2>
 
         {viagensArticles.length > 0 && (
-          <div className=" -mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5 mb-8">
+          <div className=" -mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-sm overflow-hidden shadow-2xl ring-1 ring-slate-900/5 mb-8">
             <ArtigosCarrossel artigos={viagensArticles} />
           </div>
         )}
@@ -136,11 +158,15 @@ export default function Hero() {
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
         {/* Produtos afiliados abaixo do carrossel de viagens */}
-        <AfiliadosCarrossel />
+        <div className="full-width-bg bg-gray-100 py-3 md:py-4">
+          <div className="content-inset">
+            <AfiliadosCarrossel />
+          </div>
+        </div>
 
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
         {/* -------------------------------------------------Espaço para AdSense----------------------------------------------- */}
-        <div className=" w-full h-24 flex items-center justify-center bg-slate-100 rounded-md border border-slate-200 mb-8">
+        <div className=" w-full h-24 flex items-center justify-center bg-slate-100 mb-8">
           <span className="text-slate-500 font-semibold text-lg">
             Publicidade
           </span>
@@ -150,12 +176,12 @@ export default function Hero() {
 
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
-        <h2 className="text-2xl md:text-4xl text-slate-100 mb-6">
+        <h2 className="text-2xl md:text-4xl text-slate-700 mb-6">
           TV, FILMES & SÉRIES
         </h2>
 
         {filmesSeriesArticles.length > 0 && (
-          <div className="-mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-3xl overflow-hidden shadow-2xl ring-1 ring-slate-900/5 mb-8">
+          <div className="-mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-sm overflow-hidden shadow-2xl ring-1 ring-slate-900/5 mb-8">
             <ArtigosCarrossel artigos={filmesSeriesArticles} />
           </div>
         )}
@@ -170,12 +196,16 @@ export default function Hero() {
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
         {/* Produtos afiliados abaixo do carrossel de filmes-séries */}
-        <AfiliadosCarrossel />
+        <div className="full-width-bg bg-gray-100 py-3 md:py-4">
+          <div className="content-inset">
+            <AfiliadosCarrossel />
+          </div>
+        </div>
 
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
         {/* -------------------------------------------------Espaço para AdSense----------------------------------------------- */}
-        <div className=" w-full h-24 flex items-center justify-center bg-slate-100 rounded-md border border-slate-200 mb-8">
+        <div className=" w-full h-24 flex items-center justify-center bg-slate-100 mb-8">
           <span className="text-slate-500 font-semibold text-lg">
             Publicidade
           </span>

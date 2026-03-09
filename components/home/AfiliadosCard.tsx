@@ -64,7 +64,7 @@ const AfiliadosCard: React.FC<AfiliadosCardProps> = ({
 
   return (
     <div
-      className={`w-full mx-auto bg-white rounded-sm md:rounded-xl shadow border overflow-hidden flex flex-col items-center h-full ${
+      className={`w-full mx-auto bg-white rounded-sm shadow border border-slate-300 overflow-hidden flex flex-col items-center h-full ${
         compact ? "max-w-[190px] p-1.5" : "max-w-xs p-2"
       }`}
     >

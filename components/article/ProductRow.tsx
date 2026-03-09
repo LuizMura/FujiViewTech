@@ -16,19 +16,17 @@ export default function ProductRow({
   children,
 }: ProductRowProps) {
   const safeTitle =
-    typeof title === "string" && title.trim().length > 0
-      ? title.trim()
-      : "Imagem do produto";
+    typeof title === "string" && title.trim().length > 0 ? title.trim() : "";
 
   const imageElement = (
-    <div className="w-84 h-84 rounded-xl overflow-hidden flex items-center justify-center">
+    <div className="relative w-[336px] h-[336px] rounded-xl overflow-hidden flex-shrink-0">
       <Image
         src={image}
         alt={safeTitle}
-        width={336}
-        height={336}
+        fill
+        sizes="(min-width: 768px) 336px, 220px"
         unoptimized
-        className="w-full h-full object-contain"
+        className="object-contain"
       />
     </div>
   );

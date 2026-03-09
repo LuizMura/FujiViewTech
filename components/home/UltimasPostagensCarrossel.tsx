@@ -33,7 +33,7 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
 
   if (shuffled.length === 0) {
     return (
-      <div className="px-2 md:px-0 w-full">
+      <div className="w-full">
         <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
           ÚLTIMAS POSTAGENS
         </h2>
@@ -82,9 +82,9 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
   };
 
   return (
-    <div className="px-2 md:px-0 w-full">
+    <div className="w-full">
       <div className="relative">
-        <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
+        <h2 className="text-lg md:text-2xl font-bold text-gray-700 py-2 md:py-2">
           ÚLTIMAS POSTAGENS
         </h2>
 
@@ -122,7 +122,7 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
                 href={`/artigos/${artigo.slug}`}
                 className="flex-shrink-0 w-[180px] md:w-[250px] lg:w-[220px] snap-start"
               >
-                <div className="relative flex flex-col items-center bg-white rounded-xl shadow border overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
+                <div className="relative flex flex-col items-center bg-white rounded-sm shadow border border-slate-300 overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-full">
                   {artigo.image ? (
                     <div className="w-full h-40 md:h-48 relative">
                       <Image

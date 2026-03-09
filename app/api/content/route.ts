@@ -67,29 +67,58 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient();
 
-    // Upsert evita duplicidade e mantém slug+categoria como chave lógica.
-    const { data, error } = await supabase
+    const articlePayload = {
+      slug,
+      category,
+      title: frontmatter.title || slug,
+      description: frontmatter.description || "",
+      content: content || "",
+      image: frontmatter.image || "",
+      author: frontmatter.author || "FujiViewTech",
+      read_time: frontmatter.readTime || "5 min",
+      published_date:
+        frontmatter.date || new Date().toISOString().split("T")[0],
+      status: "published",
+    };
+
+    // Upsert manual para funcionar mesmo sem constraint única slug+category.
+    const { data: existing, error: findError } = await supabase
       .from("articles")
-      .upsert(
-        {
-          slug,
-          category,
-          title: frontmatter.title || slug,
-          description: frontmatter.description || "",
-          content: content || "",
-          image: frontmatter.image || "",
-          author: frontmatter.author || "FujiViewTech",
-          read_time: frontmatter.readTime || "5 min",
-          published_date:
-            frontmatter.date || new Date().toISOString().split("T")[0],
-          status: "published",
-        },
-        { onConflict: "slug,category" },
-      )
-      .select();
+      .select("id")
+      .eq("slug", slug)
+      .eq("category", category)
+      .maybeSingle();
+
+    if (findError) {
+      console.error("Supabase find error:", findError);
+      return NextResponse.json(
+        { error: findError.message, details: findError },
+        { status: 500 },
+      );
+    }
+
+    let data;
+    let error;
+
+    if (existing?.id) {
+      const result = await supabase
+        .from("articles")
+        .update(articlePayload)
+        .eq("id", existing.id)
+        .select();
+      data = result.data;
+      error = result.error;
+    } else {
+      const result = await supabase
+        .from("articles")
+        .insert(articlePayload)
+        .select();
+      data = result.data;
+      error = result.error;
+    }
 
     if (error) {
-      console.error("Supabase upsert error:", error);
+      console.error("Supabase save error:", error);
       return NextResponse.json(
         { error: error.message, details: error },
         { status: 500 },
