@@ -1,7 +1,7 @@
 "use client";
 
 import AdminHeader from "../AdminHeader";
-import { useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import { useSearchParams } from "next/navigation";
 import ArticleList from "@/components/admin/ArticleList";
 import ArticlePreview from "@/components/admin/ArticlePreview";
@@ -23,6 +23,14 @@ type ArticleDraft = Record<string, unknown> & {
 };
 
 export default function AdminArtigosPage() {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#23272f]" />}>
+      <AdminArtigosPageContent />
+    </Suspense>
+  );
+}
+
+function AdminArtigosPageContent() {
   const searchParams = useSearchParams();
   const [selectedArticle, setSelectedArticle] = useState<ArticleDraft | null>(
     null,
