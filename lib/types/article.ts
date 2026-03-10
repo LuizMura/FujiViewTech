@@ -140,7 +140,7 @@ export function articleFromDB(db: ArticleDB): Article {
     content: db.content,
     image: db.image,
     category: db.category,
-    authorId: db.author_id || null,
+    authorId: db.author_id || db.author || null,
     status: db.status as ArticleStatus,
     publishedAt: db.published_date || null,
     createdAt: db.created_at,

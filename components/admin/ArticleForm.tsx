@@ -46,6 +46,11 @@ const fields = [
   { name: "slug", label: "Slug (URL)", type: "text" },
   { name: "excerpt", label: "Resumo", type: "textarea" },
   { name: "image", label: "Imagem (URL)", type: "text" },
+  {
+    name: "author",
+    label: "Autor",
+    type: "text",
+  },
   { name: "category", label: "Categoria", type: "text" },
   {
     name: "status",
@@ -81,15 +86,21 @@ export default function ArticleForm<T extends CardBase>({
   onContentChange,
   onSubmit,
 }: ArticleFormProps<T>) {
+  type EditorTab = "cover" | "templates" | "editor";
   const [afiliados, setAfiliados] = useState<Afiliado[]>([]);
   const [filterCategoria, setFilterCategoria] = useState<string>("");
   const [selectedAfiliadoId, setSelectedAfiliadoId] = useState<string>("");
   const [selectedMdxTemplate, setSelectedMdxTemplate] = useState<string>("");
+  const [mdxButtonText, setMdxButtonText] = useState<string>("");
+  const [mdxButtonUrl, setMdxButtonUrl] = useState<string>("");
   const [affiliateCopied, setAffiliateCopied] = useState(false);
   const [templateCopied, setTemplateCopied] = useState(false);
+  const [buttonTemplateCopied, setButtonTemplateCopied] = useState(false);
   const [contentSanitized, setContentSanitized] = useState(false);
   const [loadingAfiliados, setLoadingAfiliados] = useState(false);
+  const [activeTab, setActiveTab] = useState<EditorTab>("cover");
   const lineNumbersRef = useRef<HTMLDivElement>(null);
+  const showTabs = cardType === "ArtigoCard";
 
   // Carrega afiliados
   useEffect(() => {
@@ -160,6 +171,13 @@ export default function ArticleForm<T extends CardBase>({
   );
 
   const copyMdxTemplate = (template: string) => {
+    if (template === "ArticleButton") {
+      copyButtonTemplate();
+      setTemplateCopied(true);
+      window.setTimeout(() => setTemplateCopied(false), 1800);
+      return;
+    }
+
     if (template === "ProductRow") {
       const mdxTemplate = `## Título
 <ProductRow
@@ -195,6 +213,17 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
       setTemplateCopied(true);
       window.setTimeout(() => setTemplateCopied(false), 1800);
     }
+  };
+
+  const copyButtonTemplate = () => {
+    const buttonText = mdxButtonText.trim();
+    const buttonUrl = mdxButtonUrl.trim() || "https://exemplo.com";
+    const esc = (v: string) => v.replace(/"/g, '\\"');
+    const mdxTemplate = `<ArticleButton\n  text=\"${esc(buttonText)}\"\n  url=\"${esc(buttonUrl)}\"\n/>`;
+
+    navigator.clipboard.writeText(mdxTemplate);
+    setButtonTemplateCopied(true);
+    window.setTimeout(() => setButtonTemplateCopied(false), 1800);
   };
 
   const sanitizeMdxContent = () => {
@@ -272,334 +301,431 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
       onSubmit={onSubmit}
       className="bg-[#23272f] p-4 rounded-xl shadow-lg w-full overflow-y-auto"
     >
-      {allFields.map((field, index) => {
-        const isSecondOfPair =
-          field.name === "status" || field.name === "readTime";
-
-        // Agrupa categoria e status / publishedAt e readTime
-        if (isSecondOfPair && index > 0) {
-          const prevField = allFields[index - 1];
-          const isPrevCategory = prevField.name === "category";
-          const isPrevPublishedAt = prevField.name === "publishedAt";
-
-          // Se é status e campo anterior é categoria, ou readTime e anterior é publishedAt
-          if (
-            (field.name === "status" && isPrevCategory) ||
-            (field.name === "readTime" && isPrevPublishedAt)
-          ) {
-            return null; // já foram renderizados junto com seus pares
-          }
-        }
-
-        const fieldValue = form[field.name];
-
-        return (
-          <div
-            key={field.name}
-            className={`${
-              field.name === "category" || field.name === "publishedAt"
-                ? "grid grid-cols-2 gap-2 mb-3"
-                : "mb-3"
-            }`}
-          >
-            {/* Campo atual */}
-            <div>
-              <label className="block text-[#bfc7d5] mb-1" htmlFor={field.name}>
-                {field.label}
-              </label>
-              {field.type === "select" ? (
-                <select
-                  id={field.name}
-                  name={field.name}
-                  value={String(fieldValue ?? "published")}
-                  onChange={handleChange}
-                  className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-                >
-                  {(field.options || []).map((opt: string) => (
-                    <option key={opt} value={opt} className="text-black">
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-              ) : field.type === "textarea" ? (
-                <textarea
-                  id={field.name}
-                  name={field.name}
-                  value={String(fieldValue ?? "")}
-                  onChange={handleChange}
-                  className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-                />
-              ) : (
-                <input
-                  id={field.name}
-                  name={field.name}
-                  type={field.type}
-                  value={
-                    field.type === "number"
-                      ? typeof fieldValue === "number"
-                        ? fieldValue
-                        : Number(fieldValue ?? 0)
-                      : String(fieldValue ?? "")
-                  }
-                  onChange={handleChange}
-                  className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-                />
-              )}
-            </div>
-
-            {/* Se é categoria, renderiza status ao lado */}
-            {field.name === "category" && (
-              <div>
-                <label className="block text-[#bfc7d5] mb-1" htmlFor="status">
-                  Status
-                </label>
-                <select
-                  id="status"
-                  name="status"
-                  value={String(form.status ?? "published")}
-                  onChange={handleChange}
-                  className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-                >
-                  {["draft", "published", "archived"].map((opt: string) => (
-                    <option key={opt} value={opt} className="text-black">
-                      {opt}
-                    </option>
-                  ))}
-                </select>
-              </div>
-            )}
-
-            {/* Se é publishedAt, renderiza readTime ao lado */}
-            {field.name === "publishedAt" && (
-              <div>
-                <label className="block text-[#bfc7d5] mb-1" htmlFor="readTime">
-                  Tempo de Leitura
-                </label>
-                <input
-                  id="readTime"
-                  name="readTime"
-                  type="text"
-                  value={String(form.readTime ?? "")}
-                  onChange={handleChange}
-                  className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-                />
-              </div>
-            )}
-
-            {/* Upload imagem principal - aparece após o campo Imagem (URL) */}
-            {field.name === "image" && (
-              <div className="mb-3">
-                <label
-                  className="block text-[#bfc7d5] mb-1"
-                  htmlFor="image-upload"
-                >
-                  Upload Imagem Principal
-                </label>
-                <input
-                  id="image-upload"
-                  name="image-upload"
-                  type="file"
-                  accept="image/*"
-                  onChange={(e) => handleFileUpload(e, false)}
-                  className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-                />
-              </div>
-            )}
-          </div>
-        );
-      })}
-
-      {/* Upload imagem MDX */}
-      <div className="mb-3">
-        <label className="block text-[#bfc7d5] mb-1" htmlFor="mdx-image-upload">
-          Upload Imagem para MDX
-        </label>
-        <input
-          id="mdx-image-upload"
-          name="mdx-image-upload"
-          type="file"
-          accept="image/*"
-          onChange={(e) => handleFileUpload(e, true)}
-          className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-        />
-        {Boolean(form.mdxImage) && (
-          <div className="mt-2 flex items-center gap-2">
-            <Image
-              src={String(form.mdxImage)}
-              alt="Preview MDX"
-              width={128}
-              height={128}
-              unoptimized
-              className="max-h-32 h-auto w-auto rounded border border-[#4b6b57]"
-            />
+      {showTabs && (
+        <div className="mb-4">
+          <div className="grid grid-cols-3 gap-2 rounded-lg bg-[#18181b] p-1 border border-[#4b6b57]">
             <button
               type="button"
-              className="px-2 py-1 bg-[#eebbc3] text-[#232946] rounded text-xs"
-              onClick={() =>
-                navigator.clipboard.writeText(String(form.mdxImage))
-              }
+              onClick={() => setActiveTab("cover")}
+              className={`px-2 py-2 rounded-md text-xs md:text-sm font-semibold transition ${
+                activeTab === "cover"
+                  ? "bg-[#7f8fa6] text-[#23272f]"
+                  : "text-[#bfc7d5] hover:bg-[#2a2f39]"
+              }`}
             >
-              Copiar URL
+              Capa
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("templates")}
+              className={`px-2 py-2 rounded-md text-xs md:text-sm font-semibold transition ${
+                activeTab === "templates"
+                  ? "bg-[#7f8fa6] text-[#23272f]"
+                  : "text-[#bfc7d5] hover:bg-[#2a2f39]"
+              }`}
+            >
+              MDX Templates
+            </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab("editor")}
+              className={`px-2 py-2 rounded-md text-xs md:text-sm font-semibold transition ${
+                activeTab === "editor"
+                  ? "bg-[#7f8fa6] text-[#23272f]"
+                  : "text-[#bfc7d5] hover:bg-[#2a2f39]"
+              }`}
+            >
+              MDX Editor
             </button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
-      {/* Imagem URL MDX */}
-      <div className="mb-3">
-        <label className="block text-[#bfc7d5] mb-1" htmlFor="mdxImageUrl">
-          Imagem URL MDX
-        </label>
-        <input
-          id="mdxImageUrl"
-          name="mdxImageUrl"
-          type="text"
-          value={String(form.mdxImageUrl ?? "")}
-          onChange={handleChange}
-          className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-          placeholder="https://exemplo.com/imagem.jpg"
-        />
-      </div>
+      {(!showTabs || activeTab === "cover") &&
+        allFields.map((field, index) => {
+          const isSecondOfPair =
+            field.name === "status" || field.name === "readTime";
 
-      {/* Afiliados Cadastrados */}
-      <div className="mb-3 border-t border-[#4b6b57] pt-4">
-        <h3 className="text-[#bfc7d5] font-semibold mb-2">
-          Afiliados Cadastrados
-        </h3>
-        <p className="text-xs text-[#9ca3af] mb-2">
-          Selecione no dropdown e copie o código MDX do card
-        </p>
+          // Agrupa categoria e status / publishedAt e readTime
+          if (isSecondOfPair && index > 0) {
+            const prevField = allFields[index - 1];
+            const isPrevCategory = prevField.name === "category";
+            const isPrevPublishedAt = prevField.name === "publishedAt";
 
-        {/* Filtro */}
-        <select
-          className="w-full mb-2 bg-[#18181b] text-white px-3 py-1.5 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
-          value={filterCategoria}
-          onChange={(e) => {
-            setFilterCategoria(e.target.value);
-            setSelectedAfiliadoId("");
-          }}
-        >
-          <option value="">Todas as categorias</option>
-          {categoriasSugeridas.map((cat) => (
-            <option key={cat} value={cat}>
-              {cat}
-            </option>
-          ))}
-        </select>
+            // Se é status e campo anterior é categoria, ou readTime e anterior é publishedAt
+            if (
+              (field.name === "status" && isPrevCategory) ||
+              (field.name === "readTime" && isPrevPublishedAt)
+            ) {
+              return null; // já foram renderizados junto com seus pares
+            }
+          }
 
-        {loadingAfiliados ? (
-          <div className="text-[#9ca3af] text-xs p-2 border border-[#4b6b57] rounded-lg">
-            Carregando...
-          </div>
-        ) : !afiliadosFiltrados.length ? (
-          <div className="text-[#9ca3af] text-xs p-2 border border-[#4b6b57] rounded-lg">
-            {filterCategoria
-              ? `Nenhum afiliado na categoria "${filterCategoria}"`
-              : "Nenhum afiliado encontrado"}
-          </div>
-        ) : (
-          <div className="space-y-2">
-            <select
-              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
-              value={selectedAfiliadoId}
-              onChange={(e) => setSelectedAfiliadoId(e.target.value)}
+          const fieldValue = form[field.name];
+
+          return (
+            <div
+              key={field.name}
+              className={`${
+                field.name === "category" || field.name === "publishedAt"
+                  ? "grid grid-cols-2 gap-2 mb-3"
+                  : "mb-3"
+              }`}
             >
-              <option value="">Selecione um afiliado...</option>
-              {afiliadosFiltrados.map((afiliado) => (
-                <option key={afiliado.id} value={afiliado.id}>
-                  {afiliado.titulo} - {afiliado.categoria}
+              {/* Campo atual */}
+              <div>
+                <label
+                  className="block text-[#bfc7d5] mb-1"
+                  htmlFor={field.name}
+                >
+                  {field.label}
+                </label>
+                {field.type === "select" ? (
+                  <select
+                    id={field.name}
+                    name={field.name}
+                    value={String(
+                      fieldValue ??
+                        (field.name === "status"
+                          ? "published"
+                          : (field.options?.[0] ?? "")),
+                    )}
+                    onChange={handleChange}
+                    className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                  >
+                    {(field.options || []).map((opt: string) => (
+                      <option key={opt} value={opt} className="text-black">
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                ) : field.type === "textarea" ? (
+                  <textarea
+                    id={field.name}
+                    name={field.name}
+                    value={String(fieldValue ?? "")}
+                    onChange={handleChange}
+                    className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                  />
+                ) : (
+                  <input
+                    id={field.name}
+                    name={field.name}
+                    type={field.type}
+                    placeholder={field.name === "author" ? "Luiz Murakami" : ""}
+                    value={
+                      field.type === "number"
+                        ? typeof fieldValue === "number"
+                          ? fieldValue
+                          : Number(fieldValue ?? 0)
+                        : String(fieldValue ?? "")
+                    }
+                    onChange={handleChange}
+                    className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                  />
+                )}
+              </div>
+
+              {/* Se é categoria, renderiza status ao lado */}
+              {field.name === "category" && (
+                <div>
+                  <label className="block text-[#bfc7d5] mb-1" htmlFor="status">
+                    Status
+                  </label>
+                  <select
+                    id="status"
+                    name="status"
+                    value={String(form.status ?? "published")}
+                    onChange={handleChange}
+                    className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                  >
+                    {["draft", "published", "archived"].map((opt: string) => (
+                      <option key={opt} value={opt} className="text-black">
+                        {opt}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+              )}
+
+              {/* Se é publishedAt, renderiza readTime ao lado */}
+              {field.name === "publishedAt" && (
+                <div>
+                  <label
+                    className="block text-[#bfc7d5] mb-1"
+                    htmlFor="readTime"
+                  >
+                    Tempo de Leitura
+                  </label>
+                  <input
+                    id="readTime"
+                    name="readTime"
+                    type="text"
+                    value={String(form.readTime ?? "")}
+                    onChange={handleChange}
+                    className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                  />
+                </div>
+              )}
+
+              {/* Upload imagem principal - aparece após o campo Imagem (URL) */}
+              {field.name === "image" && (
+                <div className="mb-3">
+                  <label
+                    className="block text-[#bfc7d5] mb-1"
+                    htmlFor="image-upload"
+                  >
+                    Upload Imagem Principal
+                  </label>
+                  <input
+                    id="image-upload"
+                    name="image-upload"
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => handleFileUpload(e, false)}
+                    className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                  />
+                </div>
+              )}
+            </div>
+          );
+        })}
+
+      {/* Upload imagem MDX */}
+      {(!showTabs || activeTab === "templates") && (
+        <>
+          <div className="mb-3">
+            <label
+              className="block text-[#bfc7d5] mb-1"
+              htmlFor="mdx-image-upload"
+            >
+              Upload Imagem para MDX
+            </label>
+            <input
+              id="mdx-image-upload"
+              name="mdx-image-upload"
+              type="file"
+              accept="image/*"
+              onChange={(e) => handleFileUpload(e, true)}
+              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+            />
+            {Boolean(form.mdxImage) && (
+              <div className="mt-2 flex items-center gap-2">
+                <Image
+                  src={String(form.mdxImage)}
+                  alt="Preview MDX"
+                  width={128}
+                  height={128}
+                  unoptimized
+                  className="max-h-32 h-auto w-auto rounded border border-[#4b6b57]"
+                />
+                <button
+                  type="button"
+                  className="px-2 py-1 bg-[#eebbc3] text-[#232946] rounded text-xs"
+                  onClick={() =>
+                    navigator.clipboard.writeText(String(form.mdxImage))
+                  }
+                >
+                  Copiar URL
+                </button>
+              </div>
+            )}
+          </div>
+
+          {/* Imagem URL MDX */}
+          <div className="mb-3">
+            <label className="block text-[#bfc7d5] mb-1" htmlFor="mdxImageUrl">
+              Imagem URL MDX
+            </label>
+            <input
+              id="mdxImageUrl"
+              name="mdxImageUrl"
+              type="text"
+              value={String(form.mdxImageUrl ?? "")}
+              onChange={handleChange}
+              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+              placeholder="https://exemplo.com/imagem.jpg"
+            />
+          </div>
+
+          {/* Afiliados Cadastrados */}
+          <div className="mb-3 border-t border-[#4b6b57] pt-4">
+            <h3 className="text-[#bfc7d5] font-semibold mb-2">
+              Afiliados Cadastrados
+            </h3>
+            <p className="text-xs text-[#9ca3af] mb-2">
+              Selecione no dropdown e copie o código MDX do card
+            </p>
+
+            {/* Filtro */}
+            <select
+              className="w-full mb-2 bg-[#18181b] text-white px-3 py-1.5 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+              value={filterCategoria}
+              onChange={(e) => {
+                setFilterCategoria(e.target.value);
+                setSelectedAfiliadoId("");
+              }}
+            >
+              <option value="">Todas as categorias</option>
+              {categoriasSugeridas.map((cat) => (
+                <option key={cat} value={cat}>
+                  {cat}
                 </option>
               ))}
             </select>
 
-            <button
-              type="button"
-              disabled={!selectedAfiliado}
-              onClick={() =>
-                selectedAfiliado && copyAffiliateMdx(selectedAfiliado)
-              }
-              className="w-full py-2 bg-[#eebbc3] text-[#232946] rounded-lg font-semibold hover:bg-[#d9aab2] disabled:opacity-50 disabled:cursor-not-allowed transition"
-            >
-              Copiar código MDX
-            </button>
-            {affiliateCopied && (
-              <p className="text-xs text-green-400">Código MDX copiado!</p>
+            {loadingAfiliados ? (
+              <div className="text-[#9ca3af] text-xs p-2 border border-[#4b6b57] rounded-lg">
+                Carregando...
+              </div>
+            ) : !afiliadosFiltrados.length ? (
+              <div className="text-[#9ca3af] text-xs p-2 border border-[#4b6b57] rounded-lg">
+                {filterCategoria
+                  ? `Nenhum afiliado na categoria "${filterCategoria}"`
+                  : "Nenhum afiliado encontrado"}
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <select
+                  className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+                  value={selectedAfiliadoId}
+                  onChange={(e) => setSelectedAfiliadoId(e.target.value)}
+                >
+                  <option value="">Selecione um afiliado...</option>
+                  {afiliadosFiltrados.map((afiliado) => (
+                    <option key={afiliado.id} value={afiliado.id}>
+                      {afiliado.titulo} - {afiliado.categoria}
+                    </option>
+                  ))}
+                </select>
+
+                <button
+                  type="button"
+                  disabled={!selectedAfiliado}
+                  onClick={() =>
+                    selectedAfiliado && copyAffiliateMdx(selectedAfiliado)
+                  }
+                  className="w-full py-2 bg-[#eebbc3] text-[#232946] rounded-lg font-semibold hover:bg-[#d9aab2] disabled:opacity-50 disabled:cursor-not-allowed transition"
+                >
+                  Copiar código MDX
+                </button>
+                {affiliateCopied && (
+                  <p className="text-xs text-green-400">Código MDX copiado!</p>
+                )}
+              </div>
             )}
           </div>
-        )}
-      </div>
 
-      {/* Templates MDX */}
-      <div className="mb-3 border-t border-[#4b6b57] pt-4">
-        <h3 className="text-[#bfc7d5] font-semibold mb-2">Templates de MDX</h3>
-        <p className="text-xs text-[#9ca3af] mb-2">
-          Selecione um template no dropdown para copiar
-        </p>
+          {/* Templates MDX */}
+          <div className="mb-3 border-t border-[#4b6b57] pt-4">
+            <h3 className="text-[#bfc7d5] font-semibold mb-2">Botao MDX</h3>
+            <p className="text-xs text-[#9ca3af] mb-2">
+              Defina texto e URL para copiar o componente de botao
+            </p>
 
-        <select
-          className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
-          value={selectedMdxTemplate}
-          onChange={(e) => {
-            const value = e.target.value;
-            setSelectedMdxTemplate(value);
-            if (value) {
-              copyMdxTemplate(value);
-              setSelectedMdxTemplate("");
-            }
-          }}
-        >
-          <option value="">Selecione um template...</option>
-          <option value="ProductRow">ProductRow</option>
-          <option value="WrapImageText">WrapImageText</option>
-        </select>
-        {templateCopied && (
-          <p className="mt-2 text-xs text-green-400">Template copiado!</p>
-        )}
-      </div>
+            <div className="space-y-2 mb-4">
+              <input
+                type="text"
+                value={mdxButtonText}
+                onChange={(e) => setMdxButtonText(e.target.value)}
+                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+                placeholder="Texto do botao"
+              />
+              <input
+                type="url"
+                value={mdxButtonUrl}
+                onChange={(e) => setMdxButtonUrl(e.target.value)}
+                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+                placeholder="https://seu-link.com"
+              />
+              <button
+                type="button"
+                onClick={copyButtonTemplate}
+                className="w-full py-2 bg-[#7f8fa6] text-[#23272f] rounded-lg font-semibold hover:bg-[#596275] transition"
+              >
+                Copiar botao MDX
+              </button>
+              {buttonTemplateCopied && (
+                <p className="text-xs text-green-400">Botao MDX copiado!</p>
+              )}
+            </div>
+
+            <h3 className="text-[#bfc7d5] font-semibold mb-2">
+              Templates de MDX
+            </h3>
+            <p className="text-xs text-[#9ca3af] mb-2">
+              Selecione um template no dropdown para copiar
+            </p>
+
+            <select
+              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+              value={selectedMdxTemplate}
+              onChange={(e) => {
+                const value = e.target.value;
+                setSelectedMdxTemplate(value);
+                if (value) {
+                  copyMdxTemplate(value);
+                  setSelectedMdxTemplate("");
+                }
+              }}
+            >
+              <option value="">Selecione um template...</option>
+              <option value="ArticleButton">ArticleButton</option>
+              <option value="ProductRow">ProductRow</option>
+              <option value="WrapImageText">WrapImageText</option>
+            </select>
+            {templateCopied && (
+              <p className="mt-2 text-xs text-green-400">Template copiado!</p>
+            )}
+          </div>
+        </>
+      )}
 
       {/* Editor Markdown */}
-      <div className="mb-3">
-        <div className="mb-1 flex items-center justify-between gap-2">
-          <label className="block text-[#bfc7d5]" htmlFor="content">
-            Conteúdo do Artigo (Markdown)
-          </label>
-          <button
-            type="button"
-            onClick={sanitizeMdxContent}
-            className="px-2 py-1 text-xs bg-[#eebbc3] text-[#232946] rounded hover:bg-[#d9aab2] transition"
-          >
-            Limpar formatação invisível
-          </button>
-        </div>
-        <div className="flex w-full bg-[#18181b] text-white rounded-lg border border-[#4b6b57] focus-within:border-[#6b8c77] overflow-hidden">
-          <div
-            ref={lineNumbersRef}
-            aria-hidden="true"
-            className="min-w-12 px-2 py-2 text-right text-[#6b7280] bg-[#14161a] border-r border-[#2f3e36] font-mono text-sm leading-6 whitespace-pre select-none overflow-hidden"
-          >
-            {lineNumbers}
+      {(!showTabs || activeTab === "editor") && (
+        <div className="mb-3">
+          <div className="mb-1 flex items-center justify-between gap-2">
+            <label className="block text-[#bfc7d5]" htmlFor="content">
+              Conteúdo do Artigo (Markdown)
+            </label>
+            <button
+              type="button"
+              onClick={sanitizeMdxContent}
+              className="px-2 py-1 text-xs bg-[#eebbc3] text-[#232946] rounded hover:bg-[#d9aab2] transition"
+            >
+              Limpar formatação invisível
+            </button>
           </div>
-          <textarea
-            id="content"
-            name="content"
-            value={contentValue}
-            onChange={(e) => onContentChange(e.target.value)}
-            onScroll={(e) => {
-              if (lineNumbersRef.current) {
-                lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
-              }
-            }}
-            rows={20}
-            className="w-full bg-transparent text-white px-3 py-2 focus:outline-none font-mono text-sm leading-6"
-            placeholder="Digite o conteúdo do artigo em Markdown..."
-          />
+          <div className="flex w-full bg-[#18181b] text-white rounded-lg border border-[#4b6b57] focus-within:border-[#6b8c77] overflow-hidden">
+            <div
+              ref={lineNumbersRef}
+              aria-hidden="true"
+              className="min-w-12 px-2 py-2 text-right text-[#6b7280] bg-[#14161a] border-r border-[#2f3e36] font-mono text-sm leading-6 whitespace-pre select-none overflow-hidden"
+            >
+              {lineNumbers}
+            </div>
+            <textarea
+              id="content"
+              name="content"
+              value={contentValue}
+              onChange={(e) => onContentChange(e.target.value)}
+              onScroll={(e) => {
+                if (lineNumbersRef.current) {
+                  lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
+                }
+              }}
+              rows={20}
+              className="w-full bg-transparent text-white px-3 py-2 focus:outline-none font-mono text-sm leading-6"
+              placeholder="Digite o conteúdo do artigo em Markdown..."
+            />
+          </div>
+          {contentSanitized && (
+            <p className="mt-2 text-xs text-green-400">
+              Formatação invisível removida do conteúdo.
+            </p>
+          )}
         </div>
-        {contentSanitized && (
-          <p className="mt-2 text-xs text-green-400">
-            Formatação invisível removida do conteúdo.
-          </p>
-        )}
-      </div>
+      )}
 
       {/* Botões */}
       <button

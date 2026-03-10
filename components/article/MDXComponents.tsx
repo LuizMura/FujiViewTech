@@ -5,6 +5,7 @@ import Image from "next/image";
 import AfiliadosCard from "@/components/home/AfiliadosCard";
 import ProductRow from "@/components/article/ProductRow";
 import WrapImageText from "@/components/article/WrapImageText";
+import ArticleButton from "@/components/article/ArticleButton";
 
 type Afiliado = {
   nome: string;
@@ -237,6 +238,7 @@ export const components = {
   AfiliadosCardBlock,
   ProductRow,
   WrapImageText,
+  ArticleButton,
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
     <ul
       {...props}

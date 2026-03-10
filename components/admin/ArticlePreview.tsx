@@ -10,6 +10,35 @@ import matter from "gray-matter";
 import ArtigoCard from "@/app/artigos/ArtigoCard";
 import type { Article } from "@/lib/types/article";
 
+function normalizeMdxContainers(raw: string): string {
+  const lines = raw.replace(/\r\n?/g, "\n").split("\n");
+  const output: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trimStart();
+    const isJsxComponentLine = /^<\/?[A-Z][\w.-]*(\s|>|\/)/.test(trimmed);
+
+    if (isJsxComponentLine) {
+      let idx = output.length - 1;
+      while (idx >= 0 && output[idx].trim() === "") idx -= 1;
+
+      if (idx >= 0) {
+        const prev = output[idx].trimStart();
+        const isBlockQuoteContext = /^>/.test(prev);
+        const isListContext = /^(?:\d+\.|[-+*])\s/.test(prev);
+
+        if (isBlockQuoteContext || isListContext) {
+          output.push("");
+        }
+      }
+    }
+
+    output.push(line);
+  }
+
+  return output.join("\n");
+}
+
 type PreviewForm = Partial<Omit<Article, "status">> & {
   status?: Article["status"] | string;
   source?: string;
@@ -65,7 +94,7 @@ function getPreviewArticle(form: PreviewForm): Article {
     content: form.content || "",
     image: form.image || "",
     category: form.category || "Categoria",
-    authorId: form.authorId || "Autor",
+    authorId: (form.authorId as string) || (form.author as string) || "Autor",
     status: normalizedStatus,
     publishedAt: form.publishedAt || new Date().toISOString(),
     createdAt: form.createdAt || new Date().toISOString(),
@@ -111,13 +140,24 @@ export default function ArticlePreview({
       if (form.content) {
         try {
           const { content } = matter(form.content);
-          const mdx = await serialize(content, {
-            mdxOptions: {
-              remarkPlugins: [remarkGfm],
-            },
-          });
-          setMdxSource(mdx);
-          setMdxError(null);
+          try {
+            const mdx = await serialize(content, {
+              mdxOptions: {
+                remarkPlugins: [remarkGfm],
+              },
+            });
+            setMdxSource(mdx);
+            setMdxError(null);
+          } catch {
+            const normalized = normalizeMdxContainers(content);
+            const mdx = await serialize(normalized, {
+              mdxOptions: {
+                remarkPlugins: [remarkGfm],
+              },
+            });
+            setMdxSource(mdx);
+            setMdxError(null);
+          }
         } catch (err) {
           console.error("Error serializing MDX:", err);
           setMdxSource(null);

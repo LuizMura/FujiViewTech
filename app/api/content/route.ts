@@ -74,7 +74,7 @@ export async function POST(request: NextRequest) {
       description: frontmatter.description || "",
       content: content || "",
       image: frontmatter.image || "",
-      author: frontmatter.author || "FujiViewTech",
+      author: frontmatter.author || "Redação FujivewTech",
       read_time: frontmatter.readTime || "5 min",
       published_date:
         frontmatter.date || new Date().toISOString().split("T")[0],

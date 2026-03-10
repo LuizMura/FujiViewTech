@@ -24,11 +24,24 @@ interface ProdutoAfiliado {
   id?: string | number;
 }
 
-const AfiliadosCarrossel: React.FC = () => {
+interface AfiliadosCarrosselProps {
+  title?: string;
+  emptyMessage?: string;
+  itemsPerPage?: number;
+  smallArrows?: boolean;
+  compact?: boolean;
+}
+
+const AfiliadosCarrossel: React.FC<AfiliadosCarrosselProps> = ({
+  title = "SELECIONADOS PARA VOCÊ",
+  emptyMessage,
+  itemsPerPage = 5,
+  smallArrows = false,
+  compact = false,
+}) => {
   const [produtos, setProdutos] = useState<ProdutoAfiliado[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentIndex, setCurrentIndex] = useState(0);
-  const itemsPerPage = 5;
   const isMobile = typeof window !== "undefined" && window.innerWidth < 768;
   const containerRef = useRef<HTMLDivElement>(null);
 
@@ -74,30 +87,52 @@ const AfiliadosCarrossel: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="afiliados-carrossel w-full">
+      <div className="afiliados-carrossel w-full overflow-x-hidden">
         <h2 className="text-lg md:text-2xl font-bold text-slate-100 mb-2 md:mb-8">
-          SELECIONADOS PARA VOCÊ
+          {title}
         </h2>
-        <div className="flex gap-3 md:gap-6 mb-8">
+        <div
+          className={`flex ${compact ? "gap-[10px] md:gap-4" : "gap-3 md:gap-6"} mb-8`}
+        >
           {[1, 2, 3, 4, 5].map((n) => (
             <div
               key={n}
-              className="flex-shrink-0 w-[150px] md:w-[200px] lg:w-[200px] h-[280px] bg-slate-800/50 rounded-xl animate-pulse"
+              className={`flex-shrink-0 ${compact ? "w-[130px] md:w-[176px] lg:w-[176px] h-[240px]" : "w-[150px] md:w-[200px] lg:w-[200px] h-[280px]"} bg-slate-800/50 rounded-xl animate-pulse`}
             />
           ))}
         </div>
       </div>
     );
   }
-  if (!produtos.length) return <div>Nenhum produto afiliado encontrado.</div>;
+  if (!produtos.length) {
+    if (emptyMessage) {
+      return <div className="text-sm text-slate-500">{emptyMessage}</div>;
+    }
+    return null;
+  }
 
   const visibleItems = produtos;
+  const arrowMobileSize = smallArrows ? 22 : 28;
+  const arrowDesktopSize = smallArrows ? 34 : 46;
+  const arrowPadding = smallArrows ? "p-1 md:p-1.5" : "p-1 md:p-2";
+  const mobileCardWidth = compact ? 130 : 150;
+  const desktopCardWidth = compact ? 176 : 200;
+  const mobileGap = compact ? 10 : 12;
+  const desktopGap = compact ? 16 : 24;
+  const cardWidthClass = compact
+    ? "flex-shrink-0 w-[130px] md:w-[176px] lg:w-[176px] snap-start"
+    : "flex-shrink-0 w-[150px] md:w-[200px] lg:w-[200px] snap-start";
+  const cardsGapClass = compact ? "gap-[10px] md:gap-4" : "gap-3 md:gap-6";
 
   const scrollToIndex = (index: number) => {
     if (typeof window === "undefined" || !containerRef.current) return;
     const cardWidth =
-      window.innerWidth < 768 ? 160 : window.innerWidth < 1024 ? 220 : 200;
-    const gap = window.innerWidth < 768 ? 12 : 24;
+      window.innerWidth < 768
+        ? mobileCardWidth
+        : window.innerWidth < 1024
+          ? desktopCardWidth
+          : desktopCardWidth;
+    const gap = window.innerWidth < 768 ? mobileGap : desktopGap;
     const scrollPosition = index * (cardWidth + gap);
 
     containerRef.current.scrollTo({ left: scrollPosition, behavior: "smooth" });
@@ -122,31 +157,34 @@ const AfiliadosCarrossel: React.FC = () => {
   };
 
   return (
-    <div className="w-full">
+    <div className="w-full overflow-x-hidden md:overflow-visible">
       <div className="relative">
         <h2 className="text-lg md:text-2xl font-bold text-slate-700 mb-2 md:mb-8">
-          SELECIONADOS PARA VOCÊ
+          {title}
         </h2>
 
         {/* Grid de cards */}
-        <div className="relative">
+        <div className="relative overflow-x-hidden md:overflow-visible">
           {/* Setas de navegação */}
           {produtos.length > 0 && (
             <>
               <button
                 onClick={goToPrev}
-                className="absolute left-[-12px] md:left-[-40px] top-1/2 -translate-y-1/2 z-10 p-1.5 md:p-2 rounded-full bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition-colors shadow-lg"
+                className={`absolute left-1 md:left-[-40px] top-1/2 -translate-y-1/2 z-10 ${arrowPadding} rounded-full bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition-colors shadow-lg`}
                 aria-label="Anterior"
               >
-                <ChevronLeft size={isMobile ? 36 : 46} className="text-white" />
+                <ChevronLeft
+                  size={isMobile ? arrowMobileSize : arrowDesktopSize}
+                  className="text-white"
+                />
               </button>
               <button
                 onClick={goToNext}
-                className="absolute right-[-12px] md:right-[-40px] top-1/2 -translate-y-1/2 z-10 p-1.5 md:p-2 rounded-full bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition-colors shadow-lg"
+                className={`absolute right-1 md:right-[-40px] top-1/2 -translate-y-1/2 z-10 ${arrowPadding} rounded-full bg-black/30 backdrop-blur-sm cursor-pointer hover:bg-black/50 transition-colors shadow-lg`}
                 aria-label="Próximo"
               >
                 <ChevronRight
-                  size={isMobile ? 36 : 46}
+                  size={isMobile ? arrowMobileSize : arrowDesktopSize}
                   className="text-white"
                 />
               </button>
@@ -154,12 +192,12 @@ const AfiliadosCarrossel: React.FC = () => {
           )}
           <div
             ref={containerRef}
-            className="flex overflow-x-auto gap-3 md:gap-6 mb-8 snap-x snap-mandatory scrollbar-hide w-full"
+            className={`flex overflow-x-auto ${cardsGapClass} mb-8 snap-x snap-mandatory scrollbar-hide w-full`}
           >
             {visibleItems.map((produto, idx) => (
               <div
-                key={idx}
-                className="flex-shrink-0 w-[150px] md:w-[200px] lg:w-[200px] snap-start"
+                key={produto.id ?? `${produto.titulo}-${idx}`}
+                className={cardWidthClass}
               >
                 <AfiliadosCard
                   imagem={produto.imagem}

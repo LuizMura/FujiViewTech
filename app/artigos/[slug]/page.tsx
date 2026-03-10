@@ -11,9 +11,41 @@ import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
 import { components as mdxComponents } from "@/components/article/MDXComponents";
 import TopTenList from "@/components/article/TopTenList";
+import ShareFloatingMenu from "@/components/article/ShareFloatingMenu";
+import AdSense from "@/components/AdSense";
+import AfiliadosCarrossel from "@/components/home/AfiliadosCarrossel";
 import matter from "gray-matter";
 import { Share2 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
+
+function normalizeMdxContainers(raw: string): string {
+  const lines = raw.replace(/\r\n?/g, "\n").split("\n");
+  const output: string[] = [];
+
+  for (const line of lines) {
+    const trimmed = line.trimStart();
+    const isJsxComponentLine = /^<\/?[A-Z][\w.-]*(\s|>|\/)/.test(trimmed);
+
+    if (isJsxComponentLine) {
+      let idx = output.length - 1;
+      while (idx >= 0 && output[idx].trim() === "") idx -= 1;
+
+      if (idx >= 0) {
+        const prev = output[idx].trimStart();
+        const isBlockQuoteContext = /^>/.test(prev);
+        const isListContext = /^(?:\d+\.|[-+*])\s/.test(prev);
+
+        if (isBlockQuoteContext || isListContext) {
+          output.push("");
+        }
+      }
+    }
+
+    output.push(line);
+  }
+
+  return output.join("\n");
+}
 
 class MDXErrorBoundary extends React.Component<
   { children: React.ReactNode },
@@ -88,12 +120,27 @@ export default function PostPage() {
         if (data?.content) {
           // Remover frontmatter do conteúdo antes de serializar
           const { content } = matter(data.content);
-          const mdxSource = await serialize(content, {
-            mdxOptions: {
-              remarkPlugins: [remarkGfm],
-            },
-          });
-          setMdx(mdxSource);
+          try {
+            const mdxSource = await serialize(content, {
+              mdxOptions: {
+                remarkPlugins: [remarkGfm],
+              },
+            });
+            setMdx(mdxSource);
+          } catch (firstError) {
+            try {
+              const normalized = normalizeMdxContainers(content);
+              const mdxSource = await serialize(normalized, {
+                mdxOptions: {
+                  remarkPlugins: [remarkGfm],
+                },
+              });
+              setMdx(mdxSource);
+            } catch {
+              console.error("Erro ao compilar MDX do artigo:", firstError);
+              setMdx(null);
+            }
+          }
         } else {
           setMdx(null);
         }
@@ -134,6 +181,11 @@ export default function PostPage() {
 
   return (
     <article className="-mt-13 md:mt-0 pb-20 rounded-0 md:rounded-3xl shadow-xl">
+      <ShareFloatingMenu
+        title={post.title || "Artigo"}
+        url={`https://www.fujiviewtech.com/artigos/${encodeURIComponent(slug)}`}
+      />
+
       {/* Estrutura em 4 colunas no desktop: conteúdo principal ocupa 3. */}
       <div className="container-custom bg-white">
         <div className="md:grid md:grid-cols-4 md:gap-0">
@@ -151,15 +203,17 @@ export default function PostPage() {
               </div>
             )}
 
-            <ArtigoCard post={post}>
-              {mdx ? (
-                <MDXErrorBoundary>
-                  <MDXRemote {...mdx} components={mdxComponents} />
-                </MDXErrorBoundary>
-              ) : (
-                <div>{post.content}</div>
-              )}
-            </ArtigoCard>
+            <div className="px-4 md:px-8">
+              <ArtigoCard post={post}>
+                {mdx ? (
+                  <MDXErrorBoundary>
+                    <MDXRemote {...mdx} components={mdxComponents} />
+                  </MDXErrorBoundary>
+                ) : (
+                  <div>{post.content}</div>
+                )}
+              </ArtigoCard>
+            </div>
 
             {/* Rodapé do artigo com CTA de compartilhamento */}
             <div className="mt-16 py-8 border-t border-slate-200 px-4 md:px-8">
@@ -177,8 +231,28 @@ export default function PostPage() {
               </div>
             </div>
           </div>
-          <div className="hidden md:block bg-white">
+          <div className="hidden md:block bg-slate-50 md:pl-0 md:sticky md:top-[-1050] self-start h-fit">
+            <div className="mt-6 mb-6 p-3 border border-slate-200 rounded-sm bg-slate-50 min-h-[280px]">
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-2 text-center">
+                Publicidade
+              </p>
+              <AdSense slot="1234567890" />
+            </div>
             <TopTenList currentSlug={slug} />
+            <div className="mt-8 md:ml-9">
+              <AfiliadosCarrossel
+                title="AFILIADOS"
+                emptyMessage=""
+                smallArrows
+                compact
+              />
+            </div>
+            <div className="mt-6 mb-6 p-3 border border-slate-200 rounded-sm bg-slate-50 min-h-[280px]">
+              <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-2 text-center">
+                Publicidade
+              </p>
+              <AdSense slot="0987654321" />
+            </div>
           </div>
         </div>
       </div>

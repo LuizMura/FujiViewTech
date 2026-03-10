@@ -93,6 +93,7 @@ function AdminArtigosPageContent() {
           title: data?.frontmatter?.title || "",
           slug: data?.slug || slugFromUrl,
           category: data?.frontmatter?.category || categoryFromUrl,
+          author: data?.frontmatter?.author || "",
           excerpt: data?.frontmatter?.description || "",
           image: data?.frontmatter?.image || "",
           readTime: data?.frontmatter?.readTime || "5 min",
@@ -157,6 +158,7 @@ function AdminArtigosPageContent() {
                 form={{
                   title: "",
                   ...(selectedArticle || {}),
+                  author: String(selectedArticle?.author || ""),
                   status: String(selectedArticle?.status || "published"),
                 }}
                 cardType="ArtigoCard"
@@ -194,6 +196,9 @@ function AdminArtigosPageContent() {
                     const category = String(
                       selectedArticle?.category || "",
                     ).trim();
+                    const author = String(
+                      selectedArticle?.author || "Redação FujivewTech",
+                    ).trim();
 
                     if (!title || !slug || !category) {
                       throw new Error(
@@ -213,7 +218,7 @@ function AdminArtigosPageContent() {
                         ),
                         date: String(selectedArticle?.publishedAt || ""),
                         image: String(selectedArticle?.image || ""),
-                        author: "FujiViewTech",
+                        author,
                         readTime: String(selectedArticle?.readTime || "5 min"),
                       },
                       content: String(selectedArticle?.content || ""),

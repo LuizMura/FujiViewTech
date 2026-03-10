@@ -1,8 +1,9 @@
 import AfiliadosCarrossel from "@/components/home/AfiliadosCarrossel";
 
 import React, { useEffect, useState } from "react";
-import ArtigosCarrossel from "@/components/home/ArtigosCarrossel";
-import CategoryCard from "@/components/home/CategoryCard";
+import FilmSeriesBlock from "@/components/home/FilmSeriesBlock";
+import InitialBlock from "@/components/home/InitialBlock";
+import TravelBlock from "@/components/home/TravelBlock";
 import UltimasPostagensCarrossel from "@/components/home/UltimasPostagensCarrossel";
 import LivePrices from "./LivePrices";
 import { getArticles } from "@/lib/hooks/useArticles";
@@ -31,9 +32,19 @@ export default function Hero() {
               .toLowerCase();
 
             return (
+              article.status === "published" &&
               normalizedCategory !== "noticias" &&
-              normalizedCategory !== "economia"
+              normalizedCategory !== "economia" &&
+              normalizedCategory !== "viagens" &&
+              normalizedCategory !== "filmes-e-series"
             );
+          })
+          .sort((a, b) => {
+            const dateA = a.publishedAt || a.createdAt;
+            const dateB = b.publishedAt || b.createdAt;
+            const timeA = dateA ? new Date(dateA).getTime() : 0;
+            const timeB = dateB ? new Date(dateB).getTime() : 0;
+            return timeB - timeA;
           })
           .slice(0, 5);
 
@@ -50,14 +61,15 @@ export default function Hero() {
         setEconomiaArticles(economia);
         const viagens: Article[] = await getArticles({
           category: "viagens",
-          limit: 5,
+          limit: 12,
         });
         setViagensArticles(viagens);
         const filmesSeries: Article[] = await getArticles({
           category: "filmes-e-series",
-          limit: 5,
+          limit: 12,
         });
         setFilmesSeriesArticles(filmesSeries);
+
         // Buscar todos para os cards genéricos
         const all: Article[] = await getArticles({ limit: 20 });
         setAllArticles(all);
@@ -77,42 +89,28 @@ export default function Hero() {
         <LivePrices />
       </div>
       <div className="px-1 md:px-0">
-        {/* ---------------------------------------------------5 últimos artigos postados em carrossel----------------------------------------------- */}
+        {/* Bloco inicial (abaixo do LivePrices e acima de Últimas Postagens) */}
+        <InitialBlock
+          latestArticles={latestArticles}
+          noticiasArticles={noticiasArticles}
+          economiaArticles={economiaArticles}
+        />
+
+        {/* Bloco de últimas postagens com imagem acima e texto abaixo */}
         {latestArticles.length > 0 && (
           <>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4 md:mb-8">
-              <div className="md:col-span-2 order-1 md:order-1">
-                <div className="-mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-sm overflow-hidden shadow-2xl ring-1 ring-slate-900/5">
-                  <ArtigosCarrossel artigos={latestArticles} />
-                </div>
-              </div>
-
-              {/* ---------------------------------------------------Notícias e Economia----------------------------------------------- */}
-              <div className="order-2 md:order-2">
-                <React.Suspense fallback={<div>Carregando...</div>}>
-                  <CategoryCard
-                    artigos={noticiasArticles}
-                    category="noticias"
-                    label="Notícias"
-                    badgeColor="bg-indigo-600"
-                  />
-                  <div className="mt-4">
-                    <CategoryCard
-                      artigos={economiaArticles}
-                      category="economia"
-                      label="Economia"
-                      badgeColor="bg-green-600"
-                    />
-                  </div>
-                </React.Suspense>
-              </div>
-            </div>
-
-            {/* Bloco de últimas postagens com imagem acima e texto abaixo */}
-
             <div className="full-width-bg bg-gray-300 py-3 md:py-4">
               <div className="content-inset">
-                <UltimasPostagensCarrossel artigos={allArticles} />
+                <UltimasPostagensCarrossel
+                  artigos={allArticles}
+                  title="OUTRAS POSTAGENS"
+                  excludeCategories={[
+                    "noticias",
+                    "economia",
+                    "viagens",
+                    "filmes-e-series",
+                  ]}
+                />
               </div>
             </div>
             <hr className="my-8 border-slate-500 mb-4 md:mb-6" />
@@ -137,23 +135,7 @@ export default function Hero() {
         </div>
         <hr className="my-8 border-slate-900   mb-4 md:mb-6" />
 
-        {/* Seção de viagens e turismo */}
-        <h2 className="px-3 text-2xl md:text-4xl text-slate-700 mb-6">
-          VIAGENS & TURISMO
-        </h2>
-
-        {viagensArticles.length > 0 && (
-          <div className=" -mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-sm overflow-hidden shadow-2xl ring-1 ring-slate-900/5 mb-8">
-            <ArtigosCarrossel artigos={viagensArticles} />
-          </div>
-        )}
-
-        {/* Cards do UltimasPostagensCarrossel para categoria viagens */}
-        {viagensArticles.length > 0 && (
-          <div className="mb-8">
-            <UltimasPostagensCarrossel artigos={viagensArticles} />
-          </div>
-        )}
+        <TravelBlock viagensArticles={viagensArticles} />
         {/* Linha divisória */}
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
@@ -176,22 +158,7 @@ export default function Hero() {
 
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
-        <h2 className="text-2xl md:text-4xl text-slate-700 mb-6">
-          TV, FILMES & SÉRIES
-        </h2>
-
-        {filmesSeriesArticles.length > 0 && (
-          <div className="-mt-3 md:mt-0 relative w-full aspect-video h-[270px] md:h-[450px] rounded-sm overflow-hidden shadow-2xl ring-1 ring-slate-900/5 mb-8">
-            <ArtigosCarrossel artigos={filmesSeriesArticles} />
-          </div>
-        )}
-
-        {/* Cards do UltimasPostagensCarrossel para categoria filmes-e-series */}
-        {filmesSeriesArticles.length > 0 && (
-          <div className="mb-8">
-            <UltimasPostagensCarrossel artigos={filmesSeriesArticles} />
-          </div>
-        )}
+        <FilmSeriesBlock filmesSeriesArticles={filmesSeriesArticles} />
 
         <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 

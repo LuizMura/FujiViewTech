@@ -41,28 +41,30 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
 
   return (
     <Link href={`/artigos/${latest.slug}`} className="block">
-      <div className="-mt-1 md:mt-0 w-full max-w-xl mx-auto relative flex items-stretch min-h-[120px] md:min-h-[215px] bg-white rounded-sm shadow overflow-hidden cursor-pointer">
+      <div className="-mt-1 md:mt-0 w-full max-w-md mx-auto relative bg-white rounded-sm shadow overflow-hidden cursor-pointer">
         <span
           className={`absolute top-3 left-3 z-10 ${badgeColor} text-white text-xs font-semibold px-3 py-1`}
         >
           {label}
         </span>
-        {/* Imagem à esquerda */}
+
+        {/* Imagem no topo */}
         {latest.image ? (
-          <div className="flex-shrink-0 w-[110px] md:w-[215px] min-h-[120px] md:min-h-[215px] relative">
+          <div className="relative w-full h-[190px] md:h-[260px]">
             <Image
               src={latest.image}
               alt={latest.title}
               fill
               className="object-cover"
-              sizes="(max-width: 768px) 100vw, 215px"
+              sizes="(max-width: 768px) 100vw, 33vw"
             />
           </div>
         ) : (
-          <div className="flex-shrink-0 w-[110px] md:w-[215px] min-h-[120px] md:min-h-[215px] bg-slate-200" />
+          <div className="w-full h-[190px] md:h-[260px] bg-slate-200" />
         )}
-        {/* Título e descrição à direita */}
-        <div className="flex-1 flex flex-col justify-start pt-3 px-2 pb-3">
+
+        {/* Título e descrição abaixo da imagem */}
+        <div className="pt-3 px-3 pb-4">
           <h3 className="text-base md:text-lg font-bold text-slate-900 mb-1 break-words">
             {latest.title}
           </h3>
