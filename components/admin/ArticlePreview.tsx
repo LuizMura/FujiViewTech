@@ -94,6 +94,7 @@ function getPreviewArticle(form: PreviewForm): Article {
     content: form.content || "",
     image: form.image || "",
     category: form.category || "Categoria",
+    subcategory: form.subcategory || "geral",
     authorId: (form.authorId as string) || (form.author as string) || "Autor",
     status: normalizedStatus,
     publishedAt: form.publishedAt || new Date().toISOString(),

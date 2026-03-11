@@ -15,6 +15,7 @@ export interface Article {
   content: string | null;
   image: string | null;
   category: string;
+  subcategory: string;
 
   // Metadados
   authorId: string | null;
@@ -62,6 +63,7 @@ export interface ArticleDB {
   content: string | null;
   image: string | null;
   category: string;
+  subcategory?: string;
   author?: string;
   read_time?: string;
   published_date?: string | null;
@@ -96,6 +98,7 @@ export interface CreateArticleInput {
   content?: string;
   image?: string;
   category: string;
+  subcategory?: string;
   status?: ArticleStatus;
 
   // Estilos (com defaults)
@@ -140,6 +143,7 @@ export function articleFromDB(db: ArticleDB): Article {
     content: db.content,
     image: db.image,
     category: db.category,
+    subcategory: db.subcategory || "geral",
     authorId: db.author_id || db.author || null,
     status: db.status as ArticleStatus,
     publishedAt: db.published_date || null,
@@ -186,6 +190,7 @@ export function articleToDB(
     content: article.content || null,
     image: article.image || null,
     category: article.category!,
+    subcategory: article.subcategory || "geral",
     status: article.status || "published",
     read_time: article.readTime || "5 min",
     published_date: publishedDate,
@@ -206,6 +211,7 @@ export interface DashboardStats {
 export interface ArticleFilters {
   status?: ArticleStatus;
   category?: string;
+  subcategory?: string;
   search?: string;
   limit?: number;
   offset?: number;

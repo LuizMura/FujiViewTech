@@ -1,7 +1,7 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
 import { generateUniqueSlug } from "@/lib/hooks/useArticles";
-import React, { useState, useEffect, useMemo, useRef } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import Image from "next/image";
 
 interface CardBase {
@@ -98,8 +98,8 @@ export default function ArticleForm<T extends CardBase>({
   const [buttonTemplateCopied, setButtonTemplateCopied] = useState(false);
   const [contentSanitized, setContentSanitized] = useState(false);
   const [loadingAfiliados, setLoadingAfiliados] = useState(false);
+  const [categories, setCategories] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<EditorTab>("cover");
-  const lineNumbersRef = useRef<HTMLDivElement>(null);
   const showTabs = cardType === "ArtigoCard";
 
   // Carrega afiliados
@@ -117,6 +117,31 @@ export default function ArticleForm<T extends CardBase>({
       }
     }
     loadAfiliados();
+  }, []);
+
+  useEffect(() => {
+    async function loadCategories() {
+      try {
+        const supabase = createClient();
+        const { data, error } = await supabase
+          .from("articles")
+          .select("category")
+          .neq("category", "")
+          .order("category", { ascending: true });
+
+        if (error) {
+          setCategories([]);
+          return;
+        }
+
+        const unique = Array.from(new Set((data || []).map((a) => a.category)));
+        setCategories(unique);
+      } catch {
+        setCategories([]);
+      }
+    }
+
+    loadCategories();
   }, []);
 
   const categoriasSugeridas = useMemo(
@@ -165,10 +190,6 @@ export default function ArticleForm<T extends CardBase>({
   };
 
   const contentValue = String(form.content ?? "");
-  const totalLines = Math.max(1, contentValue.split("\n").length);
-  const lineNumbers = Array.from({ length: totalLines }, (_, i) => i + 1).join(
-    "\n",
-  );
 
   const copyMdxTemplate = (template: string) => {
     if (template === "ArticleButton") {
@@ -343,20 +364,15 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
 
       {(!showTabs || activeTab === "cover") &&
         allFields.map((field, index) => {
-          const isSecondOfPair =
-            field.name === "status" || field.name === "readTime";
+          const isSecondOfPair = field.name === "readTime";
 
-          // Agrupa categoria e status / publishedAt e readTime
+          // Agrupa publishedAt e readTime
           if (isSecondOfPair && index > 0) {
             const prevField = allFields[index - 1];
-            const isPrevCategory = prevField.name === "category";
             const isPrevPublishedAt = prevField.name === "publishedAt";
 
-            // Se é status e campo anterior é categoria, ou readTime e anterior é publishedAt
-            if (
-              (field.name === "status" && isPrevCategory) ||
-              (field.name === "readTime" && isPrevPublishedAt)
-            ) {
+            // Se readTime e anterior é publishedAt, ele já foi renderizado ao lado
+            if (field.name === "readTime" && isPrevPublishedAt) {
               return null; // já foram renderizados junto com seus pares
             }
           }
@@ -380,7 +396,22 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
                 >
                   {field.label}
                 </label>
-                {field.type === "select" ? (
+                {field.name === "category" ? (
+                  <select
+                    id={field.name}
+                    name={field.name}
+                    value={String(fieldValue ?? "")}
+                    onChange={handleChange}
+                    className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                  >
+                    <option value="">Selecione uma categoria</option>
+                    {categories.map((cat) => (
+                      <option key={cat} value={cat} className="text-black">
+                        {cat}
+                      </option>
+                    ))}
+                  </select>
+                ) : field.type === "select" ? (
                   <select
                     id={field.name}
                     name={field.name}
@@ -426,25 +457,23 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
                 )}
               </div>
 
-              {/* Se é categoria, renderiza status ao lado */}
+              {/* Se é categoria, renderiza subcategoria ao lado */}
               {field.name === "category" && (
                 <div>
-                  <label className="block text-[#bfc7d5] mb-1" htmlFor="status">
-                    Status
+                  <label
+                    className="block text-[#bfc7d5] mb-1"
+                    htmlFor="subcategory"
+                  >
+                    Subcategoria
                   </label>
-                  <select
-                    id="status"
-                    name="status"
-                    value={String(form.status ?? "published")}
+                  <input
+                    id="subcategory"
+                    name="subcategory"
+                    type="text"
+                    value={String(form.subcategory ?? "geral")}
                     onChange={handleChange}
                     className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-                  >
-                    {["draft", "published", "archived"].map((opt: string) => (
-                      <option key={opt} value={opt} className="text-black">
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
+                  />
                 </div>
               )}
 
@@ -475,7 +504,7 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
                     className="block text-[#bfc7d5] mb-1"
                     htmlFor="image-upload"
                   >
-                    Upload Imagem Principal
+                    Upload Imagem Capa
                   </label>
                   <input
                     id="image-upload"
@@ -683,7 +712,7 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
 
       {/* Editor Markdown */}
       {(!showTabs || activeTab === "editor") && (
-        <div className="mb-3">
+        <div className="mb-3 w-full">
           <div className="mb-1 flex items-center justify-between gap-2">
             <label className="block text-[#bfc7d5]" htmlFor="content">
               Conteúdo do Artigo (Markdown)
@@ -693,29 +722,17 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
               onClick={sanitizeMdxContent}
               className="px-2 py-1 text-xs bg-[#eebbc3] text-[#232946] rounded hover:bg-[#d9aab2] transition"
             >
-              Limpar formatação invisível
+              Limpar formatação
             </button>
           </div>
-          <div className="flex w-full bg-[#18181b] text-white rounded-lg border border-[#4b6b57] focus-within:border-[#6b8c77] overflow-hidden">
-            <div
-              ref={lineNumbersRef}
-              aria-hidden="true"
-              className="min-w-12 px-2 py-2 text-right text-[#6b7280] bg-[#14161a] border-r border-[#2f3e36] font-mono text-sm leading-6 whitespace-pre select-none overflow-hidden"
-            >
-              {lineNumbers}
-            </div>
+          <div className="flex w-full min-w-0 bg-[#18181b] text-white rounded-lg border border-[#4b6b57] focus-within:border-[#6b8c77] overflow-hidden">
             <textarea
               id="content"
               name="content"
               value={contentValue}
               onChange={(e) => onContentChange(e.target.value)}
-              onScroll={(e) => {
-                if (lineNumbersRef.current) {
-                  lineNumbersRef.current.scrollTop = e.currentTarget.scrollTop;
-                }
-              }}
-              rows={20}
-              className="w-full bg-transparent text-white px-3 py-2 focus:outline-none font-mono text-sm leading-6"
+              rows={14}
+              className="min-w-0 flex-1 bg-transparent text-white px-3 py-1.5 focus:outline-none font-mono text-sm leading-6"
               placeholder="Digite o conteúdo do artigo em Markdown..."
             />
           </div>

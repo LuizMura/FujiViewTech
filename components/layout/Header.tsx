@@ -38,12 +38,11 @@ function Header() {
     { name: "Saúde", href: "/categorias/saude" },
     { name: "Filmes e Séries", href: "/categorias/filmes-e-series" },
     { name: "Viagens", href: "/categorias/viagens" },
-    { name: "Sobre", href: "/sobre" },
   ];
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300 backdrop-blur-md border-b border-slate-100 ${
+      className={`fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300 backdrop-blur-md border-b border-neutral-400 ${
         showHeader ? "translate-y-0" : "-translate-y-[72%]"
       }`}
     >
@@ -76,15 +75,14 @@ function Header() {
           {isMenuOpen ? <X size={30} /> : <Menu size={30} />}
         </button>
       </div>
-      <nav className="hidden md:flex border-t border-neutral-400 bg-stone-200 py-0.5 backdrop-blur-md">
-        <div className="container-custom flex items-center gap-4">
+      <nav className="hidden md:flex border-t border-b border-neutral-400 bg-stone-200 py-0.5 backdrop-blur-md">
+        <div className="container-custom flex items-center justify-between w-full">
+          <span className="text-stone-400 font-bold px-2">|</span>
           {navLinks.map((link, idx) => (
-            <React.Fragment key={link.name}>
-              {idx === 0 && <span className="text-stone-400 font-bold">|</span>}
-              {idx > 0 && <span className="text-stone-400 font-bold">|</span>}
+            <div key={link.name} className="flex-1 text-center relative px-2">
               <Link
                 href={link.href}
-                className={`text-sm font-semibold transition-colors relative group whitespace-nowrap uppercase ${
+                className={`inline-block text-sm font-semibold transition-colors relative group whitespace-nowrap uppercase ${
                   pathname === link.href
                     ? "text-[#ac3e3e]"
                     : "text-stone-700 hover:text-[#ac3e3e]"
@@ -92,16 +90,19 @@ function Header() {
               >
                 {link.name}
                 <span
-                  className={`absolute -bottom-1 left-0 h-0.5 bg-[#ac3e3e] transition-all duration-300 ${
+                  className={`absolute bottom-0 left-0 h-0.5 bg-[#ac3e3e] transition-all duration-300 ${
                     pathname === link.href ? "w-full" : "w-0 group-hover:w-full"
                   }`}
                 ></span>
               </Link>
-              {idx === navLinks.length - 1 && (
-                <span className="text-stone-400 font-bold">|</span>
+              {idx < navLinks.length - 1 && (
+                <span className="absolute -right-1 top-1/2 -translate-y-1/2 text-stone-400 font-bold">
+                  |
+                </span>
               )}
-            </React.Fragment>
+            </div>
           ))}
+          <span className="text-stone-400 font-bold px-2">|</span>
         </div>
       </nav>
       {isMenuOpen && (

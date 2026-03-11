@@ -6,15 +6,22 @@ export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category") || "reviews";
+    const subcategory = searchParams.get("subcategory") || "";
 
     const supabase = createAdminClient();
 
-    const { data: articles, error } = await supabase
+    let query = supabase
       .from("articles")
       .select("*")
       .eq("category", category)
       .eq("status", "published")
       .order("published_date", { ascending: false });
+
+    if (subcategory) {
+      query = query.eq("subcategory", subcategory);
+    }
+
+    const { data: articles, error } = await query;
 
     if (error) {
       console.error("Supabase error:", error);
@@ -29,12 +36,14 @@ export async function GET(request: NextRequest) {
       description: article.description || "",
       date: article.published_date || "",
       category: article.category,
+      subcategory: article.subcategory || "geral",
       image: article.image || "",
       frontmatter: {
         title: article.title,
         description: article.description,
         date: article.published_date,
         category: article.category,
+        subcategory: article.subcategory || "geral",
         image: article.image,
         author: article.author,
         readTime: article.read_time,
@@ -57,6 +66,9 @@ export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { category, slug, frontmatter, content } = body;
+    const subcategory =
+      String(body?.subcategory || frontmatter?.subcategory || "geral").trim() ||
+      "geral";
 
     if (!category || !slug) {
       return NextResponse.json(
@@ -70,6 +82,7 @@ export async function POST(request: NextRequest) {
     const articlePayload = {
       slug,
       category,
+      subcategory,
       title: frontmatter.title || slug,
       description: frontmatter.description || "",
       content: content || "",
@@ -87,6 +100,7 @@ export async function POST(request: NextRequest) {
       .select("id")
       .eq("slug", slug)
       .eq("category", category)
+      .eq("subcategory", subcategory)
       .maybeSingle();
 
     if (findError) {
@@ -146,6 +160,7 @@ export async function DELETE(request: NextRequest) {
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category");
     const slug = searchParams.get("slug");
+    const subcategory = searchParams.get("subcategory") || "";
 
     if (!category || !slug) {
       return NextResponse.json(
@@ -156,11 +171,17 @@ export async function DELETE(request: NextRequest) {
 
     const supabase = createAdminClient();
 
-    const { error } = await supabase
+    let query = supabase
       .from("articles")
       .delete()
       .eq("slug", slug)
       .eq("category", category);
+
+    if (subcategory) {
+      query = query.eq("subcategory", subcategory);
+    }
+
+    const { error } = await query;
 
     if (error) {
       console.error("Supabase delete error:", error);

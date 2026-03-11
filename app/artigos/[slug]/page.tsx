@@ -11,6 +11,7 @@ import { serialize } from "next-mdx-remote/serialize";
 import remarkGfm from "remark-gfm";
 import { components as mdxComponents } from "@/components/article/MDXComponents";
 import TopTenList from "@/components/article/TopTenList";
+import AfterArticle from "@/components/article/AfterArticle";
 import ShareFloatingMenu from "@/components/article/ShareFloatingMenu";
 import AdSense from "@/components/AdSense";
 import AfiliadosCarrossel from "@/components/home/AfiliadosCarrossel";
@@ -194,7 +195,7 @@ export default function PostPage() {
               <div className="sticky top-20 z-30 h-0">
                 <div className="flex justify-end px-4 md:px-8 pointer-events-none">
                   <Link
-                    href={`/admin/artigos?slug=${encodeURIComponent(slug)}&category=${encodeURIComponent(post.category || "")}`}
+                    href={`/admin/artigos?slug=${encodeURIComponent(slug)}&category=${encodeURIComponent(post.category || "")}&subcategory=${encodeURIComponent(post.subcategory || "geral")}`}
                     className="h-10 px-4 flex items-center justify-center bg-slate-800 text-white rounded-full hover:bg-slate-900 transition-colors pointer-events-auto"
                   >
                     Editar artigo
@@ -216,7 +217,7 @@ export default function PostPage() {
             </div>
 
             {/* Rodapé do artigo com CTA de compartilhamento */}
-            <div className="mt-16 py-8 border-t border-slate-200 px-4 md:px-8">
+            <div className="mt-4 py-8 border-t border-slate-200 px-4 md:px-8">
               <div className="text-gray-500 italic flex items-center justify-center gap-2">
                 <span>Gostou deste artigo? Compartilhe!</span>
                 <button
@@ -229,6 +230,19 @@ export default function PostPage() {
                   <Share2 size={18} />
                 </button>
               </div>
+            </div>
+
+            <div className="px-4 md:px-8">
+              <div className="mt-4 mb-2 p-3 border border-slate-200 rounded-sm bg-slate-50 min-h-[120px]">
+                <p className="text-[11px] uppercase tracking-wide text-slate-500 mb-2 text-center">
+                  Publicidade
+                </p>
+                <AdSense slot="1122334455" />
+              </div>
+            </div>
+
+            <div className="px-4 md:px-8">
+              <AfterArticle category={post.category} currentSlug={slug} />
             </div>
           </div>
           <div className="hidden md:block bg-slate-50 md:pl-0 md:sticky md:top-[-1050] self-start h-fit">

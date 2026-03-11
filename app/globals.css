@@ -83,7 +83,7 @@ body {
 .glass-nav {
   background: rgba(74, 117, 103, 0.877);
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(0, 0, 0, 0.6);
+  border-bottom: 1px solid rgb(163, 163, 163);
 }
 
 .gradient-text {

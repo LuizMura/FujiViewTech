@@ -3,6 +3,7 @@ CREATE TABLE IF NOT EXISTS public.articles (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   slug TEXT NOT NULL,
   category TEXT NOT NULL,
+  subcategory TEXT DEFAULT 'geral',
   title TEXT NOT NULL,
   description TEXT,
   content TEXT NOT NULL,
@@ -28,8 +29,15 @@ ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS read_time TEXT DEFAULT '5 m
 ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS published_date DATE;
 ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS status TEXT DEFAULT 'published';
 ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS updated_at TIMESTAMP WITH TIME ZONE DEFAULT now();
+ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS subcategory TEXT DEFAULT 'geral';
+
+UPDATE public.articles
+SET subcategory = 'geral'
+WHERE subcategory IS NULL OR btrim(subcategory) = '';
 
 CREATE INDEX IF NOT EXISTS idx_articles_category ON public.articles(category);
+CREATE INDEX IF NOT EXISTS idx_articles_subcategory ON public.articles(subcategory);
+CREATE INDEX IF NOT EXISTS idx_articles_category_subcategory ON public.articles(category, subcategory);
 CREATE INDEX IF NOT EXISTS idx_articles_status ON public.articles(status);
 CREATE INDEX IF NOT EXISTS idx_articles_published_date ON public.articles(published_date DESC);
 

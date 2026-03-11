@@ -10,15 +10,24 @@ export async function GET(
     const { slug } = await params;
     const { searchParams } = new URL(request.url);
     const category = searchParams.get("category") || "reviews";
+    const subcategory = searchParams.get("subcategory") || "";
 
     const supabase = createAdminClient();
 
-    const { data: article, error } = await supabase
+    let query = supabase
       .from("articles")
       .select("*")
       .eq("slug", slug)
       .eq("category", category)
-      .single();
+      .order("updated_at", { ascending: false })
+      .limit(1);
+
+    if (subcategory) {
+      query = query.eq("subcategory", subcategory);
+    }
+
+    const { data, error } = await query;
+    const article = Array.isArray(data) ? data[0] : null;
 
     if (error || !article) {
       return NextResponse.json(
@@ -29,12 +38,14 @@ export async function GET(
 
     // Mantém metadados + conteúdo no formato esperado pelo editor.
     return NextResponse.json({
+      id: article.id,
       slug: article.slug,
       frontmatter: {
         title: article.title,
         description: article.description,
         date: article.published_date,
         category: article.category,
+        subcategory: article.subcategory || "geral",
         image: article.image,
         author: article.author,
         readTime: article.read_time,

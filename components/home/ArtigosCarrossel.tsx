@@ -9,7 +9,7 @@ interface ArtigosCarrosselProps {
 const ArtigosCarrossel: React.FC<ArtigosCarrosselProps> = ({ artigos }) => {
   const [current, setCurrent] = useState(0);
   const total = artigos.length;
-  const AUTO_PLAY_ENABLED = false;
+  const AUTO_PLAY_ENABLED = true;
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
@@ -49,6 +49,7 @@ const ArtigosCarrossel: React.FC<ArtigosCarrosselProps> = ({ artigos }) => {
     if (!AUTO_PLAY_ENABLED || total <= 1) return;
 
     const timer = setInterval(() => {
+      if (typeof document !== "undefined" && document.hidden) return;
       setCurrent((prev) => (prev + 1) % total);
     }, 7000); // 7 segundos
 

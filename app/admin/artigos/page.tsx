@@ -31,18 +31,21 @@ export default function AdminArtigosPage() {
 }
 
 function AdminArtigosPageContent() {
+  type LeftTab = "list" | "form";
   const searchParams = useSearchParams();
   const [selectedArticle, setSelectedArticle] = useState<ArticleDraft | null>(
     null,
   );
   const [feedback, setFeedback] = useState<string | null>(null);
   const [loadingAction, setLoadingAction] = useState(false);
+  const [leftTab, setLeftTab] = useState<LeftTab>("list");
 
   // Ref para recarregar artigos na lista
   const articleListRef = useRef<{ reload: () => void }>(null);
 
   const slugFromUrl = (searchParams.get("slug") || "").trim();
   const categoryFromUrl = (searchParams.get("category") || "").trim();
+  const subcategoryFromUrl = (searchParams.get("subcategory") || "").trim();
 
   // Autosave no localStorage
   useAutoSave({
@@ -80,7 +83,7 @@ function AdminArtigosPageContent() {
         setFeedback(null);
 
         const response = await fetch(
-          `/api/content/${encodeURIComponent(slugFromUrl)}?category=${encodeURIComponent(categoryFromUrl)}`,
+          `/api/content/${encodeURIComponent(slugFromUrl)}?category=${encodeURIComponent(categoryFromUrl)}&subcategory=${encodeURIComponent(subcategoryFromUrl)}`,
         );
 
         const data = await response.json();
@@ -90,9 +93,12 @@ function AdminArtigosPageContent() {
         }
 
         setSelectedArticle({
+          id: data?.id || undefined,
           title: data?.frontmatter?.title || "",
           slug: data?.slug || slugFromUrl,
           category: data?.frontmatter?.category || categoryFromUrl,
+          subcategory:
+            data?.frontmatter?.subcategory || subcategoryFromUrl || "geral",
           author: data?.frontmatter?.author || "",
           excerpt: data?.frontmatter?.description || "",
           image: data?.frontmatter?.image || "",
@@ -112,7 +118,7 @@ function AdminArtigosPageContent() {
     }
 
     loadFromUrl();
-  }, [slugFromUrl, categoryFromUrl]);
+  }, [slugFromUrl, categoryFromUrl, subcategoryFromUrl]);
 
   return (
     <div className="min-h-screen bg-[#23272f] flex flex-col">
@@ -121,154 +127,201 @@ function AdminArtigosPageContent() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4 md:gap-6 h-full">
           {/* Lista + Formulário: 1 coluna (esquerda) */}
           <div className="md:col-span-1 h-full flex flex-col gap-3">
-            {/* Lista em cima */}
-            <div className="overflow-y-auto max-h-60 md:max-h-none">
-              <ArticleList
-                ref={articleListRef}
-                onSelect={(id, data) =>
-                  setSelectedArticle(
-                    data ? ({ ...data } as ArticleDraft) : null,
-                  )
-                }
-                selectedId={selectedArticle?.id || null}
-                onNew={() => setSelectedArticle(null)}
-                onDelete={async () => {
-                  if (
-                    !window.confirm(
-                      "Tem certeza que deseja excluir este artigo?",
-                    )
-                  )
-                    return;
-                  setLoadingAction(true);
-                  setFeedback(null);
-                  setTimeout(() => {
-                    setFeedback("Artigo excluído (simulação).");
-                    setSelectedArticle(null);
-                    setLoadingAction(false);
-                    articleListRef.current?.reload();
-                  }, 1000);
-                }}
-                loadingAction={loadingAction}
-              />
+            <div className="grid grid-cols-2 gap-2 rounded-lg bg-[#18181b] p-1 border border-[#4b6b57]">
+              <button
+                type="button"
+                onClick={() => setLeftTab("list")}
+                className={`px-2 py-2 rounded-md text-xs md:text-sm font-semibold transition ${
+                  leftTab === "list"
+                    ? "bg-[#7f8fa6] text-[#23272f]"
+                    : "text-[#bfc7d5] hover:bg-[#2a2f39]"
+                }`}
+              >
+                Lista de Artigos
+              </button>
+              <button
+                type="button"
+                onClick={() => setLeftTab("form")}
+                className={`px-2 py-2 rounded-md text-xs md:text-sm font-semibold transition ${
+                  leftTab === "form"
+                    ? "bg-[#7f8fa6] text-[#23272f]"
+                    : "text-[#bfc7d5] hover:bg-[#2a2f39]"
+                }`}
+              >
+                Formulário
+              </button>
             </div>
 
-            {/* Formulário em baixo */}
-            <div className="overflow-y-auto flex-1 max-h-96 md:max-h-none">
-              <ArticleForm
-                form={{
-                  title: "",
-                  ...(selectedArticle || {}),
-                  author: String(selectedArticle?.author || ""),
-                  status: String(selectedArticle?.status || "published"),
-                }}
-                cardType="ArtigoCard"
-                onFormChange={(field, value) => {
-                  setSelectedArticle((prev) => ({
-                    ...prev,
-                    [field]: value,
-                  }));
-                }}
-                onImageUpload={(url) => {
-                  setSelectedArticle((prev) => ({
-                    ...prev,
-                    image: url,
-                  }));
-                }}
-                onMdxImageUpload={(url) => {
-                  setSelectedArticle((prev) => ({
-                    ...prev,
-                    mdxImage: url,
-                  }));
-                }}
-                onContentChange={(value) => {
-                  setSelectedArticle((prev) => ({
-                    ...prev,
-                    content: value,
-                  }));
-                }}
-                onSubmit={async (e) => {
-                  e.preventDefault();
-                  setLoadingAction(true);
-                  setFeedback(null);
-                  try {
-                    const title = String(selectedArticle?.title || "").trim();
-                    const slug = String(selectedArticle?.slug || "").trim();
-                    const category = String(
-                      selectedArticle?.category || "",
-                    ).trim();
-                    const author = String(
-                      selectedArticle?.author || "Redação FujivewTech",
-                    ).trim();
-
-                    if (!title || !slug || !category) {
-                      throw new Error(
-                        "Preencha título, slug e categoria antes de salvar.",
-                      );
-                    }
-
-                    const payload = {
-                      category,
-                      slug,
-                      frontmatter: {
-                        title,
-                        description: String(
-                          selectedArticle?.description ||
-                            selectedArticle?.excerpt ||
-                            "",
-                        ),
-                        date: String(selectedArticle?.publishedAt || ""),
-                        image: String(selectedArticle?.image || ""),
-                        author,
-                        readTime: String(selectedArticle?.readTime || "5 min"),
-                      },
-                      content: String(selectedArticle?.content || ""),
-                    };
-
-                    const response = await fetch("/api/content", {
-                      method: "POST",
-                      headers: { "Content-Type": "application/json" },
-                      body: JSON.stringify(payload),
-                    });
-
-                    const data = await response.json();
-
-                    if (!response.ok) {
-                      throw new Error(data?.error || "Falha ao salvar artigo");
-                    }
-
-                    setFeedback(
-                      selectedArticle?.id
-                        ? "Artigo atualizado com sucesso!"
-                        : "Artigo criado com sucesso!",
+            {/* Lista */}
+            {leftTab === "list" && (
+              <div className="overflow-y-auto max-h-96 md:max-h-none">
+                <ArticleList
+                  ref={articleListRef}
+                  onSelect={(id, data) => {
+                    setSelectedArticle(
+                      data ? ({ ...data } as ArticleDraft) : null,
                     );
-                    setSelectedArticle((prev) => ({
-                      ...(prev || {}),
-                      title,
-                      slug,
-                      category,
-                    }));
-                    articleListRef.current?.reload();
-                    // Limpar autosave após salvar com sucesso
-                    clearAutoSave("admin-article-draft");
-                  } catch (err) {
-                    let msg = "";
-                    if (err && typeof err === "object" && "message" in err) {
-                      msg = (err as Error).message;
-                    } else {
-                      msg = String(err);
-                    }
-                    setFeedback("Erro ao salvar artigo: " + msg);
-                  } finally {
-                    setLoadingAction(false);
+                    setLeftTab("form");
+                  }}
+                  selectedId={
+                      (typeof selectedArticle?.id === "string" && selectedArticle.id) ||
+                      (typeof selectedArticle?.slug === "string" && selectedArticle.slug) ||
+                      null
                   }
-                }}
-              />
-              {feedback && (
-                <div className="text-center text-sm md:text-base text-green-400 font-bold mt-2">
-                  {feedback}
-                </div>
-              )}
-            </div>
+                  onNew={() => {
+                    setSelectedArticle(null);
+                    setLeftTab("form");
+                  }}
+                  onDelete={async () => {
+                    if (
+                      !window.confirm(
+                        "Tem certeza que deseja excluir este artigo?",
+                      )
+                    )
+                      return;
+                    setLoadingAction(true);
+                    setFeedback(null);
+                    setTimeout(() => {
+                      setFeedback("Artigo excluído (simulação).");
+                      setSelectedArticle(null);
+                      setLoadingAction(false);
+                      articleListRef.current?.reload();
+                    }, 1000);
+                  }}
+                  loadingAction={loadingAction}
+                />
+              </div>
+            )}
+
+            {/* Formulário */}
+            {leftTab === "form" && (
+              <div className="overflow-y-auto flex-1 max-h-96 md:max-h-none">
+                <ArticleForm
+                  form={{
+                    title: "",
+                    ...(selectedArticle || {}),
+                    author: String(selectedArticle?.author || ""),
+                    status: String(selectedArticle?.status || "published"),
+                  }}
+                  cardType="ArtigoCard"
+                  onFormChange={(field, value) => {
+                    setSelectedArticle((prev) => ({
+                      ...prev,
+                      [field]: value,
+                    }));
+                  }}
+                  onImageUpload={(url) => {
+                    setSelectedArticle((prev) => ({
+                      ...prev,
+                      image: url,
+                    }));
+                  }}
+                  onMdxImageUpload={(url) => {
+                    setSelectedArticle((prev) => ({
+                      ...prev,
+                      mdxImage: url,
+                    }));
+                  }}
+                  onContentChange={(value) => {
+                    setSelectedArticle((prev) => ({
+                      ...prev,
+                      content: value,
+                    }));
+                  }}
+                  onSubmit={async (e) => {
+                    e.preventDefault();
+                    setLoadingAction(true);
+                    setFeedback(null);
+                    try {
+                      const title = String(selectedArticle?.title || "").trim();
+                      const slug = String(selectedArticle?.slug || "").trim();
+                      const category = String(
+                        selectedArticle?.category || "",
+                      ).trim();
+                      const subcategory = String(
+                        selectedArticle?.subcategory || "geral",
+                      ).trim();
+                      const author = String(
+                        selectedArticle?.author || "Redação FujivewTech",
+                      ).trim();
+
+                      if (!title || !slug || !category) {
+                        throw new Error(
+                          "Preencha título, slug e categoria antes de salvar.",
+                        );
+                      }
+
+                      const payload = {
+                        category,
+                        subcategory,
+                        slug,
+                        frontmatter: {
+                          title,
+                          description: String(
+                            selectedArticle?.description ||
+                              selectedArticle?.excerpt ||
+                              "",
+                          ),
+                          date: String(selectedArticle?.publishedAt || ""),
+                          image: String(selectedArticle?.image || ""),
+                          subcategory,
+                          author,
+                          readTime: String(
+                            selectedArticle?.readTime || "5 min",
+                          ),
+                        },
+                        content: String(selectedArticle?.content || ""),
+                      };
+
+                      const response = await fetch("/api/content", {
+                        method: "POST",
+                        headers: { "Content-Type": "application/json" },
+                        body: JSON.stringify(payload),
+                      });
+
+                      const data = await response.json();
+
+                      if (!response.ok) {
+                        throw new Error(
+                          data?.error || "Falha ao salvar artigo",
+                        );
+                      }
+
+                      setFeedback(
+                        selectedArticle?.id
+                          ? "Artigo atualizado com sucesso!"
+                          : "Artigo criado com sucesso!",
+                      );
+                      setSelectedArticle((prev) => ({
+                        ...(prev || {}),
+                        title,
+                        slug,
+                        category,
+                        subcategory,
+                      }));
+                      articleListRef.current?.reload();
+                      // Limpar autosave após salvar com sucesso
+                      clearAutoSave("admin-article-draft");
+                    } catch (err) {
+                      let msg = "";
+                      if (err && typeof err === "object" && "message" in err) {
+                        msg = (err as Error).message;
+                      } else {
+                        msg = String(err);
+                      }
+                      setFeedback("Erro ao salvar artigo: " + msg);
+                    } finally {
+                      setLoadingAction(false);
+                    }
+                  }}
+                />
+                {feedback && (
+                  <div className="text-center text-sm md:text-base text-green-400 font-bold mt-2">
+                    {feedback}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
 
           {/* Preview: 2 colunas (direita) */}

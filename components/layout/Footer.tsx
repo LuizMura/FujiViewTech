@@ -30,6 +30,20 @@ function FooterLink({
 }
 export default function Footer() {
   const currentYear = new Date().getFullYear();
+
+  const categories = [
+    { label: "Dicas", href: "/categorias/dicas" },
+    { label: "Produtos", href: "/categorias/produtos" },
+    { label: "Novidades", href: "/categorias/novidades" },
+    { label: "Notícias", href: "/categorias/noticias" },
+    { label: "Reviews", href: "/categorias/reviews" },
+    { label: "Tutoriais", href: "/categorias/tutoriais" },
+    { label: "Economia", href: "/categorias/economia" },
+    { label: "Saúde", href: "/categorias/saude" },
+    { label: "Filmes e Séries", href: "/categorias/filmes-e-series" },
+    { label: "Viagens", href: "/categorias/viagens" },
+  ];
+
   return (
     <footer className="md:pl-0 bg-white border-t border-slate-200 pt-16 pb-8">
       <div className="container-custom">
@@ -65,24 +79,22 @@ export default function Footer() {
               />
             </div>
           </div>
-          <div className="text-center md:text-left">
-            <h3 className="font-bold text-slate-900 mb-4">Categorias</h3>
+          <div className="text-center">
             <ul className="space-y-3 text-slate-600">
-              <FooterLink href="/categoria/reviews">Reviews</FooterLink>
-              <FooterLink href="/categoria/noticias">Notícias</FooterLink>
-              <FooterLink href="/categoria/tutoriais">Tutoriais</FooterLink>
-              <FooterLink href="/categoria/comparativos">
-                Comparativos
-              </FooterLink>
+              {categories.slice(0, 5).map((category) => (
+                <FooterLink key={category.href} href={category.href}>
+                  {category.label}
+                </FooterLink>
+              ))}
             </ul>
           </div>
-          <div className="text-center md:text-left">
-            <h3 className="font-bold text-slate-900 mb-4">Empresa</h3>
+          <div className="text-center">
             <ul className="space-y-3 text-slate-600">
-              <FooterLink href="/sobre">Sobre Nós</FooterLink>
-              <FooterLink href="/contato">Contato</FooterLink>
-              <FooterLink href="/anuncie">Anuncie</FooterLink>
-              <FooterLink href="/carreiras">Trabalhe Conosco</FooterLink>
+              {categories.slice(5).map((category) => (
+                <FooterLink key={category.href} href={category.href}>
+                  {category.label}
+                </FooterLink>
+              ))}
             </ul>
           </div>
           <div className="text-center md:text-left">

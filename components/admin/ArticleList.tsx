@@ -39,7 +39,9 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
     const [articles, setArticles] = useState<Article[]>([]);
     const [loading, setLoading] = useState(true);
     const [category, setCategory] = useState(externalCategory || "");
+    const [subcategory, setSubcategory] = useState("");
     const [categories, setCategories] = useState<string[]>([]);
+    const [subcategories, setSubcategories] = useState<string[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("");
 
     // Sincronizar filtro externo com interno
@@ -51,26 +53,43 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
       }
     }, [externalCategory]);
 
-    // Buscar categorias únicas do Supabase
+    // Buscar categorias e subcategorias únicas do Supabase
     useEffect(() => {
-      async function fetchCategories() {
+      async function fetchTaxonomy() {
         const supabase = createClient();
         const { data, error } = await supabase
           .from("articles")
-          .select("category")
+          .select("category, subcategory")
           .neq("category", "")
           .order("category", { ascending: true });
         if (error) {
           setCategories([]);
+          setSubcategories([]);
         } else {
           const unique = Array.from(
             new Set((data || []).map((a) => a.category)),
           );
           setCategories(unique);
+
+          const uniqueSubs = Array.from(
+            new Set(
+              (data || [])
+                .map((a) => (a.subcategory || "geral").trim())
+                .filter(Boolean),
+            ),
+          );
+          setSubcategories(uniqueSubs);
         }
       }
-      fetchCategories();
+      fetchTaxonomy();
     }, []);
+
+    const visibleSubcategories = subcategories.filter((sub) => {
+      if (!category) return true;
+      return articles.some(
+        (a) => a.category === category && a.subcategory === sub,
+      );
+    });
 
     // Carregar artigos filtrados
     const loadArticles = useCallback(async () => {
@@ -78,6 +97,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
       try {
         const filters: Record<string, string> = {};
         if (category) filters.category = category;
+        if (subcategory) filters.subcategory = subcategory;
         if (statusFilter && statusFilter !== "") filters.status = statusFilter;
 
         const data = await getArticles(
@@ -89,7 +109,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
       } finally {
         setLoading(false);
       }
-    }, [category, statusFilter]);
+    }, [category, subcategory, statusFilter]);
 
     useImperativeHandle(ref, () => ({
       reload: loadArticles,
@@ -105,7 +125,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
           <h2 className="text-xl font-bold text-blue-400">LISTA DE ARTIGOS</h2>
           <div className="flex flex-row gap-2">
             <button
-              className="px-4 py-2 bg-[#7f8fa6] text-[#23272f] rounded-lg font-bold hover:bg-[#596275] transition"
+              className="px-2 py-1 bg-blue-900 text-white rounded-lg font-semibold hover:bg-blue-500 transition"
               onClick={onNew}
               disabled={loadingAction}
             >
@@ -113,7 +133,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
             </button>
             {selectedId && (
               <button
-                className="px-4 py-2 bg-red-500 text-white rounded-lg font-bold hover:bg-red-700 transition"
+                className="px-2 py-1 bg-red-900 text-white rounded-lg font-semibold hover:bg-red-500 transition"
                 onClick={() => setShowConfirm(true)}
                 disabled={loadingAction}
               >
@@ -158,12 +178,15 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
               htmlFor="category-select"
               className="block text-sm font-medium text-gray-300 mb-1"
             >
-              Filtrar por categoria:
+              Categoria:
             </label>
             <select
               id="category-select"
               value={category}
-              onChange={(e) => setCategory(e.target.value)}
+              onChange={(e) => {
+                setCategory(e.target.value);
+                setSubcategory("");
+              }}
               className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
             >
               <option value="">Todas</option>
@@ -176,10 +199,31 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
           </div>
           <div className="flex-1">
             <label
+              htmlFor="subcategory-select"
+              className="block text-sm font-medium text-gray-300 mb-1"
+            >
+              Subcategoria:
+            </label>
+            <select
+              id="subcategory-select"
+              value={subcategory}
+              onChange={(e) => setSubcategory(e.target.value)}
+              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+            >
+              <option value="">Todas</option>
+              {visibleSubcategories.map((sub) => (
+                <option key={sub} value={sub}>
+                  {sub}
+                </option>
+              ))}
+            </select>
+          </div>
+          <div className="flex-1">
+            <label
               htmlFor="status-select"
               className="block text-sm font-medium text-gray-300 mb-1"
             >
-              Filtrar por status:
+              Status:
             </label>
             <select
               id="status-select"
@@ -221,7 +265,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
               <option value="">Selecione...</option>
               {articles.map((article) => (
                 <option key={article.id} value={article.id}>
-                  {article.title} - {article.category}
+                  {article.title} - {article.category}/{article.subcategory}
                 </option>
               ))}
             </select>

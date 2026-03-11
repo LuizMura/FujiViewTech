@@ -38,6 +38,10 @@ export async function getArticles(
     query = query.eq("category", filters.category);
   }
 
+  if (filters?.subcategory) {
+    query = query.eq("subcategory", filters.subcategory);
+  }
+
   if (filters?.search) {
     query = query.or(
       `title.ilike.%${filters.search}%,excerpt.ilike.%${filters.search}%`,
@@ -256,6 +260,7 @@ export async function duplicateArticle(id: string): Promise<Article> {
     content: original.content || undefined,
     image: original.image || undefined,
     category: original.category,
+    subcategory: original.subcategory,
     status: "draft",
     titleColor: original.titleColor,
     titleFontSize: original.titleFontSize,
