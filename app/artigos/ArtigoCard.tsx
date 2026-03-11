@@ -30,6 +30,12 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
             {post.category}
           </Link>
 
+          {post.subcategory && (
+            <span className="px-2 md:px-3 py-0.5 md:py-1 bg-gray-200 text-slate-900 font-semibold rounded-full capitalize tracking-wide text-xs md:text-sm">
+              {post.subcategory}
+            </span>
+          )}
+
           <span className="w-1 h-1 bg-slate-300 rounded-full" />
 
           <div className="flex items-center gap-1.5 text-slate-600">
