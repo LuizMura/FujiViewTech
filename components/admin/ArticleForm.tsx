@@ -99,6 +99,7 @@ export default function ArticleForm<T extends CardBase>({
   const [contentSanitized, setContentSanitized] = useState(false);
   const [loadingAfiliados, setLoadingAfiliados] = useState(false);
   const [categories, setCategories] = useState<string[]>([]);
+  const [subcategories, setSubcategories] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<EditorTab>("cover");
   const showTabs = cardType === "ArtigoCard";
 
@@ -125,19 +126,32 @@ export default function ArticleForm<T extends CardBase>({
         const supabase = createClient();
         const { data, error } = await supabase
           .from("articles")
-          .select("category")
+          .select("category, subcategory")
           .neq("category", "")
           .order("category", { ascending: true });
 
         if (error) {
           setCategories([]);
+          setSubcategories([]);
           return;
         }
 
-        const unique = Array.from(new Set((data || []).map((a) => a.category)));
-        setCategories(unique);
+        const uniqueCategories = Array.from(
+          new Set((data || []).map((a) => a.category).filter(Boolean)),
+        );
+        const uniqueSubcategories = Array.from(
+          new Set(
+            (data || [])
+              .map((a) => (a.subcategory || "").trim())
+              .filter(Boolean),
+          ),
+        );
+
+        setCategories(uniqueCategories);
+        setSubcategories(uniqueSubcategories);
       } catch {
         setCategories([]);
+        setSubcategories([]);
       }
     }
 
@@ -470,10 +484,16 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
                     id="subcategory"
                     name="subcategory"
                     type="text"
+                    list="subcategory-options"
                     value={String(form.subcategory ?? "geral")}
                     onChange={handleChange}
                     className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
                   />
+                  <datalist id="subcategory-options">
+                    {subcategories.map((sub) => (
+                      <option key={sub} value={sub} />
+                    ))}
+                  </datalist>
                 </div>
               )}
 

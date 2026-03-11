@@ -164,9 +164,11 @@ function AdminArtigosPageContent() {
                     setLeftTab("form");
                   }}
                   selectedId={
-                      (typeof selectedArticle?.id === "string" && selectedArticle.id) ||
-                      (typeof selectedArticle?.slug === "string" && selectedArticle.slug) ||
-                      null
+                    (typeof selectedArticle?.id === "string" &&
+                      selectedArticle.id) ||
+                    (typeof selectedArticle?.slug === "string" &&
+                      selectedArticle.slug) ||
+                    null
                   }
                   onNew={() => {
                     setSelectedArticle(null);

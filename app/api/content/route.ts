@@ -94,8 +94,8 @@ export async function POST(request: NextRequest) {
       status: "published",
     };
 
-    // Upsert manual para funcionar mesmo sem constraint única slug+category.
-    const { data: existing, error: findError } = await supabase
+    // 1) Tenta localizar pelo trio slug+category+subcategory.
+    const { data: existingByScope, error: findScopedError } = await supabase
       .from("articles")
       .select("id")
       .eq("slug", slug)
@@ -103,12 +103,32 @@ export async function POST(request: NextRequest) {
       .eq("subcategory", subcategory)
       .maybeSingle();
 
-    if (findError) {
-      console.error("Supabase find error:", findError);
+    if (findScopedError) {
+      console.error("Supabase find scoped error:", findScopedError);
       return NextResponse.json(
-        { error: findError.message, details: findError },
+        { error: findScopedError.message, details: findScopedError },
         { status: 500 },
       );
+    }
+
+    // 2) Compatibilidade com bancos que ainda têm unique por slug apenas.
+    let existing = existingByScope;
+    if (!existing?.id) {
+      const { data: existingBySlug, error: findSlugError } = await supabase
+        .from("articles")
+        .select("id")
+        .eq("slug", slug)
+        .maybeSingle();
+
+      if (findSlugError) {
+        console.error("Supabase find slug error:", findSlugError);
+        return NextResponse.json(
+          { error: findSlugError.message, details: findSlugError },
+          { status: 500 },
+        );
+      }
+
+      existing = existingBySlug;
     }
 
     let data;
