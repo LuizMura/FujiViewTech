@@ -8,6 +8,7 @@ import {
   FaWhatsapp,
   FaXTwitter,
 } from "react-icons/fa6";
+import { useGoogleAnalytics } from "@/lib/hooks/useGoogleAnalytics";
 
 type ShareFloatingMenuProps = {
   title: string;
@@ -19,6 +20,18 @@ export default function ShareFloatingMenu({
   url,
 }: ShareFloatingMenuProps) {
   const [copied, setCopied] = useState(false);
+  const { trackShare } = useGoogleAnalytics();
+
+  // Extrair slug da URL para rastreamento
+  const slug = useMemo(() => {
+    try {
+      const urlObj = new URL(url);
+      const pathParts = urlObj.pathname.split("/");
+      return pathParts[pathParts.length - 1] || "unknown";
+    } catch {
+      return "unknown";
+    }
+  }, [url]);
 
   const encodedUrl = useMemo(() => encodeURIComponent(url), [url]);
   const encodedTitle = useMemo(() => encodeURIComponent(title), [title]);
@@ -53,6 +66,7 @@ export default function ShareFloatingMenu({
   const copyLink = async () => {
     try {
       await navigator.clipboard.writeText(url);
+      trackShare(slug, "copy");
       setCopied(true);
       window.setTimeout(() => setCopied(false), 1800);
     } catch {
@@ -74,6 +88,7 @@ export default function ShareFloatingMenu({
                 aria-label={`Compartilhar no ${item.label}`}
                 title={`Compartilhar no ${item.label}`}
                 className={`h-9 w-9 flex items-center justify-center rounded-lg transition-colors ${item.className}`}
+                onClick={() => trackShare(slug, item.label.toLowerCase())}
               >
                 <item.icon size={17} />
               </a>

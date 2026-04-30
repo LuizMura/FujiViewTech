@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { Search } from "lucide-react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { useGoogleAnalytics } from "@/lib/hooks/useGoogleAnalytics";
 
 export default function SearchBar({
   onResultClick,
@@ -13,12 +14,15 @@ export default function SearchBar({
     Array<{ id: string; title: string; summary: string; url: string }>
   >([]);
   const [searching, setSearching] = useState(false);
+  const { trackSearch } = useGoogleAnalytics();
 
   useEffect(() => {
     const supabase = createClient();
     const fetchArticles = async () => {
       if (search.length > 1) {
         setSearching(true);
+        // Rastrear busca
+        trackSearch(search);
         // Busca separada por título e resumo.
         const [titleRes, summaryRes] = await Promise.all([
           supabase
@@ -57,7 +61,7 @@ export default function SearchBar({
       }
     };
     fetchArticles();
-  }, [search]);
+  }, [search, trackSearch]);
 
   return (
     <form
@@ -95,6 +99,7 @@ export default function SearchBar({
                     href={`/artigos/${result.id}`}
                     className="block px-4 py-3 hover:bg-indigo-50 text-slate-700 cursor-pointer"
                     onClick={() => {
+                      trackSearch(search);
                       setSearch("");
                       if (onResultClick) onResultClick();
                     }}

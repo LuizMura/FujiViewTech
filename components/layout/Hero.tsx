@@ -10,6 +10,8 @@ import { getArticles } from "@/lib/hooks/useArticles";
 import { Article } from "@/lib/types/article";
 
 export default function Hero() {
+  const SHOW_TRAVEL_AND_BELOW = false;
+
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
   const [noticiasArticles, setNoticiasArticles] = useState<Article[]>([]);
   const [economiaArticles, setEconomiaArticles] = useState<Article[]>([]);
@@ -135,48 +137,52 @@ export default function Hero() {
         </div>
         <hr className="my-8 border-slate-900   mb-4 md:mb-6" />
 
-        <TravelBlock viagensArticles={viagensArticles} />
-        {/* Linha divisória */}
-        <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+        {SHOW_TRAVEL_AND_BELOW && (
+          <>
+            <TravelBlock viagensArticles={viagensArticles} />
+            {/* Linha divisória */}
+            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
-        {/* Produtos afiliados abaixo do carrossel de viagens */}
-        <div className="full-width-bg bg-gray-100 py-3 md:py-4">
-          <div className="content-inset">
-            <AfiliadosCarrossel />
-          </div>
-        </div>
+            {/* Produtos afiliados abaixo do carrossel de viagens */}
+            <div className="full-width-bg bg-gray-100 py-3 md:py-4">
+              <div className="content-inset">
+                <AfiliadosCarrossel />
+              </div>
+            </div>
 
-        <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
-        {/* -------------------------------------------------Espaço para AdSense----------------------------------------------- */}
-        <div className=" w-full h-24 flex items-center justify-center bg-slate-100 mb-8">
-          <span className="text-slate-500 font-semibold text-lg">
-            Publicidade
-          </span>
-        </div>
+            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+            {/* -------------------------------------------------Espaço para AdSense----------------------------------------------- */}
+            <div className=" w-full h-24 flex items-center justify-center bg-slate-100 mb-8">
+              <span className="text-slate-500 font-semibold text-lg">
+                Publicidade
+              </span>
+            </div>
 
-        {/* --------------------------------------------------TV, FILMES & SÉRIES---------------------------------------------- */}
+            {/* --------------------------------------------------TV, FILMES & SÉRIES---------------------------------------------- */}
 
-        <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
-        <FilmSeriesBlock filmesSeriesArticles={filmesSeriesArticles} />
+            <FilmSeriesBlock filmesSeriesArticles={filmesSeriesArticles} />
 
-        <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
-        {/* Produtos afiliados abaixo do carrossel de filmes-séries */}
-        <div className="full-width-bg bg-gray-100 py-3 md:py-4">
-          <div className="content-inset">
-            <AfiliadosCarrossel />
-          </div>
-        </div>
+            {/* Produtos afiliados abaixo do carrossel de filmes-séries */}
+            <div className="full-width-bg bg-gray-100 py-3 md:py-4">
+              <div className="content-inset">
+                <AfiliadosCarrossel />
+              </div>
+            </div>
 
-        <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
+            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
 
-        {/* -------------------------------------------------Espaço para AdSense----------------------------------------------- */}
-        <div className=" w-full h-24 flex items-center justify-center bg-slate-100 mb-8">
-          <span className="text-slate-500 font-semibold text-lg">
-            Publicidade
-          </span>
-        </div>
+            {/* -------------------------------------------------Espaço para AdSense----------------------------------------------- */}
+            <div className=" w-full h-24 flex items-center justify-center bg-slate-100 mb-8">
+              <span className="text-slate-500 font-semibold text-lg">
+                Publicidade
+              </span>
+            </div>
+          </>
+        )}
       </div>
     </>
   );

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import Image from "next/image";
+import { useGoogleAnalytics } from "@/lib/hooks/useGoogleAnalytics";
 
 interface Afiliado {
   nome: string;
@@ -30,6 +31,7 @@ const AfiliadosCard: React.FC<AfiliadosCardProps> = ({
   afiliados,
   compact = false,
 }) => {
+  const { trackAfiliadoClick } = useGoogleAnalytics();
   // Normaliza e valida URLs de imagens para evitar erros do next/image
   const toSafeUrl = (u?: string) => {
     if (!u) return undefined;
@@ -145,6 +147,7 @@ const AfiliadosCard: React.FC<AfiliadosCardProps> = ({
           href={afiliados[0].url}
           target="_blank"
           rel="noopener noreferrer"
+          onClick={() => trackAfiliadoClick(afiliados[0].nome, titulo)}
           className={`w-full rounded-lg text-white font-semibold transition-transform duration-200 hover:-translate-y-0.5 flex items-center justify-center ${
             compact ? "h-8 text-xs" : "h-7 md:h-10 text-sm"
           }`}

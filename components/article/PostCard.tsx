@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import Image from "next/image";
 import { Calendar, Clock, ArrowRight } from "lucide-react";
+import { useGoogleAnalytics } from "@/lib/hooks/useGoogleAnalytics";
 
 interface PostCardProps {
   post: {
@@ -18,9 +19,13 @@ interface PostCardProps {
 
 export default function PostCard({ post }: PostCardProps) {
   const imageUrl = post.image || "/images/placeholder.jpg";
+  const { trackArticleClick } = useGoogleAnalytics();
 
   return (
-    <Link href={`/artigos/${post.slug}`}>
+    <Link
+      href={`/artigos/${post.slug}`}
+      onClick={() => trackArticleClick(post.slug, post.category, "")}
+    >
       <article className="relative group bg-white rounded-2xl overflow-hidden shadow-sm hover:shadow-xl transition-all duration-300 border border-slate-100 flex flex-col h-full cursor-pointer">
         {/* Imagem de destaque */}
         <div className="relative h-56 overflow-hidden bg-slate-200">

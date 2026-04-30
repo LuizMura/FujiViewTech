@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import Link from "next/link";
 import { Article } from "@/lib/types/article";
+import { useGoogleAnalytics } from "@/lib/hooks/useGoogleAnalytics";
 
 interface CategoryCardProps {
   artigos: Article[];
@@ -16,6 +17,8 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   label,
   badgeColor,
 }) => {
+  const { trackCategoryView } = useGoogleAnalytics();
+
   const filtered = artigos.filter(
     (artigo) =>
       artigo.category &&
@@ -40,7 +43,11 @@ const CategoryCard: React.FC<CategoryCardProps> = ({
   const summary = latest.excerpt || latest.description || "";
 
   return (
-    <Link href={`/artigos/${latest.slug}`} className="block">
+    <Link
+      href={`/artigos/${latest.slug}`}
+      className="block"
+      onClick={() => trackCategoryView(category, label)}
+    >
       <div className="-mt-1 md:mt-0 w-full max-w-md mx-auto relative bg-white rounded-sm shadow overflow-hidden cursor-pointer">
         <span
           className={`absolute top-3 left-3 z-10 ${badgeColor} text-white text-xs font-semibold px-3 py-1`}

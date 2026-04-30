@@ -18,6 +18,8 @@ import AfiliadosCarrossel from "@/components/home/AfiliadosCarrossel";
 import matter from "gray-matter";
 import { Share2 } from "lucide-react";
 import { useAuth } from "@/app/context/AuthContext";
+import { useArticleTracking } from "@/lib/hooks/useArticleTracking";
+import { useGoogleAnalytics } from "@/lib/hooks/useGoogleAnalytics";
 
 function normalizeMdxContainers(raw: string): string {
   const lines = raw.replace(/\r\n?/g, "\n").split("\n");
@@ -84,6 +86,7 @@ class MDXErrorBoundary extends React.Component<
 
 export default function PostPage() {
   const { user, loading: authLoading } = useAuth();
+  const { trackShare } = useGoogleAnalytics();
   const params = useParams() || {};
   const rawSlug =
     typeof params.slug === "string"
@@ -96,6 +99,12 @@ export default function PostPage() {
   const [mdx, setMdx] = useState<MDXRemoteSerializeResult | null>(null);
   const [loading, setLoading] = useState(true);
 
+  // Rastrear visualização de artigo (scroll, tempo, leitura completa)
+  useArticleTracking({
+    articleSlug: slug,
+    readTime: post?.readTime ? Number(post.readTime) : 5,
+  });
+
   const handleShare = async () => {
     const shareUrl = typeof window !== "undefined" ? window.location.href : "";
     const shareTitle = post?.title || "Artigo";
@@ -103,9 +112,11 @@ export default function PostPage() {
     try {
       if (navigator.share) {
         await navigator.share({ title: shareTitle, url: shareUrl });
+        trackShare(slug, "native_share");
         return;
       }
       await navigator.clipboard.writeText(shareUrl);
+      trackShare(slug, "clipboard");
       alert("Link copiado para a área de transferência!");
     } catch {
       // usuário pode cancelar o compartilhamento nativo
