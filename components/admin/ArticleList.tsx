@@ -8,7 +8,11 @@ import {
 } from "react";
 import { Article } from "@/lib/types/article";
 import { getArticles } from "@/lib/hooks/useArticles";
-import { createClient } from "@/lib/supabase/client";
+import {
+  FIXED_CATEGORIES,
+  getCategoryLabelBySlug,
+  normalizeCategorySlug,
+} from "@/lib/constants/categories";
 
 export interface ArticleListRef {
   reload: () => void;
@@ -40,7 +44,9 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
     const [loading, setLoading] = useState(true);
     const [category, setCategory] = useState(externalCategory || "");
     const [subcategory, setSubcategory] = useState("");
-    const [categories, setCategories] = useState<string[]>([]);
+    const [categories] = useState<string[]>(
+      FIXED_CATEGORIES.map((category) => category.slug),
+    );
     const [subcategories, setSubcategories] = useState<string[]>([]);
     const [statusFilter, setStatusFilter] = useState<string>("");
 
@@ -53,36 +59,37 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
       }
     }, [externalCategory]);
 
-    // Buscar categorias e subcategorias únicas do Supabase
+    // Buscar subcategorias por categoria no Supabase
     useEffect(() => {
-      async function fetchTaxonomy() {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from("articles")
-          .select("category, subcategory")
-          .neq("category", "")
-          .order("category", { ascending: true });
-        if (error) {
-          setCategories([]);
-          setSubcategories([]);
-        } else {
-          const unique = Array.from(
-            new Set((data || []).map((a) => a.category)),
-          );
-          setCategories(unique);
+      async function fetchSubcategories() {
+        const normalizedCategory = normalizeCategorySlug(category);
 
-          const uniqueSubs = Array.from(
-            new Set(
-              (data || [])
-                .map((a) => (a.subcategory || "geral").trim())
-                .filter(Boolean),
-            ),
-          );
-          setSubcategories(uniqueSubs);
+        if (!normalizedCategory) {
+          setSubcategories([]);
+          return;
         }
+
+        const response = await fetch(
+          `/api/content/subcategories?category=${encodeURIComponent(normalizedCategory)}&includeUnused=1`,
+        );
+        const payload = await response.json();
+
+        if (!response.ok) {
+          setSubcategories([]);
+          return;
+        }
+
+        const uniqueSubs: string[] = Array.from(
+          new Set(
+            (payload?.items || [])
+              .map((item: { name?: string }) => String(item?.name || "").trim())
+              .filter(Boolean),
+          ),
+        );
+        setSubcategories(uniqueSubs);
       }
-      fetchTaxonomy();
-    }, []);
+      fetchSubcategories();
+    }, [category]);
 
     const visibleSubcategories = subcategories.filter((sub) => {
       if (!category) return true;
@@ -192,7 +199,7 @@ const ArticleList = forwardRef<ArticleListRef, ArticleListProps>(
               <option value="">Todas</option>
               {categories.map((cat) => (
                 <option key={cat} value={cat}>
-                  {cat}
+                  {getCategoryLabelBySlug(cat)}
                 </option>
               ))}
             </select>

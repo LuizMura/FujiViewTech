@@ -1,8 +1,13 @@
 "use client";
 import { createClient } from "@/lib/supabase/client";
 import { generateUniqueSlug } from "@/lib/hooks/useArticles";
-import React, { useState, useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import Image from "next/image";
+import {
+  FIXED_CATEGORIES,
+  getCategoryLabelBySlug,
+  normalizeCategorySlug,
+} from "@/lib/constants/categories";
 
 interface CardBase {
   title: string;
@@ -68,10 +73,6 @@ const extraFields: Record<string, FieldConfig[]> = {
     { name: "source", label: "Fonte", type: "text" },
     { name: "publishedAt", label: "Data de Publicação", type: "date" },
   ],
-  EconomiaCard: [
-    { name: "price", label: "Preço", type: "number" },
-    { name: "variation", label: "Variação (%)", type: "number" },
-  ],
   CategoriaCard: [
     { name: "description", label: "Descrição", type: "textarea" },
   ],
@@ -98,8 +99,11 @@ export default function ArticleForm<T extends CardBase>({
   const [buttonTemplateCopied, setButtonTemplateCopied] = useState(false);
   const [contentSanitized, setContentSanitized] = useState(false);
   const [loadingAfiliados, setLoadingAfiliados] = useState(false);
-  const [categories, setCategories] = useState<string[]>([]);
+  const [categories] = useState<string[]>(
+    FIXED_CATEGORIES.map((category) => category.slug),
+  );
   const [subcategories, setSubcategories] = useState<string[]>([]);
+  const [savingSubcategory, setSavingSubcategory] = useState(false);
   const [activeTab, setActiveTab] = useState<EditorTab>("cover");
   const showTabs = cardType === "ArtigoCard";
 
@@ -121,42 +125,76 @@ export default function ArticleForm<T extends CardBase>({
   }, []);
 
   useEffect(() => {
-    async function loadCategories() {
+    async function loadSubcategories() {
       try {
-        const supabase = createClient();
-        const { data, error } = await supabase
-          .from("articles")
-          .select("category, subcategory")
-          .neq("category", "")
-          .order("category", { ascending: true });
+        const selectedCategory = normalizeCategorySlug(
+          String(form.category || ""),
+        );
 
-        if (error) {
-          setCategories([]);
+        if (!selectedCategory) {
           setSubcategories([]);
           return;
         }
 
-        const uniqueCategories = Array.from(
-          new Set((data || []).map((a) => a.category).filter(Boolean)),
+        const response = await fetch(
+          `/api/content/subcategories?category=${encodeURIComponent(selectedCategory)}&includeUnused=1`,
         );
-        const uniqueSubcategories = Array.from(
+        const data = await response.json();
+
+        if (!response.ok) {
+          setSubcategories([]);
+          return;
+        }
+
+        const names: string[] = Array.from(
           new Set(
-            (data || [])
-              .map((a) => (a.subcategory || "").trim())
+            (data?.items || [])
+              .map((item: { name?: string }) => String(item?.name || "").trim())
               .filter(Boolean),
           ),
         );
-
-        setCategories(uniqueCategories);
-        setSubcategories(uniqueSubcategories);
+        setSubcategories(names);
       } catch {
-        setCategories([]);
         setSubcategories([]);
       }
     }
 
-    loadCategories();
-  }, []);
+    loadSubcategories();
+  }, [form.category]);
+
+  const persistCurrentSubcategory = async () => {
+    const currentCategory = normalizeCategorySlug(String(form.category || ""));
+    const currentSubcategory = String(form.subcategory || "").trim();
+
+    if (!currentCategory || !currentSubcategory || savingSubcategory) {
+      return;
+    }
+
+    setSavingSubcategory(true);
+    try {
+      const response = await fetch("/api/content/subcategories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          category: currentCategory,
+          name: currentSubcategory,
+        }),
+      });
+
+      if (!response.ok) {
+        return;
+      }
+
+      setSubcategories((prev) => {
+        if (prev.includes(currentSubcategory)) return prev;
+        return [...prev, currentSubcategory].sort((a, b) =>
+          a.localeCompare(b, "pt-BR"),
+        );
+      });
+    } finally {
+      setSavingSubcategory(false);
+    }
+  };
 
   const categoriasSugeridas = useMemo(
     () =>
@@ -204,51 +242,10 @@ export default function ArticleForm<T extends CardBase>({
   };
 
   const contentValue = String(form.content ?? "");
-
-  const copyMdxTemplate = (template: string) => {
-    if (template === "ArticleButton") {
-      copyButtonTemplate();
-      setTemplateCopied(true);
-      window.setTimeout(() => setTemplateCopied(false), 1800);
-      return;
-    }
-
-    if (template === "ProductRow") {
-      const mdxTemplate = `## Título
-<ProductRow
-image="
-">
-
-### Ficha Técnica
-- ** 
-</ProductRow>`;
-      navigator.clipboard.writeText(mdxTemplate);
-      setTemplateCopied(true);
-      window.setTimeout(() => setTemplateCopied(false), 1800);
-      return;
-    }
-
-    if (template === "WrapImageText") {
-      const mdxTemplate = `## Seção Com Imagem Lateral
-
-<WrapImageText
-  src="https://exemplo.com/minha-imagem.jpg"
-  // ou use caminho local: /images/minha-imagem.jpg
-  alt="Descrição da imagem"
-  side="left"
-  width={320}
-  height={200}
-  caption="Legenda opcional"
->
-Texto do artigo ao redor da imagem. Você pode escrever parágrafos maiores aqui e eles vão contornar a imagem no desktop.
-
-No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura confortável.
-</WrapImageText>`;
-      navigator.clipboard.writeText(mdxTemplate);
-      setTemplateCopied(true);
-      window.setTimeout(() => setTemplateCopied(false), 1800);
-    }
-  };
+  const mdxImageUrlValue = String(
+    form.mdxImageUrl || form.mdxImage || "",
+  ).trim();
+  const mdxImageLinkValue = String(form.mdxImageLink || "").trim();
 
   const copyButtonTemplate = () => {
     const buttonText = mdxButtonText.trim();
@@ -264,6 +261,10 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
   const sanitizeMdxContent = () => {
     const raw = String(form.content ?? "");
     const sanitized = raw
+      .replace(
+        /<ProductRow\s*\n\s*image="\s*\n\s*>/g,
+        '<ProductRow\n  title="Nome do produto"\n  image=""\n>',
+      )
       .replace(/\r\n?/g, "\n")
       .replace(/[\u200B\u200C\u200D\uFEFF]/g, "")
       .replace(/[\u2028\u2029]/g, "\n")
@@ -284,6 +285,114 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
   });
   const allFields = Array.from(allFieldsMap.values());
 
+  const buildSafeStorageFileName = (originalName: string) => {
+    const trimmed = String(originalName || "").trim();
+    const dotIndex = trimmed.lastIndexOf(".");
+    const hasExt = dotIndex > 0 && dotIndex < trimmed.length - 1;
+    const rawBase = hasExt ? trimmed.slice(0, dotIndex) : trimmed;
+    const rawExt = hasExt ? trimmed.slice(dotIndex + 1) : "";
+
+    const safeBase = rawBase
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9-_]+/g, "-")
+      .replace(/-+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    const safeExt = rawExt
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "");
+
+    const base = safeBase || "arquivo";
+    const suffix = Date.now();
+
+    return safeExt ? `${base}-${suffix}.${safeExt}` : `${base}-${suffix}`;
+  };
+
+  const buildMdxImageSnippet = (url: string, originalName: string) => {
+    const baseName = String(originalName || "")
+      .replace(/\.[^.]+$/, "")
+      .replace(/[-_]+/g, " ")
+      .trim();
+    const alt = baseName || "Imagem";
+    return `![${alt}](${url})`;
+  };
+
+  const buildTemplateWithImageUrl = (
+    template: string,
+    imageUrl: string,
+    imageLink?: string,
+  ) => {
+    const safeUrl = imageUrl.trim();
+    const safeLink = String(imageLink || "").trim();
+
+    if (template === "WrapImageText") {
+      return `<WrapImageText
+  src="${safeUrl}"
+  alt="Descrição da imagem"
+  side="left"
+  width={320}
+  height={200}
+  caption="Legenda opcional"
+>
+Texto do artigo ao redor da imagem.
+</WrapImageText>`;
+    }
+
+    if (template === "ProductRow") {
+      const productUrlLine = safeLink ? `\n  url="${safeLink}"` : "";
+      return `## Título
+<ProductRow
+  title="Nome do produto"
+  image="${safeUrl}"${productUrlLine}
+>
+
+### Ficha Técnica
+- **Marca:** Exemplo
+</ProductRow>`;
+    }
+
+    if (safeLink) {
+      return `[![Imagem](${safeUrl})](${safeLink})`;
+    }
+
+    return `![Imagem](${safeUrl})`;
+  };
+
+  const copySelectedTemplateWithImageUrl = () => {
+    const imageUrl = mdxImageUrlValue;
+    if (!imageUrl) return;
+
+    const template = selectedMdxTemplate || "MarkdownImage";
+    const snippet = buildTemplateWithImageUrl(
+      template,
+      imageUrl,
+      mdxImageLinkValue,
+    );
+    navigator.clipboard.writeText(snippet);
+    setTemplateCopied(true);
+    window.setTimeout(() => setTemplateCopied(false), 1800);
+  };
+
+  const appendSnippetToContent = (snippet: string) => {
+    const currentContent = String(form.content || "");
+    const alreadyExists = currentContent.includes(snippet);
+
+    if (alreadyExists) return;
+
+    const separator =
+      currentContent.trim().length === 0
+        ? ""
+        : currentContent.endsWith("\n")
+          ? "\n"
+          : "\n\n";
+
+    onContentChange(`${currentContent}${separator}${snippet}\n`);
+  };
+
   const handleFileUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     isMdx: boolean,
@@ -293,7 +402,8 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
 
     const supabase = createClient();
     const file = files[0];
-    const filePath = isMdx ? `mdx/${file.name}` : file.name;
+    const safeFileName = buildSafeStorageFileName(file.name);
+    const filePath = isMdx ? `mdx/${safeFileName}` : safeFileName;
 
     const { error } = await supabase.storage
       .from("artigos")
@@ -307,11 +417,20 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
     const { data: publicUrlData } = supabase.storage
       .from("artigos")
       .getPublicUrl(filePath);
+    const publicUrl = publicUrlData?.publicUrl || "";
 
     if (isMdx) {
-      onMdxImageUpload(publicUrlData?.publicUrl || "");
+      onMdxImageUpload(publicUrl);
+      onFormChange("mdxImageUrl", publicUrl);
+      if (publicUrl) {
+        const snippet = buildMdxImageSnippet(publicUrl, file.name);
+        appendSnippetToContent(snippet);
+      }
+      if (publicUrl) {
+        void navigator.clipboard.writeText(publicUrl);
+      }
     } else {
-      onImageUpload(publicUrlData?.publicUrl || "");
+      onImageUpload(publicUrl);
     }
   };
 
@@ -421,7 +540,7 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
                     <option value="">Selecione uma categoria</option>
                     {categories.map((cat) => (
                       <option key={cat} value={cat} className="text-black">
-                        {cat}
+                        {getCategoryLabelBySlug(cat)}
                       </option>
                     ))}
                   </select>
@@ -474,26 +593,91 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
               {/* Se é categoria, renderiza subcategoria ao lado */}
               {field.name === "category" && (
                 <div>
-                  <label
-                    className="block text-[#bfc7d5] mb-1"
-                    htmlFor="subcategory"
-                  >
-                    Subcategoria
-                  </label>
+                  <div className="flex items-end justify-between gap-2 mb-1">
+                    <label
+                      className="block text-[#bfc7d5]"
+                      htmlFor="subcategory"
+                    >
+                      Subcategoria
+                    </label>
+                    <button
+                      type="button"
+                      onClick={persistCurrentSubcategory}
+                      disabled={!form.category || savingSubcategory}
+                      className="text-xs px-2 py-1 rounded bg-[#2a2f39] text-[#bfc7d5] hover:bg-[#3a4352] disabled:opacity-50"
+                    >
+                      {savingSubcategory
+                        ? "Salvando..."
+                        : "Salvar subcategoria"}
+                    </button>
+                  </div>
                   <input
                     id="subcategory"
                     name="subcategory"
                     type="text"
                     list="subcategory-options"
-                    value={String(form.subcategory ?? "geral")}
+                    value={String(form.subcategory ?? "")}
                     onChange={handleChange}
                     className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                    placeholder="Ex.: smartphones"
                   />
                   <datalist id="subcategory-options">
                     {subcategories.map((sub) => (
                       <option key={sub} value={sub} />
                     ))}
                   </datalist>
+                </div>
+              )}
+
+              {/* Brand + Tags ao lado de subcategoria (abaixo da linha categoria/subcategoria) */}
+              {field.name === "category" && (
+                <div className="col-span-2 grid grid-cols-2 gap-2 mt-0">
+                  {/* Brand */}
+                  <div>
+                    <label
+                      className="block text-[#bfc7d5] mb-1"
+                      htmlFor="brand"
+                    >
+                      Brand
+                    </label>
+                    <input
+                      id="brand"
+                      name="brand"
+                      type="text"
+                      value={String(form.brand ?? "")}
+                      onChange={handleChange}
+                      className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                      placeholder="Ex.: Samsung, Apple…"
+                    />
+                  </div>
+                  {/* Tags */}
+                  <div>
+                    <label
+                      className="block text-[#bfc7d5] mb-1"
+                      htmlFor="tags-input"
+                    >
+                      Tags{" "}
+                      <span className="text-xs text-[#7f8fa6]">
+                        (separadas por vírgula)
+                      </span>
+                    </label>
+                    <input
+                      id="tags-input"
+                      type="text"
+                      value={
+                        Array.isArray(form.tags)
+                          ? (form.tags as string[]).join(", ")
+                          : String(form.tags ?? "")
+                      }
+                      onChange={(e) => {
+                        const raw = e.target.value;
+                        const arr = raw.split(",").map((t) => t.trimStart());
+                        onFormChange("tags", arr);
+                      }}
+                      className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                      placeholder="Ex.: android, 5g, câmera"
+                    />
+                  </div>
                 </div>
               )}
 
@@ -543,7 +727,15 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
       {/* Upload imagem MDX */}
       {(!showTabs || activeTab === "templates") && (
         <>
-          <div className="mb-3">
+          <div className="mb-3 border border-[#4b6b57] rounded-lg p-3 bg-[#1c212a]">
+            <h3 className="text-[#bfc7d5] font-semibold mb-2">
+              Imagens no MDX
+            </h3>
+            <p className="text-xs text-[#9ca3af] mb-3">
+              1) Faça upload da imagem. 2) Use a URL gerada. 3) Clique para
+              inserir no conteúdo.
+            </p>
+
             <label
               className="block text-[#bfc7d5] mb-1"
               htmlFor="mdx-image-upload"
@@ -558,8 +750,9 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
               onChange={(e) => handleFileUpload(e, true)}
               className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
             />
+
             {Boolean(form.mdxImage) && (
-              <div className="mt-2 flex items-center gap-2">
+              <div className="mt-3 flex items-center gap-2">
                 <Image
                   src={String(form.mdxImage)}
                   alt="Preview MDX"
@@ -568,33 +761,79 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
                   unoptimized
                   className="max-h-32 h-auto w-auto rounded border border-[#4b6b57]"
                 />
-                <button
-                  type="button"
-                  className="px-2 py-1 bg-[#eebbc3] text-[#232946] rounded text-xs"
-                  onClick={() =>
-                    navigator.clipboard.writeText(String(form.mdxImage))
-                  }
-                >
-                  Copiar URL
-                </button>
               </div>
             )}
-          </div>
 
-          {/* Imagem URL MDX */}
-          <div className="mb-3">
-            <label className="block text-[#bfc7d5] mb-1" htmlFor="mdxImageUrl">
-              Imagem URL MDX
-            </label>
-            <input
-              id="mdxImageUrl"
-              name="mdxImageUrl"
-              type="text"
-              value={String(form.mdxImageUrl ?? "")}
-              onChange={handleChange}
-              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
-              placeholder="https://exemplo.com/imagem.jpg"
-            />
+            <div className="mt-3">
+              <label
+                className="block text-[#bfc7d5] mb-1"
+                htmlFor="mdxImageUrl"
+              >
+                URL da imagem MDX
+              </label>
+              <input
+                id="mdxImageUrl"
+                name="mdxImageUrl"
+                type="text"
+                value={String(form.mdxImageUrl ?? "")}
+                onChange={handleChange}
+                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                placeholder="https://exemplo.com/imagem.jpg"
+              />
+            </div>
+
+            <div className="mt-3">
+              <label
+                className="block text-[#bfc7d5] mb-1"
+                htmlFor="mdxImageLink"
+              >
+                Link da imagem (opcional)
+              </label>
+              <input
+                id="mdxImageLink"
+                name="mdxImageLink"
+                type="text"
+                value={String(form.mdxImageLink ?? "")}
+                onChange={handleChange}
+                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none"
+                placeholder="https://exemplo.com/destino"
+              />
+            </div>
+
+            <div className="mt-3">
+              <label
+                className="block text-[#bfc7d5] mb-1"
+                htmlFor="mdx-template-select"
+              >
+                Template
+              </label>
+              <select
+                id="mdx-template-select"
+                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+                value={selectedMdxTemplate}
+                onChange={(e) => setSelectedMdxTemplate(e.target.value)}
+              >
+                <option value="MarkdownImage">Imagem Markdown</option>
+                <option value="WrapImageText">WrapImageText</option>
+                <option value="ProductRow">ProductRow</option>
+              </select>
+            </div>
+
+            <div className="mt-3">
+              <button
+                type="button"
+                disabled={!mdxImageUrlValue}
+                onClick={copySelectedTemplateWithImageUrl}
+                className="w-full px-3 py-2 bg-[#eebbc3] text-[#232946] rounded text-xs font-semibold disabled:opacity-50"
+              >
+                Copiar link
+              </button>
+              {templateCopied && (
+                <p className="mt-2 text-xs text-green-400">
+                  Código copiado com a URL da imagem!
+                </p>
+              )}
+            </div>
           </div>
 
           {/* Afiliados Cadastrados */}
@@ -703,29 +942,9 @@ No mobile, a imagem fica acima e o texto segue abaixo para manter a leitura conf
               Templates de MDX
             </h3>
             <p className="text-xs text-[#9ca3af] mb-2">
-              Selecione um template no dropdown para copiar
+              Use a área de Imagens no MDX acima para copiar templates já com
+              link.
             </p>
-
-            <select
-              className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
-              value={selectedMdxTemplate}
-              onChange={(e) => {
-                const value = e.target.value;
-                setSelectedMdxTemplate(value);
-                if (value) {
-                  copyMdxTemplate(value);
-                  setSelectedMdxTemplate("");
-                }
-              }}
-            >
-              <option value="">Selecione um template...</option>
-              <option value="ArticleButton">ArticleButton</option>
-              <option value="ProductRow">ProductRow</option>
-              <option value="WrapImageText">WrapImageText</option>
-            </select>
-            {templateCopied && (
-              <p className="mt-2 text-xs text-green-400">Template copiado!</p>
-            )}
           </div>
         </>
       )}

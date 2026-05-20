@@ -1,24 +1,16 @@
 import AfiliadosCarrossel from "@/components/home/AfiliadosCarrossel";
 
 import React, { useEffect, useState } from "react";
-import FilmSeriesBlock from "@/components/home/FilmSeriesBlock";
 import InitialBlock from "@/components/home/InitialBlock";
-import TravelBlock from "@/components/home/TravelBlock";
-import UltimasPostagensCarrossel from "@/components/home/UltimasPostagensCarrossel";
+import OutrasPostagens from "@/components/home/OutrasPostagens";
 import LivePrices from "./LivePrices";
 import { getArticles } from "@/lib/hooks/useArticles";
 import { Article } from "@/lib/types/article";
 
 export default function Hero() {
-  const SHOW_TRAVEL_AND_BELOW = false;
-
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
   const [noticiasArticles, setNoticiasArticles] = useState<Article[]>([]);
-  const [economiaArticles, setEconomiaArticles] = useState<Article[]>([]);
-  const [viagensArticles, setViagensArticles] = useState<Article[]>([]);
-  const [filmesSeriesArticles, setFilmesSeriesArticles] = useState<Article[]>(
-    [],
-  );
+  const [novidadesArticles, setNovidadesArticles] = useState<Article[]>([]);
   const [allArticles, setAllArticles] = useState<Article[]>([]);
 
   useEffect(() => {
@@ -35,10 +27,7 @@ export default function Hero() {
 
             return (
               article.status === "published" &&
-              normalizedCategory !== "noticias" &&
-              normalizedCategory !== "economia" &&
-              normalizedCategory !== "viagens" &&
-              normalizedCategory !== "filmes-e-series"
+              normalizedCategory !== "noticias"
             );
           })
           .sort((a, b) => {
@@ -56,21 +45,12 @@ export default function Hero() {
           limit: 5,
         });
         setNoticiasArticles(noticias);
-        const economia: Article[] = await getArticles({
-          category: "economia",
+
+        const novidades: Article[] = await getArticles({
+          category: "novidades",
           limit: 5,
         });
-        setEconomiaArticles(economia);
-        const viagens: Article[] = await getArticles({
-          category: "viagens",
-          limit: 12,
-        });
-        setViagensArticles(viagens);
-        const filmesSeries: Article[] = await getArticles({
-          category: "filmes-e-series",
-          limit: 12,
-        });
-        setFilmesSeriesArticles(filmesSeries);
+        setNovidadesArticles(novidades);
 
         // Buscar todos para os cards genéricos
         const all: Article[] = await getArticles({ limit: 20 });
@@ -78,7 +58,7 @@ export default function Hero() {
       } catch {
         setLatestArticles([]);
         setNoticiasArticles([]);
-        setEconomiaArticles([]);
+        setNovidadesArticles([]);
         setAllArticles([]);
       }
     }
@@ -91,27 +71,22 @@ export default function Hero() {
         <LivePrices />
       </div>
       <div className="px-1 md:px-0">
-        {/* Bloco inicial (abaixo do LivePrices e acima de Últimas Postagens) */}
+        {/* Bloco inicial (abaixo do LivePrices e acima de Outras Postagens) */}
         <InitialBlock
           latestArticles={latestArticles}
           noticiasArticles={noticiasArticles}
-          economiaArticles={economiaArticles}
+          novidadesArticles={novidadesArticles}
         />
 
-        {/* Bloco de últimas postagens com imagem acima e texto abaixo */}
+        {/* Bloco de Outras Postagens com imagem acima e texto abaixo */}
         {latestArticles.length > 0 && (
           <>
-            <div className="full-width-bg bg-gray-300 py-3 md:py-4">
+            <div className="full-width-bg bg-gradient-to-b from-gray-950 to-gray-800 py-3 md:py-4">
               <div className="content-inset">
-                <UltimasPostagensCarrossel
+                <OutrasPostagens
                   artigos={allArticles}
                   title="OUTRAS POSTAGENS"
-                  excludeCategories={[
-                    "noticias",
-                    "economia",
-                    "viagens",
-                    "filmes-e-series",
-                  ]}
+                  excludeCategories={["noticias"]}
                 />
               </div>
             </div>
@@ -136,53 +111,6 @@ export default function Hero() {
           </div>
         </div>
         <hr className="my-8 border-slate-900   mb-4 md:mb-6" />
-
-        {SHOW_TRAVEL_AND_BELOW && (
-          <>
-            <TravelBlock viagensArticles={viagensArticles} />
-            {/* Linha divisória */}
-            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
-
-            {/* Produtos afiliados abaixo do carrossel de viagens */}
-            <div className="full-width-bg bg-gray-100 py-3 md:py-4">
-              <div className="content-inset">
-                <AfiliadosCarrossel />
-              </div>
-            </div>
-
-            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
-            {/* -------------------------------------------------Espaço para AdSense----------------------------------------------- */}
-            <div className=" w-full h-24 flex items-center justify-center bg-slate-100 mb-8">
-              <span className="text-slate-500 font-semibold text-lg">
-                Publicidade
-              </span>
-            </div>
-
-            {/* --------------------------------------------------TV, FILMES & SÉRIES---------------------------------------------- */}
-
-            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
-
-            <FilmSeriesBlock filmesSeriesArticles={filmesSeriesArticles} />
-
-            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
-
-            {/* Produtos afiliados abaixo do carrossel de filmes-séries */}
-            <div className="full-width-bg bg-gray-100 py-3 md:py-4">
-              <div className="content-inset">
-                <AfiliadosCarrossel />
-              </div>
-            </div>
-
-            <hr className="my-8 border-slate-200 mb-4 md:mb-6" />
-
-            {/* -------------------------------------------------Espaço para AdSense----------------------------------------------- */}
-            <div className=" w-full h-24 flex items-center justify-center bg-slate-100 mb-8">
-              <span className="text-slate-500 font-semibold text-lg">
-                Publicidade
-              </span>
-            </div>
-          </>
-        )}
       </div>
     </>
   );

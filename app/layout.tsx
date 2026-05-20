@@ -2,15 +2,21 @@ import "./globals.css";
 import { LayoutWrapper } from "./LayoutWrapper";
 import { Poppins } from "next/font/google";
 import Script from "next/script";
+import type { Metadata } from "next";
 
-export const metadata = {
+const siteTitle = "FujiviewTech";
+const siteDescription =
+  "FujiviewTech — Portal de tecnologia com Reviews, Produtos, Notícias e Novidades.";
+const ogImage = "/images/og-default.png";
+
+export const metadata: Metadata = {
   metadataBase: new URL("https://www.fujiviewtech.com"),
+  applicationName: siteTitle,
   title: {
-    default: "FujiviewTech",
-    template: "%s | FujiviewTech",
+    default: siteTitle,
+    template: `%s | ${siteTitle}`,
   },
-  description:
-    "FujiviewTech — Portal de tecnologia, reviews, tutoriais e notícias.",
+  description: siteDescription,
 
   keywords: [
     "tecnologia",
@@ -19,41 +25,37 @@ export const metadata = {
     "computadores",
     "notebooks",
     "gadgets",
-    "tutoriais",
+    "produtos",
+    "novidades",
     "FujiviewTech",
   ],
 
-  authors: [{ name: "FujiviewTech" }],
-  creator: "FujiviewTech",
-
-  icons: {
-    icon: "/images/fujiviewtech-logo.png",
-    shortcut: "/images/fujiviewtech-logo.png",
-    apple: "/images/fujiviewtech-logo.png",
-  },
+  authors: [{ name: siteTitle }],
+  creator: siteTitle,
+  category: "technology",
 
   openGraph: {
-    title: "FujiviewTech",
-    description: "Portal de tecnologia, reviews e notícias.",
+    title: siteTitle,
+    description: siteDescription,
     url: "https://www.fujiviewtech.com",
-    siteName: "FujiviewTech",
+    siteName: siteTitle,
     locale: "pt_BR",
     type: "website",
     images: [
       {
-        url: "/images/og-default.png",
+        url: ogImage,
         width: 1200,
         height: 630,
-        alt: "FujiviewTech",
+        alt: `${siteTitle} - Portal de tecnologia`,
       },
     ],
   },
 
   twitter: {
     card: "summary_large_image",
-    title: "FujiviewTech",
-    description: "Portal de tecnologia, reviews e notícias.",
-    images: ["/images/og-default.png"],
+    title: siteTitle,
+    description: siteDescription,
+    images: [ogImage],
   },
 };
 

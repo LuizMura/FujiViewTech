@@ -1,8 +1,10 @@
 // Tipo global para Google Analytics
+type GtagCommand = "config" | "event" | "js" | "set" | "consent";
+
 declare global {
   interface Window {
-    gtag?: (command: string, ...args: any[]) => void;
-    dataLayer?: any[];
+    gtag?: (command: GtagCommand, ...args: unknown[]) => void;
+    dataLayer?: unknown[];
   }
 }
 
@@ -15,7 +17,7 @@ export type GTagEventParams = {
   afiliado_id?: string;
   product_name?: string;
   value?: number;
-  [key: string]: any;
+  [key: string]: unknown;
 };
 
 export {};

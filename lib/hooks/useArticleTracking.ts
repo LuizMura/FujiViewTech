@@ -22,7 +22,7 @@ export function useArticleTracking({
   const [hasTrackedComplete, setHasTrackedComplete] = useState(false);
   const [lastScrollPercent, setLastScrollPercent] = useState(0);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | undefined>(undefined);
-  const startTimeRef = useRef<number>(Date.now());
+  const startTimeRef = useRef<number>(0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -71,14 +71,15 @@ export function useArticleTracking({
 
   // Rastrear tempo de permanência no artigo
   useEffect(() => {
+    startTimeRef.current = Date.now();
+    const startTime = startTimeRef.current;
+
     return () => {
-      if (startTimeRef.current) {
-        const timeOnPage = (Date.now() - startTimeRef.current) / 1000; // em segundos
-        window.gtag?.("event", "page_time", {
-          article_slug: articleSlug,
-          time_on_page: Math.round(timeOnPage),
-        });
-      }
+      const timeOnPage = (Date.now() - startTime) / 1000; // em segundos
+      window.gtag?.("event", "page_time", {
+        article_slug: articleSlug,
+        time_on_page: Math.round(timeOnPage),
+      });
     };
   }, [articleSlug]);
 }

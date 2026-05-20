@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { createClient } from "@supabase/supabase-js";
+import { FIXED_CATEGORIES } from "@/lib/constants/categories";
 
 const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
 const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
@@ -62,15 +63,22 @@ export async function GET() {
       },
     );
 
-    const resultFinal = Object.entries(categoriaMap).map(
-      ([categoria, valores]) => ({
-        categoria,
+    const resultFinal = FIXED_CATEGORIES.map(({ slug, label }) => {
+      const valores = categoriaMap[slug] || {
+        totalArtigos: 0,
+        totalVisualizacoes: 0,
+        artigosMes: 0,
+        artigosSemana: 0,
+      };
+
+      return {
+        categoria: label,
         totalArtigos: valores.totalArtigos,
         totalVisualizacoes: valores.totalVisualizacoes,
         artigosMes: valores.artigosMes,
         artigosSemana: valores.artigosSemana,
-      }),
-    );
+      };
+    });
 
     return NextResponse.json(resultFinal);
 

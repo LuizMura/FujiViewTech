@@ -52,6 +52,10 @@ export interface Article {
   // Extra
   subComponent: string | null;
   readTime: string;
+
+  // Classificação adicional
+  tags: string[];
+  brand: string | null;
 }
 //
 export interface ArticleDB {
@@ -88,6 +92,8 @@ export interface ArticleDB {
   meta_title?: string | null;
   meta_description?: string | null;
   og_image?: string | null;
+  tags?: string[] | null;
+  brand?: string | null;
 }
 
 // Dados para criar novo artigo
@@ -125,6 +131,10 @@ export interface CreateArticleInput {
   // Extra
   subComponent?: string;
   readTime?: string;
+
+  // Classificação adicional
+  tags?: string[];
+  brand?: string;
 }
 
 // Dados para atualizar artigo
@@ -168,6 +178,8 @@ export function articleFromDB(db: ArticleDB): Article {
     ogImage: db.og_image || null,
     subComponent: null,
     readTime: db.read_time || "5 min",
+    tags: db.tags || [],
+    brand: db.brand || null,
   };
 }
 
@@ -194,6 +206,8 @@ export function articleToDB(
     status: article.status || "published",
     read_time: article.readTime || "5 min",
     published_date: publishedDate,
+    tags: article.tags ?? [],
+    brand: article.brand || null,
   } as Partial<ArticleDB>;
 }
 
@@ -212,6 +226,7 @@ export interface ArticleFilters {
   status?: ArticleStatus;
   category?: string;
   subcategory?: string;
+  brand?: string;
   search?: string;
   limit?: number;
   offset?: number;

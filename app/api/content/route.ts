@@ -1,21 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  isFixedCategory,
+  normalizeCategorySlug,
+} from "@/lib/constants/categories";
 
 // GET: Lista artigos publicados de uma categoria
 export async function GET(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category") || "reviews";
-    const subcategory = searchParams.get("subcategory") || "";
+    const categoryParam = searchParams.get("category") || "";
+    const category = normalizeCategorySlug(categoryParam);
+    const subcategory = String(searchParams.get("subcategory") || "").trim();
 
     const supabase = createAdminClient();
 
     let query = supabase
       .from("articles")
       .select("*")
-      .eq("category", category)
       .eq("status", "published")
       .order("published_date", { ascending: false });
+
+    if (category) {
+      if (!isFixedCategory(category)) {
+        return NextResponse.json(
+          { error: "Categoria invalida" },
+          { status: 400 },
+        );
+      }
+      query = query.eq("category", category);
+    }
 
     if (subcategory) {
       query = query.eq("subcategory", subcategory);
@@ -37,6 +51,8 @@ export async function GET(request: NextRequest) {
       date: article.published_date || "",
       category: article.category,
       subcategory: article.subcategory || "geral",
+      tags: article.tags || [],
+      brand: article.brand || null,
       image: article.image || "",
       frontmatter: {
         title: article.title,
@@ -65,10 +81,29 @@ export async function GET(request: NextRequest) {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
-    const { category, slug, frontmatter, content } = body;
+    const rawCategory = String(body?.category || "");
+    const category = normalizeCategorySlug(rawCategory);
+    const slug = String(body?.slug || "").trim();
+    const frontmatter = body?.frontmatter || {};
+    const content = body?.content || "";
     const subcategory =
       String(body?.subcategory || frontmatter?.subcategory || "geral").trim() ||
       "geral";
+    const hasTagsField = Object.prototype.hasOwnProperty.call(
+      body || {},
+      "tags",
+    );
+    const hasBrandField =
+      Object.prototype.hasOwnProperty.call(body || {}, "brand") ||
+      Object.prototype.hasOwnProperty.call(frontmatter || {}, "brand");
+    const tags: string[] = Array.isArray(body?.tags)
+      ? body.tags.map(String).filter(Boolean)
+      : [];
+    const brand =
+      String(body?.brand || frontmatter?.brand || "").trim() || null;
+    const status = String(body?.status || "published")
+      .trim()
+      .toLowerCase();
 
     if (!category || !slug) {
       return NextResponse.json(
@@ -77,9 +112,19 @@ export async function POST(request: NextRequest) {
       );
     }
 
+    if (!isFixedCategory(category)) {
+      return NextResponse.json(
+        {
+          error:
+            "Categoria invalida. Use: reviews, produtos, noticias ou novidades.",
+        },
+        { status: 400 },
+      );
+    }
+
     const supabase = createAdminClient();
 
-    const articlePayload = {
+    const articlePayloadBase = {
       slug,
       category,
       subcategory,
@@ -91,8 +136,43 @@ export async function POST(request: NextRequest) {
       read_time: frontmatter.readTime || "5 min",
       published_date:
         frontmatter.date || new Date().toISOString().split("T")[0],
-      status: "published",
+      status:
+        status === "draft" || status === "archived" || status === "published"
+          ? status
+          : "published",
     };
+
+    const articlePayload: Record<string, unknown> = {
+      ...articlePayloadBase,
+    };
+
+    // tags/brand sao opcionais para manter retrocompatibilidade com bancos
+    // que ainda nao receberam a migration dessas colunas.
+    if (hasTagsField) {
+      articlePayload.tags = tags;
+    }
+
+    if (hasBrandField) {
+      articlePayload.brand = brand;
+    }
+
+    const normalizedSubcategorySlug = subcategory
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-+|-+$/g, "");
+
+    if (normalizedSubcategorySlug) {
+      await supabase.from("article_subcategories").upsert(
+        {
+          category,
+          name: subcategory,
+          slug: normalizedSubcategorySlug,
+        },
+        { onConflict: "category,slug" },
+      );
+    }
 
     // 1) Tenta localizar pelo trio slug+category+subcategory.
     const { data: existingByScope, error: findScopedError } = await supabase
@@ -131,24 +211,30 @@ export async function POST(request: NextRequest) {
       existing = existingBySlug;
     }
 
-    let data;
-    let error;
+    const saveArticle = async (payload: Record<string, unknown>) => {
+      if (existing?.id) {
+        return await supabase
+          .from("articles")
+          .update(payload)
+          .eq("id", existing.id)
+          .select();
+      }
 
-    if (existing?.id) {
-      const result = await supabase
-        .from("articles")
-        .update(articlePayload)
-        .eq("id", existing.id)
-        .select();
-      data = result.data;
-      error = result.error;
-    } else {
-      const result = await supabase
-        .from("articles")
-        .insert(articlePayload)
-        .select();
-      data = result.data;
-      error = result.error;
+      return await supabase.from("articles").insert(payload).select();
+    };
+
+    let { data, error } = await saveArticle(articlePayload);
+
+    // Fallback para bancos sem colunas opcionais (tags/brand).
+    if (
+      error?.code === "42703" &&
+      (String(error.message || "").includes("tags") ||
+        String(error.message || "").includes("brand"))
+    ) {
+      const { data: fallbackData, error: fallbackError } =
+        await saveArticle(articlePayloadBase);
+      data = fallbackData;
+      error = fallbackError;
     }
 
     if (error) {
@@ -178,13 +264,21 @@ export async function POST(request: NextRequest) {
 export async function DELETE(request: NextRequest) {
   try {
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category");
+    const categoryParam = searchParams.get("category") || "";
+    const category = normalizeCategorySlug(categoryParam);
     const slug = searchParams.get("slug");
     const subcategory = searchParams.get("subcategory") || "";
 
     if (!category || !slug) {
       return NextResponse.json(
         { error: "Category e slug são obrigatórios" },
+        { status: 400 },
+      );
+    }
+
+    if (!isFixedCategory(category)) {
+      return NextResponse.json(
+        { error: "Categoria invalida" },
         { status: 400 },
       );
     }

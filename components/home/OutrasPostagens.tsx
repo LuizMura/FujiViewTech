@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Article } from "@/lib/types/article";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
-interface UltimasPostagensCarrosselProps {
+interface OutrasPostagensProps {
   artigos: Article[];
   skipFirstItem?: boolean;
   title?: string;
@@ -14,7 +14,7 @@ interface UltimasPostagensCarrosselProps {
   excludeCategories?: string[];
 }
 
-const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
+const OutrasPostagens: React.FC<OutrasPostagensProps> = ({
   artigos,
   skipFirstItem = true,
   title = "OUTRAS POSTAGENS",
@@ -100,7 +100,7 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
   return (
     <div className="w-full overflow-x-hidden md:overflow-visible">
       <div className="relative">
-        <h2 className="text-1sm md:text-lg font-bold text-gray-700 pb-1 md:pb-2">
+        <h2 className="text-1sm md:text-2xl font-bold text-gray-200 pb-1 md:pb-2">
           {title}
         </h2>
 
@@ -176,4 +176,4 @@ const UltimasPostagensCarrossel: React.FC<UltimasPostagensCarrosselProps> = ({
   );
 };
 
-export default UltimasPostagensCarrossel;
+export default OutrasPostagens;

@@ -200,6 +200,7 @@ const AfiliadosCarrossel: React.FC<AfiliadosCarrosselProps> = ({
                 className={cardWidthClass}
               >
                 <AfiliadosCard
+                  compact={compact}
                   imagem={produto.imagem}
                   titulo={produto.titulo}
                   descricao={produto.descricao}

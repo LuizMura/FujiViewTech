@@ -1,5 +1,9 @@
 import { NextRequest, NextResponse } from "next/server";
 import { createAdminClient } from "@/lib/supabase/admin";
+import {
+  isFixedCategory,
+  normalizeCategorySlug,
+} from "@/lib/constants/categories";
 
 // GET: Retorna conteúdo de um artigo específico
 export async function GET(
@@ -9,8 +13,9 @@ export async function GET(
   try {
     const { slug } = await params;
     const { searchParams } = new URL(request.url);
-    const category = searchParams.get("category") || "reviews";
-    const subcategory = searchParams.get("subcategory") || "";
+    const categoryParam = searchParams.get("category") || "";
+    const category = normalizeCategorySlug(categoryParam);
+    const subcategory = String(searchParams.get("subcategory") || "").trim();
 
     const supabase = createAdminClient();
 
@@ -18,9 +23,18 @@ export async function GET(
       .from("articles")
       .select("*")
       .eq("slug", slug)
-      .eq("category", category)
       .order("updated_at", { ascending: false })
       .limit(1);
+
+    if (category) {
+      if (!isFixedCategory(category)) {
+        return NextResponse.json(
+          { error: "Categoria invalida" },
+          { status: 400 },
+        );
+      }
+      query = query.eq("category", category);
+    }
 
     if (subcategory) {
       query = query.eq("subcategory", subcategory);

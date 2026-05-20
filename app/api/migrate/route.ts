@@ -10,7 +10,7 @@ export async function GET() {
     const results = [];
 
     // Categorias que serão migradas do conteúdo local para o banco.
-    const categories = ["reviews", "noticias", "tutoriais"];
+    const categories = ["reviews", "produtos", "noticias", "novidades"];
 
     for (const category of categories) {
       const contentDir = path.join(process.cwd(), "content", category);

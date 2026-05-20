@@ -183,6 +183,7 @@ export const components = {
     // Verifica se há elementos block dentro do parágrafo
     const hasBlockElement = React.Children.toArray(children).some((child) => {
       if (!React.isValidElement(child)) return false;
+      // Componentes React (não strings) que produzem elementos block: renderiza como div
       if (typeof child.type !== "string") return true;
       const blockElements = [
         "h1",
@@ -196,11 +197,10 @@ export const components = {
         "blockquote",
         "div",
         "article",
+        "figure",
         "p",
       ];
-      return blockElements.includes(
-        typeof child.type === "string" ? child.type : "",
-      );
+      return blockElements.includes(child.type);
     });
 
     if (hasBlockElement) {

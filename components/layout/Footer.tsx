@@ -2,6 +2,7 @@ import React from "react";
 import LogoBrand from "./LogoBrand";
 import Link from "next/link";
 import { Github, Twitter, Instagram, Linkedin } from "lucide-react";
+import { FIXED_CATEGORIES } from "@/lib/constants/categories";
 function SocialLink({ href, icon }: { href: string; icon: React.ReactNode }) {
   return (
     <Link
@@ -31,18 +32,10 @@ function FooterLink({
 export default function Footer() {
   const currentYear = new Date().getFullYear();
 
-  const categories = [
-    { label: "Dicas", href: "/categorias/dicas" },
-    { label: "Produtos", href: "/categorias/produtos" },
-    { label: "Novidades", href: "/categorias/novidades" },
-    { label: "Notícias", href: "/categorias/noticias" },
-    { label: "Reviews", href: "/categorias/reviews" },
-    { label: "Tutoriais", href: "/categorias/tutoriais" },
-    { label: "Economia", href: "/categorias/economia" },
-    { label: "Saúde", href: "/categorias/saude" },
-    { label: "Filmes e Séries", href: "/categorias/filmes-e-series" },
-    { label: "Viagens", href: "/categorias/viagens" },
-  ];
+  const categories = FIXED_CATEGORIES.map((category) => ({
+    label: category.label,
+    href: `/categorias/${category.slug}`,
+  }));
 
   return (
     <footer className="md:pl-0 bg-white border-t border-slate-200 pt-16 pb-8">
@@ -51,13 +44,13 @@ export default function Footer() {
           <div className="col-span-1 md:col-span-1 text-center md:text-left">
             <span className="flex justify-center items-center gap-2 mb-2">
               <Link href="/">
-                <div className="scale-75 origin-left">
-                  <LogoBrand />
+                <div className="bg-black rounded-lg p-1 inline-block">
+                  <LogoBrand size={280} />
                 </div>
               </Link>
             </span>
             <p className="px-4 text-slate-500 text-sm leading-relaxed mb-6 md:px-0">
-              Seu canal de notícias, dicas, viagens, reviews e novidades da
+              Seu canal de Reviews, Produtos, Notícias e Novidades de
               tecnologia.
             </p>
             <div className="flex gap-4 justify-center md:justify-start">
@@ -81,7 +74,7 @@ export default function Footer() {
           </div>
           <div className="text-center">
             <ul className="space-y-3 text-slate-600">
-              {categories.slice(0, 5).map((category) => (
+              {categories.slice(0, 2).map((category) => (
                 <FooterLink key={category.href} href={category.href}>
                   {category.label}
                 </FooterLink>
@@ -90,7 +83,7 @@ export default function Footer() {
           </div>
           <div className="text-center">
             <ul className="space-y-3 text-slate-600">
-              {categories.slice(5).map((category) => (
+              {categories.slice(2).map((category) => (
                 <FooterLink key={category.href} href={category.href}>
                   {category.label}
                 </FooterLink>

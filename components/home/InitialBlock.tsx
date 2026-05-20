@@ -1,19 +1,19 @@
 import React from "react";
 import ArtigosCarrossel from "@/components/home/ArtigosCarrossel";
 import CategoryCard from "@/components/home/CategoryCard";
-import PenultimateCategoriesGrid from "@/components/home/PenultimateCategoriesGrid";
+import ArtigosEmGrid from "@/components/home/ArtigosEmGrid";
 import { Article } from "@/lib/types/article";
 
 type InitialBlockProps = {
   latestArticles: Article[];
   noticiasArticles: Article[];
-  economiaArticles: Article[];
+  novidadesArticles: Article[];
 };
 
 export default function InitialBlock({
   latestArticles,
   noticiasArticles,
-  economiaArticles,
+  novidadesArticles,
 }: InitialBlockProps) {
   if (latestArticles.length === 0) {
     return null;
@@ -27,28 +27,31 @@ export default function InitialBlock({
             <ArtigosCarrossel artigos={latestArticles} />
           </div>
 
-          <div className="mt-4 md:mt-6">
-            <PenultimateCategoriesGrid />
+          <div className="mt-6 md:mt-10">
+            <ArtigosEmGrid />
           </div>
         </div>
 
         <div className="md:col-span-1 order-2 md:order-2">
-          <React.Suspense fallback={<div>Carregando...</div>}>
-            <CategoryCard
-              artigos={noticiasArticles}
-              category="noticias"
-              label="Notícias"
-              badgeColor="bg-indigo-600"
-            />
-            <div className="mt-4">
+          <div className="space-y-4 md:space-y-6">
+            <React.Suspense fallback={<div>Carregando...</div>}>
               <CategoryCard
-                artigos={economiaArticles}
-                category="economia"
-                label="Economia"
-                badgeColor="bg-green-600"
+                artigos={noticiasArticles}
+                category="noticias"
+                label="Notícias"
+                badgeColor="bg-indigo-600"
               />
-            </div>
-          </React.Suspense>
+            </React.Suspense>
+
+            <React.Suspense fallback={<div>Carregando...</div>}>
+              <CategoryCard
+                artigos={novidadesArticles}
+                category="novidades"
+                label="Novidades"
+                badgeColor="bg-emerald-600"
+              />
+            </React.Suspense>
+          </div>
         </div>
       </div>
     </>

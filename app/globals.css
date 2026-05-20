@@ -7,7 +7,7 @@
   --secondary: #0ea5e9; /* Sky 500 */
 
   /* Cores neutras */
-  --background: #ffffff; /* fundo escuro padrão */
+  --background: #1a1a1a; /* fundo quase preto */
   --background-gradient: none;
   --foreground: #000000; /* texto principal */
   --muted: #9ca3af; /* Slate 400 - texto secundário */
@@ -81,7 +81,11 @@ body {
 }
 
 .glass-nav {
-  background: rgba(74, 117, 103, 0.877);
+  background: linear-gradient(
+    to right,
+    rgba(0, 0, 0, 0.95) 0%,
+    rgba(80, 80, 80, 0.92) 100%
+  );
   backdrop-filter: blur(12px);
   border-bottom: 1px solid rgb(163, 163, 163);
 }

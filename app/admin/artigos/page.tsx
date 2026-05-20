@@ -1,17 +1,21 @@
 "use client";
 
 import AdminHeader from "../AdminHeader";
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import ArticleList from "@/components/admin/ArticleList";
-import ArticlePreview from "@/components/admin/ArticlePreview";
+import ArticlePreview from "../../../components/admin/ArticlePreview";
 import ArticleForm from "@/components/admin/ArticleForm";
-import { useRef } from "react";
 import {
   useAutoSave,
   restoreAutoSave,
   clearAutoSave,
 } from "@/lib/hooks/useAutoSave";
+import {
+  FIXED_CATEGORIES,
+  isFixedCategory,
+  normalizeCategorySlug,
+} from "@/lib/constants/categories";
 
 type ArticleDraft = Record<string, unknown> & {
   title?: string;
@@ -40,11 +44,105 @@ function AdminArtigosPageContent() {
   const [loadingAction, setLoadingAction] = useState(false);
   const [leftTab, setLeftTab] = useState<LeftTab>("list");
 
+  const sanitizeMdxBeforeSave = (raw: string) => {
+    const repairedLegacyProductRow = String(raw || "").replace(
+      /<ProductRow\s*\n\s*image="\s*\n\s*>/g,
+      '<ProductRow\n  title="Nome do produto"\n  image=""\n>',
+    );
+
+    const normalized = repairedLegacyProductRow
+      .replace(/\r\n?/g, "\n")
+      .replace(/<[^>]*>/g, (tag) => tag.replace(/^\s*\/\/.*$/gm, ""));
+
+    const escapeTag = (line: string) =>
+      line.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+    const linesForJsxGuard = normalized.split("\n");
+    const guarded: string[] = [];
+    let pendingTagLines: string[] | null = null;
+
+    for (const line of linesForJsxGuard) {
+      if (pendingTagLines) {
+        pendingTagLines.push(line);
+        const isTagClosed = /^\s*.*(?:>|\/>)\s*$/.test(line);
+        const enteredMarkdownBeforeClosing =
+          /^\s{0,3}(?:#{1,6}\s|[-+*]\s|\d+\.\s|>)/.test(line) && !isTagClosed;
+
+        if (isTagClosed || enteredMarkdownBeforeClosing) {
+          const block = pendingTagLines.join("\n");
+          const hasUnbalancedDoubleQuotes =
+            ((block.match(/"/g) || []).length & 1) === 1;
+          const malformed =
+            hasUnbalancedDoubleQuotes || enteredMarkdownBeforeClosing;
+
+          if (malformed) {
+            guarded.push(...pendingTagLines.map(escapeTag));
+          } else {
+            guarded.push(...pendingTagLines);
+          }
+
+          pendingTagLines = null;
+        }
+
+        continue;
+      }
+
+      const opensMultilineJsxTag =
+        /^\s*<[A-Z][\w.-]*(?:\s.*)?$/.test(line) &&
+        !/^\s*.*(?:>|\/>)\s*$/.test(line);
+
+      if (opensMultilineJsxTag) {
+        pendingTagLines = [line];
+        continue;
+      }
+
+      guarded.push(line);
+    }
+
+    if (pendingTagLines) {
+      guarded.push(...pendingTagLines.map(escapeTag));
+    }
+
+    const lines = guarded;
+    const output: string[] = [];
+
+    for (const line of lines) {
+      const liftedFromContainer = line.replace(
+        /^\s*(?:>\s*|(?:[-+*]|\d+\.)\s+)(<\/?[A-Z][\w.-]*(?:\s|>|\/).*)$/,
+        "$1",
+      );
+
+      const trimmed = liftedFromContainer.trimStart();
+      const isJsxComponentLine = /^<\/?[A-Z][\w.-]*(\s|>|\/)/.test(trimmed);
+
+      if (isJsxComponentLine) {
+        let idx = output.length - 1;
+        while (idx >= 0 && output[idx].trim() === "") idx -= 1;
+
+        if (idx >= 0) {
+          const prev = output[idx].trimStart();
+          const isBlockQuoteContext = /^>/.test(prev);
+          const isListContext = /^(?:\d+\.|[-+*])\s/.test(prev);
+
+          if (isBlockQuoteContext || isListContext) {
+            output.push("");
+          }
+        }
+      }
+
+      output.push(liftedFromContainer);
+    }
+
+    return output.join("\n");
+  };
+
   // Ref para recarregar artigos na lista
   const articleListRef = useRef<{ reload: () => void }>(null);
 
   const slugFromUrl = (searchParams.get("slug") || "").trim();
-  const categoryFromUrl = (searchParams.get("category") || "").trim();
+  const categoryFromUrl = normalizeCategorySlug(
+    (searchParams.get("category") || "").trim(),
+  );
   const subcategoryFromUrl = (searchParams.get("subcategory") || "").trim();
 
   // Autosave no localStorage
@@ -81,6 +179,10 @@ function AdminArtigosPageContent() {
       try {
         setLoadingAction(true);
         setFeedback(null);
+
+        if (!isFixedCategory(categoryFromUrl)) {
+          throw new Error("Categoria da URL invalida.");
+        }
 
         const response = await fetch(
           `/api/content/${encodeURIComponent(slugFromUrl)}?category=${encodeURIComponent(categoryFromUrl)}&subcategory=${encodeURIComponent(subcategoryFromUrl)}`,
@@ -157,7 +259,7 @@ function AdminArtigosPageContent() {
               <div className="overflow-y-auto max-h-96 md:max-h-none">
                 <ArticleList
                   ref={articleListRef}
-                  onSelect={(id, data) => {
+                  onSelect={(_id, data) => {
                     setSelectedArticle(
                       data ? ({ ...data } as ArticleDraft) : null,
                     );
@@ -201,6 +303,7 @@ function AdminArtigosPageContent() {
                 <ArticleForm
                   form={{
                     title: "",
+                    category: FIXED_CATEGORIES[0].slug,
                     ...(selectedArticle || {}),
                     author: String(selectedArticle?.author || ""),
                     status: String(selectedArticle?.status || "published"),
@@ -222,6 +325,7 @@ function AdminArtigosPageContent() {
                     setSelectedArticle((prev) => ({
                       ...prev,
                       mdxImage: url,
+                      mdxImageUrl: url,
                     }));
                   }}
                   onContentChange={(value) => {
@@ -235,44 +339,77 @@ function AdminArtigosPageContent() {
                     setLoadingAction(true);
                     setFeedback(null);
                     try {
-                      const title = String(selectedArticle?.title || "").trim();
-                      const slug = String(selectedArticle?.slug || "").trim();
-                      const category = String(
-                        selectedArticle?.category || "",
-                      ).trim();
+                      const formState: ArticleDraft = {
+                        title: "",
+                        category: FIXED_CATEGORIES[0].slug,
+                        ...(selectedArticle || {}),
+                        author: String(selectedArticle?.author || ""),
+                        status: String(selectedArticle?.status || "published"),
+                      };
+
+                      const title = String(formState.title || "").trim();
+                      const slugFromForm = String(formState.slug || "").trim();
+                      const autoSlug = title
+                        .toLowerCase()
+                        .normalize("NFD")
+                        .replace(/[\u0300-\u036f]/g, "")
+                        .replace(/[^a-z0-9]+/g, "-")
+                        .replace(/^-+|-+$/g, "");
+                      const slug = slugFromForm || autoSlug;
+                      const category = String(formState.category || "").trim();
+                      const normalizedCategory =
+                        normalizeCategorySlug(category);
                       const subcategory = String(
-                        selectedArticle?.subcategory || "geral",
+                        formState.subcategory || "",
+                      ).trim();
+                      const status = String(
+                        formState.status || "published",
                       ).trim();
                       const author = String(
-                        selectedArticle?.author || "Redação FujivewTech",
+                        formState.author || "Redação FujivewTech",
                       ).trim();
+                      const tags = Array.isArray(formState.tags)
+                        ? formState.tags
+                            .map((tag) => String(tag).trim())
+                            .filter(Boolean)
+                        : [];
+                      const brand = String(formState.brand || "").trim();
 
-                      if (!title || !slug || !category) {
+                      if (!title || !slug || !normalizedCategory) {
                         throw new Error(
                           "Preencha título, slug e categoria antes de salvar.",
                         );
                       }
 
+                      if (!isFixedCategory(normalizedCategory)) {
+                        throw new Error(
+                          "Categoria invalida. Use Reviews, Produtos, Noticias ou Novidades.",
+                        );
+                      }
+
                       const payload = {
-                        category,
+                        category: normalizedCategory,
                         subcategory,
+                        status,
+                        tags,
+                        brand,
                         slug,
                         frontmatter: {
                           title,
                           description: String(
                             selectedArticle?.description ||
-                              selectedArticle?.excerpt ||
+                              formState.excerpt ||
                               "",
                           ),
-                          date: String(selectedArticle?.publishedAt || ""),
-                          image: String(selectedArticle?.image || ""),
+                          date: String(formState.publishedAt || ""),
+                          image: String(formState.image || ""),
                           subcategory,
                           author,
-                          readTime: String(
-                            selectedArticle?.readTime || "5 min",
-                          ),
+                          readTime: String(formState.readTime || "5 min"),
                         },
-                        content: String(selectedArticle?.content || ""),
+                        content: sanitizeMdxBeforeSave(
+                          String(formState.content || ""),
+                        ),
                       };
 
                       const response = await fetch("/api/content", {
@@ -298,7 +435,7 @@ function AdminArtigosPageContent() {
                         ...(prev || {}),
                         title,
                         slug,
-                        category,
+                        category: normalizedCategory,
                         subcategory,
                       }));
                       articleListRef.current?.reload();

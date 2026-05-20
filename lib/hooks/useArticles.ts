@@ -100,15 +100,17 @@ export async function getArticleBySlug(slug: string): Promise<Article | null> {
     .select("*")
     .eq("slug", slug)
     .eq("status", "published")
-    .maybeSingle();
+    .order("updated_at", { ascending: false })
+    .limit(1);
 
   if (error) {
     console.error("Error fetching article by slug:", error?.message || error);
     return null;
   }
 
-  if (!data) return null;
-  return articleFromDB(data as ArticleDB);
+  const first = Array.isArray(data) ? data[0] : null;
+  if (!first) return null;
+  return articleFromDB(first as ArticleDB);
 }
 
 /**

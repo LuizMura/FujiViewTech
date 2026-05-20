@@ -22,11 +22,69 @@ import { useArticleTracking } from "@/lib/hooks/useArticleTracking";
 import { useGoogleAnalytics } from "@/lib/hooks/useGoogleAnalytics";
 
 function normalizeMdxContainers(raw: string): string {
-  const lines = raw.replace(/\r\n?/g, "\n").split("\n");
+  const repaired = raw.replace(
+    /<ProductRow\s*\n\s*image="\s*\n\s*>/g,
+    '<ProductRow\n  title="Nome do produto"\n  image=""\n>',
+  );
+
+  const escapeTag = (line: string) =>
+    line.replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+  const rawLines = repaired.replace(/\r\n?/g, "\n").split("\n");
+  const guarded: string[] = [];
+  let pendingTagLines: string[] | null = null;
+
+  for (const line of rawLines) {
+    if (pendingTagLines) {
+      pendingTagLines.push(line);
+      const isTagClosed = /^\s*.*(?:>|\/>)\s*$/.test(line);
+      const enteredMarkdownBeforeClosing =
+        /^\s{0,3}(?:#{1,6}\s|[-+*]\s|\d+\.\s|>)/.test(line) && !isTagClosed;
+
+      if (isTagClosed || enteredMarkdownBeforeClosing) {
+        const block = pendingTagLines.join("\n");
+        const hasUnbalancedDoubleQuotes =
+          ((block.match(/"/g) || []).length & 1) === 1;
+        const malformed =
+          hasUnbalancedDoubleQuotes || enteredMarkdownBeforeClosing;
+
+        if (malformed) {
+          guarded.push(...pendingTagLines.map(escapeTag));
+        } else {
+          guarded.push(...pendingTagLines);
+        }
+
+        pendingTagLines = null;
+      }
+
+      continue;
+    }
+
+    const opensMultilineJsxTag =
+      /^\s*<[A-Z][\w.-]*(?:\s.*)?$/.test(line) &&
+      !/^\s*.*(?:>|\/>)\s*$/.test(line);
+
+    if (opensMultilineJsxTag) {
+      pendingTagLines = [line];
+      continue;
+    }
+
+    guarded.push(line);
+  }
+
+  if (pendingTagLines) {
+    guarded.push(...pendingTagLines.map(escapeTag));
+  }
+
+  const lines = guarded;
   const output: string[] = [];
 
   for (const line of lines) {
-    const trimmed = line.trimStart();
+    const liftedFromContainer = line.replace(
+      /^\s*(?:>\s*|(?:[-+*]|\d+\.)\s+)(<\/?[A-Z][\w.-]*(?:\s|>|\/).*)$/,
+      "$1",
+    );
+    const trimmed = liftedFromContainer.trimStart();
     const isJsxComponentLine = /^<\/?[A-Z][\w.-]*(\s|>|\/)/.test(trimmed);
 
     if (isJsxComponentLine) {
@@ -44,10 +102,14 @@ function normalizeMdxContainers(raw: string): string {
       }
     }
 
-    output.push(line);
+    output.push(liftedFromContainer);
   }
 
   return output.join("\n");
+}
+
+function removeJsStyleCommentsInsideJsxTags(raw: string): string {
+  return raw.replace(/<[^>]*>/g, (tag) => tag.replace(/^\s*\/\/.*$/gm, ""));
 }
 
 class MDXErrorBoundary extends React.Component<
@@ -132,8 +194,9 @@ export default function PostPage() {
         if (data?.content) {
           // Remover frontmatter do conteúdo antes de serializar
           const { content } = matter(data.content);
+          const sanitizedContent = removeJsStyleCommentsInsideJsxTags(content);
           try {
-            const mdxSource = await serialize(content, {
+            const mdxSource = await serialize(sanitizedContent, {
               mdxOptions: {
                 remarkPlugins: [remarkGfm],
               },
@@ -141,7 +204,7 @@ export default function PostPage() {
             setMdx(mdxSource);
           } catch (firstError) {
             try {
-              const normalized = normalizeMdxContainers(content);
+              const normalized = normalizeMdxContainers(sanitizedContent);
               const mdxSource = await serialize(normalized, {
                 mdxOptions: {
                   remarkPlugins: [remarkGfm],

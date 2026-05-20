@@ -13,16 +13,7 @@ interface PriceData {
   eur: number;
 }
 
-interface PriceChange {
-  btc: number;
-  eth: number;
-  bnb: number;
-  xrp: number;
-  sol: number;
-  usdt: number;
-  usd: number;
-  eur: number;
-}
+type PriceChange = PriceData;
 
 export default function LivePrices() {
   const [prices, setPrices] = useState<PriceData | null>(null);
@@ -32,23 +23,28 @@ export default function LivePrices() {
   useEffect(() => {
     const fetchPrices = async () => {
       try {
-        // Busca criptoativos na CoinGecko (em BRL) e câmbio na AwesomeAPI.
-        const cgUrl =
-          "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin,ethereum,binancecoin,solana,tether,ripple&vs_currencies=brl&include_24hr_change=true";
-        const fiatUrl =
-          "https://economia.awesomeapi.com.br/last/USDT-BRL,USD-BRL,EUR-BRL";
+        const resp = await fetch("/api/prices");
+        if (!resp.ok) throw new Error("API request failed");
+        const { cgData, fiatData } = await resp.json();
 
-        const [cgResp, fiatResp] = await Promise.all([
-          fetch(cgUrl, { headers: { Accept: "application/json" } }),
-          fetch(fiatUrl, { headers: { Accept: "application/json" } }),
-        ]);
-
-        if (!cgResp.ok || !fiatResp.ok) {
-          throw new Error("API request failed");
-        }
-
-        const cgData = await cgResp.json();
-        const fiatData = await fiatResp.json();
+        const fiatQuotes = fiatData as Record<
+          string,
+          { bid?: string; pctChange?: string }
+        >;
+        const parseFiatBid = (keys: string[]) => {
+          for (const key of keys) {
+            const value = parseFloat(fiatQuotes?.[key]?.bid ?? "");
+            if (!Number.isNaN(value) && value > 0) return value;
+          }
+          return 0;
+        };
+        const parseFiatChange = (keys: string[]) => {
+          for (const key of keys) {
+            const value = parseFloat(fiatQuotes?.[key]?.pctChange ?? "");
+            if (!Number.isNaN(value)) return value;
+          }
+          return 0;
+        };
 
         const newPrices = {
           btc: parseFloat(cgData?.bitcoin?.brl) || 0,
@@ -61,8 +57,8 @@ export default function LivePrices() {
             parseFloat(fiatData?.USDTBRL?.bid) ||
             parseFloat(cgData?.tether?.brl) ||
             0,
-          usd: parseFloat(fiatData?.USDBRL?.bid) || 0,
-          eur: parseFloat(fiatData?.EURBRL?.bid) || 0,
+          usd: parseFiatBid(["USDBRL", "USDBRLT", "usdbrl", "usdbrlt"]),
+          eur: parseFiatBid(["EURBRL", "EURBRLT", "eurbrl", "eurbrlt"]),
         };
 
         // A variação de 24h da CoinGecko vem no campo brl_24h_change.
@@ -77,8 +73,8 @@ export default function LivePrices() {
             parseFloat(cgData?.tether?.brl_24h_change) ||
             0,
           // Para moedas fiat, usamos o pctChange retornado pela AwesomeAPI.
-          usd: parseFloat(fiatData?.USDBRL?.pctChange) || 0,
-          eur: parseFloat(fiatData?.EURBRL?.pctChange) || 0,
+          usd: parseFiatChange(["USDBRL", "USDBRLT", "usdbrl", "usdbrlt"]),
+          eur: parseFiatChange(["EURBRL", "EURBRLT", "eurbrl", "eurbrlt"]),
         };
 
         setPrices(newPrices);
@@ -199,7 +195,7 @@ export default function LivePrices() {
 
       {/* BNB */}
       <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900text-[12px] md:text-sm">
+        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
           BNB
         </span>
         <span

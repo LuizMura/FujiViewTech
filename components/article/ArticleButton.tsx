@@ -21,7 +21,7 @@ export default function ArticleButton({
       target="_blank"
       rel="nofollow noopener noreferrer sponsored"
       style={{ backgroundColor: bgColor, color: textColor }}
-      className={`not-prose inline-flex items-center justify-center px-5 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity ${className}`.trim()}
+      className={`not-prose inline-flex items-center justify-center px-5 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity mb-2 ${className}`}
     >
       {text}
     </a>
