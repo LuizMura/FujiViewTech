@@ -6,8 +6,13 @@ import OutrasPostagens from "@/components/home/OutrasPostagens";
 import LivePrices from "./LivePrices";
 import { getArticles } from "@/lib/hooks/useArticles";
 import { Article } from "@/lib/types/article";
+import { useAuth } from "@/app/context/AuthContext";
+import DebugComponentTag from "@/components/home/DebugComponentTag";
 
 export default function Hero() {
+  const { user, loading } = useAuth();
+  const showComponentLabels = !loading && !!user;
+
   const [latestArticles, setLatestArticles] = useState<Article[]>([]);
   const [noticiasArticles, setNoticiasArticles] = useState<Article[]>([]);
   const [novidadesArticles, setNovidadesArticles] = useState<Article[]>([]);
@@ -67,22 +72,34 @@ export default function Hero() {
 
   return (
     <>
-      <div className="z-40 -mt-13 md:mt-2 mb-5 bg-white py-0.5 justify-center flex items-center rounded-sm shadow-md border border-slate-200">
+      <div className="relative z-40 -mt-13 md:mt-2 mb-5 bg-white py-0.5 justify-center flex items-center rounded-sm shadow-md border border-slate-200">
+        <DebugComponentTag name="LivePrices" enabled={showComponentLabels} />
         <LivePrices />
       </div>
       <div className="px-1 md:px-0">
         {/* Bloco inicial (abaixo do LivePrices e acima de Outras Postagens) */}
-        <InitialBlock
-          latestArticles={latestArticles}
-          noticiasArticles={noticiasArticles}
-          novidadesArticles={novidadesArticles}
-        />
+        <div className="relative">
+          <DebugComponentTag
+            name="InitialBlock"
+            enabled={showComponentLabels}
+          />
+          <InitialBlock
+            latestArticles={latestArticles}
+            noticiasArticles={noticiasArticles}
+            novidadesArticles={novidadesArticles}
+            showComponentLabels={showComponentLabels}
+          />
+        </div>
 
         {/* Bloco de Outras Postagens com imagem acima e texto abaixo */}
         {latestArticles.length > 0 && (
           <>
             <div className="full-width-bg bg-gradient-to-b from-gray-950 to-gray-800 py-3 md:py-4">
-              <div className="content-inset">
+              <div className="content-inset relative">
+                <DebugComponentTag
+                  name="OutrasPostagens"
+                  enabled={showComponentLabels}
+                />
                 <OutrasPostagens
                   artigos={allArticles}
                   title="OUTRAS POSTAGENS"
@@ -106,7 +123,11 @@ export default function Hero() {
         <hr className="my-8 border-slate-900 mb-4 md:mb-6" />
 
         <div className="full-width-bg bg-gray-100 py-3 md:py-4">
-          <div className="content-inset">
+          <div className="content-inset relative">
+            <DebugComponentTag
+              name="AfiliadosCarrossel"
+              enabled={showComponentLabels}
+            />
             <AfiliadosCarrossel />
           </div>
         </div>

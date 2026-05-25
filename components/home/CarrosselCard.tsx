@@ -1,7 +1,6 @@
 import React from "react";
 import Image from "next/image";
 import { Calendar } from "lucide-react";
-import Link from "next/link";
 import { Article } from "@/lib/types/article";
 
 interface CarrosselCardProps {
@@ -51,7 +50,7 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({ article }) => {
                 </div>
               </div>
 
-              <div className="absolute left-3 right-3 md:left-8 md:right-8 bottom-12 md:bottom-16">
+              <div className="absolute left-3 right-3 md:left-16 lg:left-20 md:right-8 bottom-12 md:bottom-16">
                 <h1 className="leading-tight text-2xl md:text-5xl lg:text-[2.5vw] font-extrabold text-white leading-tight tracking-tight drop-shadow-lg whitespace-normal break-words max-w-[95%] md:max-w-[89%]">
                   {article.title}
                 </h1>
@@ -63,12 +62,9 @@ const CarrosselCard: React.FC<CarrosselCardProps> = ({ article }) => {
               </div>
 
               <div className="absolute bottom-6 right-5 md:bottom-8 md:right-15">
-                <Link
-                  href={`/artigos/${article.slug}`}
-                  className="inline-block px-4 py-1 md:px-5 md:py-1 bg-white/80 text-black text-xs md:text-sm font-semibold rounded-full shadow hover:bg-white/100 transition-colors"
-                >
+                <span className="inline-block px-4 py-1 md:px-5 md:py-1 bg-white/80 text-black text-xs md:text-sm font-semibold rounded-full shadow">
                   Ver Matéria
-                </Link>
+                </span>
               </div>
             </div>
           </div>

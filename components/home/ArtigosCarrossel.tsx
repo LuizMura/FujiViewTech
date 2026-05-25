@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import CarrosselCard from "@/components/home/CarrosselCard";
 import { Article } from "@/lib/types/article";
+import Link from "next/link";
 
 interface ArtigosCarrosselProps {
   artigos: Article[];
@@ -68,6 +69,22 @@ const ArtigosCarrossel: React.FC<ArtigosCarrosselProps> = ({ artigos }) => {
       </div>
 
       <div className="relative min-h-[300px] overflow-hidden">
+        <button
+          className="hidden md:flex absolute left-3 lg:left-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 items-center justify-center rounded-full bg-blue-900/70 text-white shadow-lg transition-colors duration-200 hover:bg-blue-900/85"
+          onClick={() => goTo(current - 1)}
+          aria-label="Anterior"
+        >
+          <span className="text-2xl lg:text-3xl leading-none">&lt;</span>
+        </button>
+
+        <button
+          className="hidden md:flex absolute right-3 lg:right-4 top-1/2 -translate-y-1/2 z-30 h-12 w-12 lg:h-14 lg:w-14 items-center justify-center rounded-full bg-blue-900/70 text-white shadow-lg transition-colors duration-200 hover:bg-blue-900/85"
+          onClick={() => goTo(current + 1)}
+          aria-label="Próximo"
+        >
+          <span className="text-2xl lg:text-3xl leading-none">&gt;</span>
+        </button>
+
         <div
           className="whitespace-nowrap transition-transform duration-700"
           style={{ transform: `translateX(-${current * 100}%)` }}
@@ -81,7 +98,13 @@ const ArtigosCarrossel: React.FC<ArtigosCarrosselProps> = ({ artigos }) => {
               className="inline-block align-top w-full"
               style={{ verticalAlign: "top" }}
             >
-              <CarrosselCard article={artigo} showAuthor={false} />
+              <Link
+                href={`/artigos/${artigo.slug}`}
+                className="block"
+                aria-label={`Abrir artigo: ${artigo.title}`}
+              >
+                <CarrosselCard article={artigo} showAuthor={false} />
+              </Link>
             </div>
           ))}
         </div>
@@ -89,14 +112,6 @@ const ArtigosCarrossel: React.FC<ArtigosCarrosselProps> = ({ artigos }) => {
 
       {/* Navpage e Paginação em dots */}
       <div className="relative -mt-13 md:mt-0 md:absolute md:bottom-1 left-0 md:left-1/2 md:-translate-x-1/2 flex justify-center gap-4 items-center z-30">
-        <button
-          className="hidden md:block mb-1 text-white/80 hover:text-white transition-colors duration-200"
-          onClick={() => goTo(current - 1)}
-          aria-label="Anterior"
-        >
-          <span className="text-2xl">&lt;</span>
-        </button>
-
         <div className="flex gap-2">
           {artigos.map((_, idx) => (
             <button
@@ -111,14 +126,6 @@ const ArtigosCarrossel: React.FC<ArtigosCarrosselProps> = ({ artigos }) => {
             />
           ))}
         </div>
-
-        <button
-          className="hidden md:block mb-1 text-white/80 hover:text-white transition-colors duration-200"
-          onClick={() => goTo(current + 1)}
-          aria-label="Próximo"
-        >
-          <span className="text-2xl">&gt;</span>
-        </button>
       </div>
     </div>
   );

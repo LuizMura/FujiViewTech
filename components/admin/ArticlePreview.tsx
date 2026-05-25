@@ -189,6 +189,30 @@ interface ArticlePreviewProps {
   form: PreviewForm;
 }
 
+const articlePreviewMdxClass = `
+  max-w-3xl mt-8 rounded-b-3xl bg-white px-5 py-8 md:px-6
+  prose prose-base md:prose-lg
+  prose-headings:font-bold prose-headings:text-slate-900 prose-headings:tracking-tight
+  prose-p:text-slate-800
+  prose-li:marker:text-indigo-500
+  prose-img:rounded-xl md:prose-img:rounded-2xl prose-img:shadow-lg prose-img:my-6 md:prose-img:my-10
+  prose-blockquote:border-l-4 prose-blockquote:border-indigo-500 prose-blockquote:bg-indigo-50/60
+  prose-blockquote:py-3 prose-blockquote:px-4 md:prose-blockquote:px-6
+  prose-blockquote:rounded-r-lg prose-blockquote:not-italic prose-blockquote:text-slate-900 prose-blockquote:font-medium
+  [&_a]:font-semibold [&_a]:text-indigo-600 [&_a]:underline [&_a]:decoration-2 [&_a]:underline-offset-4 hover:[&_a]:text-indigo-800
+  [&_h1]:mt-4 [&_h1]:mb-3 [&_h1]:text-2xl md:[&_h1]:text-4xl [&_h1]:font-semibold [&_h1]:leading-tight
+  [&_h2]:mt-8 [&_h2]:mb-4 [&_h2]:text-xl md:[&_h2]:text-3xl [&_h2]:font-semibold [&_h2]:leading-tight [&_h2]:scroll-mt-24
+  [&_h3]:mt-6 [&_h3]:mb-3 [&_h3]:text-lg md:[&_h3]:text-2xl [&_h3]:font-semibold [&_h3]:leading-tight
+  [&_li]:text-slate-800 [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-5 md:[&_ul]:pl-6
+  [&_p]:mb-4 md:[&_p]:mb-6 [&_p]:text-base md:[&_p]:text-lg [&_p]:leading-7 md:[&_p]:leading-8 [&_p]:max-w-prose
+  [&_strong]:font-semibold [&_strong]:text-slate-900
+  [&_table]:my-8 [&_table]:w-full [&_table]:border-separate [&_table]:border-spacing-0 [&_table]:overflow-hidden [&_table]:rounded-xl [&_table]:shadow-sm
+  [&_thead]:bg-slate-900 [&_thead]:text-white
+  [&_th]:p-4 [&_th]:text-left [&_th]:text-sm [&_th]:font-semibold
+  [&_td]:border-t [&_td]:p-4 [&_td]:text-sm
+  [&_tbody_tr]:transition [&_tbody_tr:hover]:bg-slate-50
+`;
+
 export default function ArticlePreview({
   cardType,
   form,
@@ -207,16 +231,28 @@ export default function ArticlePreview({
       }
 
       try {
-        const parsed = matter(String(form.content));
+        const rawContent = String(form.content);
+        let contentToSerialize = rawContent;
 
         try {
-          const mdx = await serialize(parsed.content, {
+          const parsed = matter(rawContent);
+          contentToSerialize = parsed.content;
+        } catch (matterError) {
+          // If frontmatter is malformed, keep preview working with raw MDX.
+          console.warn(
+            "Frontmatter inválido no preview, usando conteúdo bruto.",
+            matterError,
+          );
+        }
+
+        try {
+          const mdx = await serialize(contentToSerialize, {
             mdxOptions: { remarkPlugins: [remarkGfm] },
           });
           setMdxSource(mdx);
           setMdxError(null);
         } catch {
-          const normalized = normalizeMdxContainers(parsed.content);
+          const normalized = normalizeMdxContainers(contentToSerialize);
           const mdx = await serialize(normalized, {
             mdxOptions: { remarkPlugins: [remarkGfm] },
           });
@@ -240,7 +276,7 @@ export default function ArticlePreview({
           <ArtigoCard post={getPreviewArticle(form)} showAuthor={true} />
 
           {form.content && (
-            <div className="max-w-none rounded-b-3xl bg-white px-2 py-8 mt-8 [&_*]:text-black [&_a]:font-semibold [&_a]:text-indigo-600 [&_h1]:mb-6 [&_h1]:text-4xl [&_h1]:font-extrabold [&_h2]:mt-10 [&_h2]:mb-4 [&_h2]:text-3xl [&_h2]:font-bold [&_h3]:mt-6 [&_h3]:mb-3 [&_h3]:text-2xl [&_h3]:font-semibold [&_li]:text-black [&_p]:mb-6 [&_p]:text-lg [&_p]:leading-8 [&_strong]:font-bold [&_table]:my-6 [&_table]:w-full [&_table]:border-collapse [&_td]:border [&_td]:border-slate-200 [&_td]:px-3 [&_td]:py-2 [&_th]:border [&_th]:border-slate-300 [&_th]:px-3 [&_th]:py-2 [&_th]:text-left [&_ul]:list-disc [&_ul]:space-y-2 [&_ul]:pl-6">
+            <div className={articlePreviewMdxClass}>
               {mdxError && (
                 <div className="rounded-lg border border-red-200 bg-red-50 p-4 text-sm text-red-800">
                   <p className="font-bold">Erro ao compilar MDX:</p>

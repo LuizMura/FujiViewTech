@@ -6,6 +6,7 @@ import AfiliadosCard from "@/components/home/AfiliadosCard";
 import ProductRow from "@/components/article/ProductRow";
 import WrapImageText from "@/components/article/WrapImageText";
 import ArticleButton from "@/components/article/ArticleButton";
+import AffiliatePriceLinks from "@/components/article/AffiliatePriceLinks";
 
 type Afiliado = {
   nome: string;
@@ -239,6 +240,19 @@ export const components = {
   ProductRow,
   WrapImageText,
   ArticleButton,
+  AffiliatePriceLinks,
+  strong: (props: React.HTMLAttributes<HTMLElement>) => (
+    <strong
+      {...props}
+      className={`font-[560] text-slate-900 ${props.className || ""}`.trim()}
+    />
+  ),
+  b: (props: React.HTMLAttributes<HTMLElement>) => (
+    <b
+      {...props}
+      className={`font-[560] text-slate-900 ${props.className || ""}`.trim()}
+    />
+  ),
   ul: (props: React.HTMLAttributes<HTMLUListElement>) => (
     <ul
       {...props}
@@ -253,6 +267,9 @@ export const components = {
   ),
   li: (props: React.LiHTMLAttributes<HTMLLIElement>) => (
     <li {...props} className={`leading-7 ${props.className || ""}`.trim()} />
+  ),
+  hr: (props: React.HTMLAttributes<HTMLHRElement>) => (
+    <hr {...props} className={`my-5 ${props.className || ""}`.trim()} />
   ),
   table: (props: React.TableHTMLAttributes<HTMLTableElement>) => (
     <div className="my-6 w-full overflow-x-auto">

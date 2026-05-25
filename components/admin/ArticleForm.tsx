@@ -94,9 +94,12 @@ export default function ArticleForm<T extends CardBase>({
   const [selectedMdxTemplate, setSelectedMdxTemplate] = useState<string>("");
   const [mdxButtonText, setMdxButtonText] = useState<string>("");
   const [mdxButtonUrl, setMdxButtonUrl] = useState<string>("");
+  const [mdxAmazonUrl, setMdxAmazonUrl] = useState<string>("");
+  const [mdxMercadoLivreUrl, setMdxMercadoLivreUrl] = useState<string>("");
   const [affiliateCopied, setAffiliateCopied] = useState(false);
   const [templateCopied, setTemplateCopied] = useState(false);
   const [buttonTemplateCopied, setButtonTemplateCopied] = useState(false);
+  const [priceTemplateCopied, setPriceTemplateCopied] = useState(false);
   const [contentSanitized, setContentSanitized] = useState(false);
   const [loadingAfiliados, setLoadingAfiliados] = useState(false);
   const [categories] = useState<string[]>(
@@ -256,6 +259,18 @@ export default function ArticleForm<T extends CardBase>({
     navigator.clipboard.writeText(mdxTemplate);
     setButtonTemplateCopied(true);
     window.setTimeout(() => setButtonTemplateCopied(false), 1800);
+  };
+
+  const copyPriceLinksTemplate = () => {
+    const amazonUrl = mdxAmazonUrl.trim();
+    const mercadoLivreUrl = mdxMercadoLivreUrl.trim();
+    const esc = (v: string) => v.replace(/"/g, '\\"');
+
+    const mdxTemplate = `<AffiliatePriceLinks\n  label=\"Ver preço\"\n  amazonUrl=\"${esc(amazonUrl)}\"\n  mercadoLivreUrl=\"${esc(mercadoLivreUrl)}\"\n/>`;
+
+    navigator.clipboard.writeText(mdxTemplate);
+    setPriceTemplateCopied(true);
+    window.setTimeout(() => setPriceTemplateCopied(false), 1800);
   };
 
   const sanitizeMdxContent = () => {
@@ -935,6 +950,41 @@ Texto do artigo ao redor da imagem.
               </button>
               {buttonTemplateCopied && (
                 <p className="text-xs text-green-400">Botao MDX copiado!</p>
+              )}
+            </div>
+
+            <h3 className="text-[#bfc7d5] font-semibold mb-2">Ver preço</h3>
+            <p className="text-xs text-[#9ca3af] mb-2">
+              Copia um componente com texto "Ver preço" e botoes de afiliado com
+              as logos da Amazon e Mercado Livre.
+            </p>
+
+            <div className="space-y-2 mb-4">
+              <input
+                type="url"
+                value={mdxAmazonUrl}
+                onChange={(e) => setMdxAmazonUrl(e.target.value)}
+                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+                placeholder="URL afiliado Amazon"
+              />
+              <input
+                type="url"
+                value={mdxMercadoLivreUrl}
+                onChange={(e) => setMdxMercadoLivreUrl(e.target.value)}
+                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+                placeholder="URL afiliado Mercado Livre"
+              />
+              <button
+                type="button"
+                onClick={copyPriceLinksTemplate}
+                className="w-full py-2 bg-[#7f8fa6] text-[#23272f] rounded-lg font-semibold hover:bg-[#596275] transition"
+              >
+                Copiar template Ver preço
+              </button>
+              {priceTemplateCopied && (
+                <p className="text-xs text-green-400">
+                  Template Ver preço copiado!
+                </p>
               )}
             </div>
 
