@@ -19,7 +19,7 @@ export default function ProductRow({
     typeof title === "string" && title.trim().length > 0 ? title.trim() : "";
 
   const imageElement = (
-    <div className="relative w-[336px] h-[336px] rounded-xl overflow-hidden flex-shrink-0">
+    <div className="relative w-[220px] h-[220px] md:w-[336px] md:h-[336px] rounded-xl overflow-hidden flex-shrink-0 mx-auto md:mx-0">
       <Image
         src={image}
         alt={safeTitle}
@@ -32,7 +32,7 @@ export default function ProductRow({
   );
 
   return (
-    <div className="flex flex-col md:flex-row gap-6 items-center my-0">
+    <div className="flex flex-col md:flex-row gap-6 items-start md:items-center my-0">
       {url ? (
         <a
           href={url}
@@ -45,15 +45,19 @@ export default function ProductRow({
       ) : (
         imageElement
       )}
+
       <div
-        className="space-y-3 text-slate-900 max-w-none 
+        className="w-full space-y-3 text-left text-slate-900 max-w-none
         [&_h1]:text-3xl [&_h1]:font-extrabold [&_h1]:leading-tight [&_h1]:mt-0 [&_h1]:mb-3
         [&_h2]:text-2xl [&_h2]:font-bold [&_h2]:leading-tight [&_h2]:mt-0 [&_h2]:mb-3
         [&_h3]:text-xl [&_h3]:font-bold [&_h3]:leading-tight [&_h3]:mt-0 [&_h3]:mb-2
         [&_p]:text-base [&_p]:leading-7 [&_p]:text-slate-800
         [&_ul]:list-disc [&_ul]:pl-5 [&_li]:mb-1"
       >
-        <h3 className="text-xl font-bold mb-2 !mb-3 !mt-0">{safeTitle}</h3>
+        {safeTitle && (
+          <h3 className="text-xl font-bold mb-2 !mb-3 !mt-0">{safeTitle}</h3>
+        )}
+
         {children}
       </div>
     </div>

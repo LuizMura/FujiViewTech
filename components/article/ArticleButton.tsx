@@ -16,14 +16,20 @@ export default function ArticleButton({
   className = "",
 }: ArticleButtonProps) {
   return (
-    <a
-      href={url}
-      target="_blank"
-      rel="nofollow noopener noreferrer sponsored"
-      style={{ backgroundColor: bgColor, color: textColor }}
-      className={`not-prose inline-flex items-center justify-center px-5 py-2 rounded-lg font-semibold hover:opacity-90 transition-opacity mb-2 ${className}`}
-    >
-      {text}
-    </a>
+    <div className="not-prose mb-2">
+      <a
+        href={url}
+        target="_blank"
+        rel="nofollow noopener noreferrer sponsored"
+        style={{
+          backgroundColor: bgColor,
+          color: textColor,
+          textDecoration: "none",
+        }}
+        className={`inline-flex items-center justify-center px-5 py-2 rounded-lg font-semibold !no-underline hover:!no-underline hover:opacity-90 transition-opacity ${className}`}
+      >
+        {text}
+      </a>
+    </div>
   );
 }

@@ -7,12 +7,14 @@ import { Article } from "@/lib/types/article";
 interface ArtigoCardProps {
   post: Article;
   showAuthor?: boolean;
+  showCoverAuthor?: boolean;
   children?: React.ReactNode;
 }
 
 const ArtigoCard: React.FC<ArtigoCardProps> = ({
   post,
   showAuthor = true,
+  showCoverAuthor = true,
   children,
 }) => {
   const summary = post.excerpt || post.description || "";
@@ -83,17 +85,17 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
 
           <div className="absolute inset-0 flex flex-col justify-end px-6 md:px-12 pb-6 md:pb-10 max-w-4xl">
-            <h1 className="text-3xl md:text-5xl font-bold text-white leading-tight tracking-tight drop-shadow-lg">
+            <h1 className="hidden md:block text-2xl md:text-5xl font-bold text-white leading-tight tracking-tight drop-shadow-lg">
               {post.title}
             </h1>
 
             {summary && (
-              <p className="mt-3 text-base md:text-lg text-white/90 leading-relaxed max-w-2xl">
+              <p className="hidden md:block mt-2 text-base md:text-lg text-white/90 leading-relaxed max-w-2xl">
                 {summary}
               </p>
             )}
 
-            {showAuthor ? (
+            {showCoverAuthor ? (
               <div className="hidden md:flex items-center gap-3 mt-5">
                 <div className="w-10 h-10 rounded-full bg-white/20 backdrop-blur-sm flex items-center justify-center text-white">
                   <User size={18} />
@@ -108,7 +110,7 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
                   </p>
                 </div>
               </div>
-            ) : (
+            ) : !showAuthor ? (
               <div className="pt-0 flex justify-start mt-5">
                 <Link
                   href={`/artigos/${post.slug}`}
@@ -117,8 +119,19 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
                   Ver matéria
                 </Link>
               </div>
-            )}
+            ) : null}
           </div>
+        </div>
+
+        <div className="md:hidden pl-3 pr-1 pt-3">
+          <h1 className="text-2xl font-bold text-slate-900 leading-tight tracking-tight">
+            {post.title}
+          </h1>
+          {summary && (
+            <p className="mt-2 text-sm text-slate-600 leading-relaxed">
+              {summary}
+            </p>
+          )}
         </div>
       </header>
 
@@ -126,9 +139,9 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
       {children && (
         <article
           className={`
-          py-10 px-5 md:px-6
+          pt-5 pb-10 px-3 md:py-10 md:px-4
           bg-white text-slate-800
-          w-full max-w-none md:max-w-3xl md:mx-auto
+          w-full max-w-none md:max-w-4xl md:mx-auto
 
           prose prose-base md:prose-lg max-w-none
 
@@ -146,7 +159,7 @@ const ArtigoCard: React.FC<ArtigoCardProps> = ({
 
           [&_p]:leading-7 md:[&_p]:leading-8
           [&_p]:mb-5
-          [&_p]:max-w-prose
+          [&_p]:max-w-none
 
           [&_h1]:text-2xl md:[&_h1]:text-4xl [&_h1]:mt-2 [&_h1]:mb-3
           [&_h2]:text-xl md:[&_h2]:text-3xl [&_h2]:mt-7 [&_h2]:mb-3 [&_h2]:scroll-mt-24

@@ -72,7 +72,7 @@ export default function Hero() {
 
   return (
     <>
-      <div className="relative z-40 -mt-13 md:mt-2 mb-5 bg-white py-0.5 justify-center flex items-center rounded-sm shadow-md border border-slate-200">
+      <div className="relative z-40 -mt-13 md:hidden mb-5 bg-white py-0.5 justify-center flex items-center rounded-sm shadow-md border border-slate-200">
         <DebugComponentTag name="LivePrices" enabled={showComponentLabels} />
         <LivePrices />
       </div>

@@ -4,6 +4,7 @@ const isProd = process.env.NODE_ENV === "production";
 
 const nextConfig: NextConfig = {
   /* config options here */
+  allowedDevOrigins: ["192.168.1.151"],
   // React Compiler can impact dev sourcemaps; enable in production only
   reactCompiler: isProd,
   images: {

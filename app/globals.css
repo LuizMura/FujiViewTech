@@ -87,7 +87,6 @@ body {
     rgba(80, 80, 80, 0.92) 100%
   );
   backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgb(163, 163, 163);
 }
 
 .gradient-text {
@@ -105,4 +104,13 @@ body {
 
 .scrollbar-hide::-webkit-scrollbar {
   display: none; /* Chrome, Safari e Opera */
+}
+
+@keyframes ticker {
+  0% {
+    transform: translateX(0%);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
 }

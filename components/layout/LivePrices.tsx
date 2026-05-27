@@ -1,6 +1,13 @@
 "use client";
+import Link from "next/link";
 import { useEffect, useState } from "react";
-import { ArrowUp, ArrowDown } from "lucide-react";
+import {
+  ArrowUpRight,
+  ArrowDownRight,
+  Activity,
+  ArrowUp,
+  ArrowDown,
+} from "lucide-react";
 
 interface PriceData {
   btc: number;
@@ -15,10 +22,32 @@ interface PriceData {
 
 type PriceChange = PriceData;
 
-export default function LivePrices() {
+type QuoteConfig = {
+  key: keyof PriceData;
+  label: string;
+  kind: "crypto" | "fiat";
+};
+
+const quoteConfig: QuoteConfig[] = [
+  { key: "btc", label: "Bitcoin", kind: "crypto" },
+  { key: "eth", label: "Ethereum", kind: "crypto" },
+  { key: "sol", label: "Solana", kind: "crypto" },
+  { key: "bnb", label: "BNB", kind: "crypto" },
+  { key: "xrp", label: "XRP", kind: "crypto" },
+  { key: "usd", label: "Dolar", kind: "fiat" },
+  { key: "eur", label: "Euro", kind: "fiat" },
+  { key: "usdt", label: "USDT", kind: "fiat" },
+];
+
+type LivePricesProps = {
+  clickable?: boolean;
+};
+
+export default function LivePrices({ clickable = true }: LivePricesProps) {
   const [prices, setPrices] = useState<PriceData | null>(null);
   const [changes, setChanges] = useState<PriceChange | null>(null);
   const [loading, setLoading] = useState(true);
+  const [lastUpdated, setLastUpdated] = useState<Date | null>(null);
 
   useEffect(() => {
     const fetchPrices = async () => {
@@ -79,6 +108,7 @@ export default function LivePrices() {
 
         setPrices(newPrices);
         setChanges(newChanges);
+        setLastUpdated(new Date());
         setLoading(false);
       } catch (error) {
         console.error("Error fetching prices:", error);
@@ -103,6 +133,7 @@ export default function LivePrices() {
           usd: 0,
           eur: 0,
         });
+        setLastUpdated(new Date());
         setLoading(false);
       }
     };
@@ -116,7 +147,7 @@ export default function LivePrices() {
 
   if (loading) {
     return (
-      <div className="flex items-center gap-4 text-xs text-slate-600">
+      <div className="w-full rounded-2xl border border-slate-200 bg-white/90 p-4 text-xs text-slate-600 shadow-sm">
         <span className="animate-pulse">Carregando cotações...</span>
       </div>
     );
@@ -124,7 +155,7 @@ export default function LivePrices() {
 
   if (!prices || !changes) {
     return (
-      <div className="flex items-center gap-4 text-xs text-slate-600">
+      <div className="w-full rounded-2xl border border-slate-200 bg-white/90 p-4 text-xs text-slate-600 shadow-sm">
         <span>Cotações temporariamente indisponíveis</span>
       </div>
     );
@@ -143,154 +174,135 @@ export default function LivePrices() {
     })}`;
   };
 
-  const getChangeColor = (change: number) => {
-    if (change > 0) return "text-green-600";
-    if (change < 0) return "text-red-600";
-    return "text-slate-600";
+  const getChangeTone = (change: number) => {
+    if (change > 0) {
+      return {
+        text: "text-emerald-600",
+        bg: "bg-emerald-50 border-emerald-200",
+        icon: <ArrowUpRight size={14} className="text-emerald-600" />,
+      };
+    }
+    if (change < 0) {
+      return {
+        text: "text-rose-600",
+        bg: "bg-rose-50 border-rose-200",
+        icon: <ArrowDownRight size={14} className="text-rose-600" />,
+      };
+    }
+    return {
+      text: "text-slate-600",
+      bg: "bg-slate-100 border-slate-200",
+      icon: <Activity size={14} className="text-slate-500" />,
+    };
   };
 
-  const getChangeIcon = (change: number) => {
-    if (change > 0) return <ArrowUp size={14} className="text-green-600" />;
-    if (change < 0) return <ArrowDown size={14} className="text-red-600" />;
-    return null;
+  const getMobilePriceTone = (change: number) => {
+    if (change > 0) {
+      return {
+        text: "text-emerald-600",
+      };
+    }
+    if (change < 0) {
+      return {
+        text: "text-rose-600",
+      };
+    }
+    return {
+      text: "text-slate-700",
+    };
   };
+
+  const desktopQuotes = quoteConfig;
+  const mobileQuotes = ["btc", "eth", "usd", "eur"] as Array<keyof PriceData>;
+
+  const updatedLabel = lastUpdated
+    ? lastUpdated.toLocaleTimeString("pt-BR", {
+        hour: "2-digit",
+        minute: "2-digit",
+      })
+    : "--:--";
+
+  const cardContent = (
+    <>
+      <div className="md:hidden flex items-center gap-1 overflow-x-auto whitespace-nowrap px-1 py-1 text-xs scrollbar-hide">
+        {mobileQuotes.map((symbol, index) => {
+          const change = changes[symbol];
+          const mobileTone = getMobilePriceTone(change);
+          const isCrypto =
+            symbol !== "usd" && symbol !== "eur" && symbol !== "usdt";
+
+          return (
+            <div key={symbol} className="inline-flex items-center gap-1.5">
+              <span className="font-bold uppercase text-slate-900">
+                {symbol}
+              </span>
+              <span
+                className={`inline-flex items-center gap-0.5 font-semibold ${mobileTone.text}`}
+              >
+                {formatPrice(prices[symbol], isCrypto)}
+              </span>
+              {index < mobileQuotes.length - 1 && (
+                <span className="text-slate-300">|</span>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      <div className="hidden md:block rounded-sm border border-slate-200 bg-[radial-gradient(circle_at_top_right,_#f0f9ff_0%,_#ffffff_45%,_#f8fafc_100%)] p-4 shadow-xl ring-1 ring-slate-900/5">
+        <div className="mb-2">
+          <div>
+            <p className="text-[14px] uppercase tracking-[0.2em] text-slate-500">
+              COTAÇÕES
+            </p>
+            <p className="text-[14px] text-slate-500 text-right pr-2">
+              Atualizado as {updatedLabel}
+            </p>
+          </div>
+        </div>
+
+        <div className="space-y-2">
+          {desktopQuotes.map((quote) => {
+            const value = prices[quote.key];
+            const change = changes[quote.key];
+            const tone = getChangeTone(change);
+            const isCrypto = quote.kind === "crypto";
+
+            return (
+              <div key={quote.key} className="rounded-xl bg-white/90 ">
+                <div className="grid grid-cols-[1fr_auto_auto] border-b border-slate-300/80 p-1 items-center gap-4">
+                  <p className="truncate text-[12px] font-bold uppercase tracking-wide text-slate-500">
+                    {quote.label}
+                  </p>
+                  <p className="text-right text-sm font-semibold text-slate-900">
+                    {formatPrice(value, isCrypto)}
+                  </p>
+                  <div
+                    className={`inline-flex shrink-0 items-center gap-1 rounded-full border px-2 py-0.5 text-[11px] font-semibold ${tone.bg} ${tone.text}`}
+                  >
+                    {tone.icon}
+                    {change.toFixed(2)}%
+                  </div>
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      </div>
+    </>
+  );
+
+  if (!clickable) {
+    return cardContent;
+  }
 
   return (
-    <div className="flex items-center gap-1 md:gap-2 text- md:text-sm overflow-x-auto scrollbar-hide px-1 md:px-0">
-      <span className="hidden md:inline text-slate-300">|</span>
-
-      {/* Bitcoin */}
-      <div className="flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
-          BTC
-        </span>
-        <span
-          className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
-            changes.btc,
-          )}`}
-        >
-          {formatPrice(prices.btc, true)}
-        </span>
-        <span className="hidden md:inline">{getChangeIcon(changes.btc)}</span>
-      </div>
-
-      <span className="hidden md:inline text-slate-300">|</span>
-
-      {/* Ethereum */}
-      <div className="flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
-          ETH
-        </span>
-        <span
-          className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
-            changes.eth,
-          )}`}
-        >
-          {formatPrice(prices.eth, true)}
-        </span>
-        <span className="hidden md:inline">{getChangeIcon(changes.eth)}</span>
-      </div>
-
-      <span className="hidden md:inline text-slate-300">|</span>
-
-      {/* BNB */}
-      <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
-          BNB
-        </span>
-        <span
-          className={`font-semibold text-sm ${getChangeColor(changes.bnb)}`}
-        >
-          {formatPrice(prices.bnb, true)}
-        </span>
-        <span className="hidden md:inline">{getChangeIcon(changes.bnb)}</span>
-      </div>
-
-      <span className="hidden md:inline text-slate-300">|</span>
-
-      {/* Solana */}
-      <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-sm">SOL</span>
-        <span
-          className={`font-semibold text-sm ${getChangeColor(changes.sol)}`}
-        >
-          {formatPrice(prices.sol, true)}
-        </span>
-        <span className="hidden md:inline">{getChangeIcon(changes.sol)}</span>
-      </div>
-
-      <span className="hidden md:inline text-slate-300">|</span>
-
-      {/* Tether */}
-      <div className="hidden md:flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-sm">USDT</span>
-        <span
-          className={`font-semibold text-sm ${getChangeColor(changes.usdt)}`}
-        >
-          {formatPrice(prices.usdt)}
-        </span>
-        <span className="hidden md:inline">{getChangeIcon(changes.usdt)}</span>
-      </div>
-
-      <span className="hidden md:inline text-slate-300">|</span>
-      <div className="hidden lg:flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-sm">XRP</span>
-        <span
-          className={`font-semibold text-sm ${getChangeColor(changes.xrp)}`}
-        >
-          {formatPrice(prices.xrp, true)}
-        </span>
-        <span className="hidden md:inline">{getChangeIcon(changes.xrp)}</span>
-      </div>
-
-      <span className="hidden md:inline text-slate-300">|</span>
-      <div className="flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
-          USD
-        </span>
-        <span
-          className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
-            changes.usd,
-          )}`}
-        >
-          {formatPrice(prices.usd)}
-        </span>
-        {getChangeIcon(changes.usd)}
-      </div>
-
-      <span className="hidden md:inline text-slate-300">|</span>
-
-      {/* Euro */}
-      <div className="flex items-center gap-1 whitespace-nowrap">
-        <span className="font-bold text-slate-900 text-[12px] md:text-sm">
-          EUR
-        </span>
-        <span
-          className={`font-semibold text-[12px] md:text-sm ${getChangeColor(
-            changes.eur,
-          )}`}
-        >
-          {formatPrice(prices.eur)}
-        </span>
-        {getChangeIcon(changes.eur)}
-      </div>
-
-      <span className="hidden md:inline text-slate-300">|</span>
-
-      {/* Atalho para oferta da Binance */}
-      <button
-        onClick={(e) => {
-          e.stopPropagation();
-          e.preventDefault();
-          window.open(
-            "https://www.binance.com/referral/earn-together/refer2earn-usdc/claim?hl=pt-BR&ref=GRO_28502_CQT0Y&utm_source=default",
-            "_blank",
-          );
-        }}
-        className="hidden md:flex items-center gap-1 text-slate-900 hover:text-indigo-600 font-semibold whitespace-nowrap transition-colors underline decoration-2 underline-offset-2 cursor-pointer bg-transparent border-0 p-0"
-      >
-        USDC Grátis na Binance →
-      </button>
-    </div>
+    <Link
+      href="/cotacoes"
+      aria-label="Abrir página completa de cotações"
+      className="block transition hover:opacity-95"
+    >
+      {cardContent}
+    </Link>
   );
 }

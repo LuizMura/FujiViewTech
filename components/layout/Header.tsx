@@ -77,7 +77,7 @@ function Header() {
 
   return (
     <header
-      className={`fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300 backdrop-blur-md border-b border-neutral-400 ${
+      className={`fixed top-0 left-0 right-0 z-50 glass-nav transition-all duration-300 backdrop-blur-md ${
         showHeader ? "translate-y-0" : "-translate-y-[72%]"
       }`}
     >

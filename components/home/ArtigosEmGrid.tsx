@@ -52,13 +52,13 @@ export default function ArtigosEmGrid() {
     return (
       <div
         key={`${card.article.slug}-${index}`}
-        className="relative bg-white/95 overflow-hidden border-t border-slate-100 sm:border-t-0"
+        className="relative bg-white/95 overflow-hidden border-t border-slate-100"
       >
         {hasInsetDivider && (
-          <span className="hidden sm:block absolute left-0 top-3 bottom-3 w-px bg-slate-900/70" />
+          <span className="absolute left-0 top-3 bottom-3 w-px bg-slate-900/70" />
         )}
         {hasInsetHorizontalDivider && (
-          <span className="hidden sm:block absolute top-0 left-3 right-3 h-px bg-slate-900/70" />
+          <span className="absolute top-0 left-3 right-3 h-px bg-slate-900/70" />
         )}
         <Link href={`/artigos/${card.article.slug}`} className="block h-full">
           <div className="min-w-0 p-3">
@@ -78,9 +78,9 @@ export default function ArtigosEmGrid() {
 
   return (
     <div className="w-full">
-      <div className="grid grid-cols-1 lg:grid-cols-3 border border-black-100 lg:border-r-0">
+      <div className="grid grid-cols-2 lg:grid-cols-3 border border-black-100 border-r-0">
         {firstCard && (
-          <div className="lg:col-span-1 lg:border-r border-slate-200 bg-white/90">
+          <div className="order-2 lg:order-1 col-span-2 lg:col-span-1 lg:border-r border-slate-200 bg-white/90">
             <div className="overflow-hidden h-full">
               <Link
                 href={`/artigos/${firstCard.article.slug}`}
@@ -114,7 +114,7 @@ export default function ArtigosEmGrid() {
           </div>
         )}
 
-        <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2">
+        <div className="order-1 lg:order-2 col-span-2 grid grid-cols-2">
           {remainingCards.map((card, index) =>
             renderCompactCard(card, index + 1),
           )}

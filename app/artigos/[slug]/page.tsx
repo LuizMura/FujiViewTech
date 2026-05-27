@@ -279,7 +279,7 @@ export default function PostPage() {
             )}
 
             <div className="px-4 md:px-8">
-              <ArtigoCard post={post}>
+              <ArtigoCard post={post} showCoverAuthor={false}>
                 {mdx ? (
                   <MDXErrorBoundary>
                     <MDXRemote {...mdx} components={mdxComponents} />

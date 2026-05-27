@@ -2,6 +2,7 @@ import React from "react";
 import ArtigosCarrossel from "@/components/home/ArtigosCarrossel";
 import CategoryCard from "@/components/home/CategoryCard";
 import ArtigosEmGrid from "@/components/home/ArtigosEmGrid";
+import LivePrices from "@/components/layout/LivePrices";
 import { Article } from "@/lib/types/article";
 import DebugComponentTag from "@/components/home/DebugComponentTag";
 
@@ -45,6 +46,14 @@ export default function InitialBlock({
 
         <div className="md:col-span-1 order-2 md:order-2">
           <div className="space-y-4 md:space-y-6">
+            <div className="hidden md:block relative">
+              <DebugComponentTag
+                name="LivePrices"
+                enabled={showComponentLabels}
+              />
+              <LivePrices />
+            </div>
+
             <React.Suspense fallback={<div>Carregando...</div>}>
               <div className="relative">
                 <DebugComponentTag

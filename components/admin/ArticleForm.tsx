@@ -92,6 +92,7 @@ export default function ArticleForm<T extends CardBase>({
   const [filterCategoria, setFilterCategoria] = useState<string>("");
   const [selectedAfiliadoId, setSelectedAfiliadoId] = useState<string>("");
   const [selectedMdxTemplate, setSelectedMdxTemplate] = useState<string>("");
+  const [mdxImageSide, setMdxImageSide] = useState<"left" | "right">("left");
   const [mdxButtonText, setMdxButtonText] = useState<string>("");
   const [mdxButtonUrl, setMdxButtonUrl] = useState<string>("");
   const [mdxAmazonUrl, setMdxAmazonUrl] = useState<string>("");
@@ -340,6 +341,7 @@ export default function ArticleForm<T extends CardBase>({
     template: string,
     imageUrl: string,
     imageLink?: string,
+    side: "left" | "right" = "left",
   ) => {
     const safeUrl = imageUrl.trim();
     const safeLink = String(imageLink || "").trim();
@@ -348,7 +350,7 @@ export default function ArticleForm<T extends CardBase>({
       return `<WrapImageText
   src="${safeUrl}"
   alt="Descrição da imagem"
-  side="left"
+  side="${side}"
   width={320}
   height={200}
   caption="Legenda opcional"
@@ -386,6 +388,7 @@ Texto do artigo ao redor da imagem.
       template,
       imageUrl,
       mdxImageLinkValue,
+      mdxImageSide,
     );
     navigator.clipboard.writeText(snippet);
     setTemplateCopied(true);
@@ -746,10 +749,47 @@ Texto do artigo ao redor da imagem.
             <h3 className="text-[#bfc7d5] font-semibold mb-2">
               Imagens no MDX
             </h3>
-            <p className="text-xs text-[#9ca3af] mb-3">
-              1) Faça upload da imagem. 2) Use a URL gerada. 3) Clique para
-              inserir no conteúdo.
-            </p>
+
+            <div className="mt-3">
+              <label
+                className="block text-[#bfc7d5] mb-1"
+                htmlFor="mdx-template-select"
+              >
+                Template
+              </label>
+              <select
+                id="mdx-template-select"
+                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+                value={selectedMdxTemplate}
+                onChange={(e) => setSelectedMdxTemplate(e.target.value)}
+              >
+                <option value="MarkdownImage">Imagen tela inteira</option>
+                <option value="WrapImageText">Imagem lateral</option>
+                <option value="ProductRow">ProductRow</option>
+              </select>
+            </div>
+
+            {selectedMdxTemplate === "WrapImageText" && (
+              <div className="mt-3">
+                <label
+                  className="block text-[#bfc7d5] mb-1"
+                  htmlFor="mdx-image-side"
+                >
+                  Posição da imagem
+                </label>
+                <select
+                  id="mdx-image-side"
+                  className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
+                  value={mdxImageSide}
+                  onChange={(e) =>
+                    setMdxImageSide(e.target.value as "left" | "right")
+                  }
+                >
+                  <option value="left">Esquerda</option>
+                  <option value="right">Direita</option>
+                </select>
+              </div>
+            )}
 
             <label
               className="block text-[#bfc7d5] mb-1"
@@ -816,25 +856,6 @@ Texto do artigo ao redor da imagem.
             </div>
 
             <div className="mt-3">
-              <label
-                className="block text-[#bfc7d5] mb-1"
-                htmlFor="mdx-template-select"
-              >
-                Template
-              </label>
-              <select
-                id="mdx-template-select"
-                className="w-full bg-[#18181b] text-white px-3 py-2 rounded-lg border border-[#4b6b57] focus:outline-none text-sm"
-                value={selectedMdxTemplate}
-                onChange={(e) => setSelectedMdxTemplate(e.target.value)}
-              >
-                <option value="MarkdownImage">Imagem Markdown</option>
-                <option value="WrapImageText">WrapImageText</option>
-                <option value="ProductRow">ProductRow</option>
-              </select>
-            </div>
-
-            <div className="mt-3">
               <button
                 type="button"
                 disabled={!mdxImageUrlValue}
@@ -856,9 +877,6 @@ Texto do artigo ao redor da imagem.
             <h3 className="text-[#bfc7d5] font-semibold mb-2">
               Afiliados Cadastrados
             </h3>
-            <p className="text-xs text-[#9ca3af] mb-2">
-              Selecione no dropdown e copie o código MDX do card
-            </p>
 
             {/* Filtro */}
             <select
@@ -922,9 +940,6 @@ Texto do artigo ao redor da imagem.
           {/* Templates MDX */}
           <div className="mb-3 border-t border-[#4b6b57] pt-4">
             <h3 className="text-[#bfc7d5] font-semibold mb-2">Botao MDX</h3>
-            <p className="text-xs text-[#9ca3af] mb-2">
-              Defina texto e URL para copiar o componente de botao
-            </p>
 
             <div className="space-y-2 mb-4">
               <input
@@ -954,10 +969,6 @@ Texto do artigo ao redor da imagem.
             </div>
 
             <h3 className="text-[#bfc7d5] font-semibold mb-2">Ver preço</h3>
-            <p className="text-xs text-[#9ca3af] mb-2">
-              Copia um componente com texto "Ver preço" e botoes de afiliado com
-              as logos da Amazon e Mercado Livre.
-            </p>
 
             <div className="space-y-2 mb-4">
               <input
@@ -991,10 +1002,6 @@ Texto do artigo ao redor da imagem.
             <h3 className="text-[#bfc7d5] font-semibold mb-2">
               Templates de MDX
             </h3>
-            <p className="text-xs text-[#9ca3af] mb-2">
-              Use a área de Imagens no MDX acima para copiar templates já com
-              link.
-            </p>
           </div>
         </>
       )}
