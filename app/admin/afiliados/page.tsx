@@ -13,16 +13,25 @@ type AfiliadoProduto = {
   status: string;
   publicado_em: string;
   categoria: string;
-  loja: string;
   preco: string;
-  afiliado_url: string;
-  button_text: string;
-  button_color: string;
+  afiliado1_url: string;
+  afiliado2_url: string;
+  afiliado_url?: string;
 };
 
 export default function AdminAfiliadosPage() {
   const getErrorMessage = (error: unknown, fallback: string) =>
     error instanceof Error ? error.message : fallback;
+
+  const mapLegacyAffiliateUrl = (url?: string) => {
+    const value = (url || "").trim();
+    if (!value) return { afiliado1_url: "", afiliado2_url: "" };
+    const lower = value.toLowerCase();
+    if (lower.includes("mercadolivre") || lower.includes("mercadolibre")) {
+      return { afiliado1_url: "", afiliado2_url: value };
+    }
+    return { afiliado1_url: value, afiliado2_url: "" };
+  };
 
   const emptyForm: AfiliadoProduto = useMemo(
     () => ({
@@ -33,11 +42,9 @@ export default function AdminAfiliadosPage() {
       status: "published",
       publicado_em: "",
       categoria: "",
-      loja: "",
       preco: "",
-      afiliado_url: "",
-      button_text: "COMPRAR",
-      button_color: "#ac3e3e",
+      afiliado1_url: "",
+      afiliado2_url: "",
     }),
     [],
   );
@@ -88,21 +95,28 @@ export default function AdminAfiliadosPage() {
     const titulo = form.titulo || "Título do produto";
     const descricao =
       form.descricao || "Descrição breve do produto para preview.";
-    const loja = form.loja || "Nome da Loja";
     const preco = form.preco || "R$ 0,00";
     return {
       imagem,
       imagens,
       titulo,
       descricao,
-      loja,
+      loja: "",
       preco,
       afiliados: [
         {
-          nome: "Afiliado",
-          url: form.afiliado_url || "#",
-          texto: form.button_text || "COMPRAR",
-          cor: form.button_color || "#ac3e3e",
+          nome: "Amazon",
+          url: form.afiliado1_url || "",
+          texto: "VER NA AMAZON",
+          cor: "#f59e0b",
+          logo: "/images/amazon-logo.png",
+        },
+        {
+          nome: "Mercado Livre",
+          url: form.afiliado2_url || "",
+          texto: "VER NO MERCADO LIVRE",
+          cor: "#2563eb",
+          logo: "/images/mercadolivre-logo2.png",
         },
       ],
     };
@@ -190,7 +204,15 @@ export default function AdminAfiliadosPage() {
     try {
       const res = await fetch("/api/afiliados");
       const data = await res.json();
-      setProdutos(Array.isArray(data) ? data : []);
+      const normalized = (Array.isArray(data) ? data : []).map((item) => {
+        const legacy = mapLegacyAffiliateUrl(item.afiliado_url);
+        return {
+          ...item,
+          afiliado1_url: item.afiliado1_url || legacy.afiliado1_url,
+          afiliado2_url: item.afiliado2_url || legacy.afiliado2_url,
+        };
+      });
+      setProdutos(normalized);
     } catch (error) {
       console.error(error);
       setMessage("Erro ao carregar afiliados");
@@ -243,15 +265,19 @@ export default function AdminAfiliadosPage() {
         "titulo",
         "descricao",
         "categoria",
-        "loja",
         "preco",
-        "afiliado_url",
         "status",
       ];
       const missing = required.filter((k) => !String(form[k] || "").trim());
       if (missing.length) {
         throw new Error(
           `Preencha os campos obrigatórios: ${missing.join(", ")}`,
+        );
+      }
+
+      if (!form.afiliado1_url.trim() && !form.afiliado2_url.trim()) {
+        throw new Error(
+          "Preencha pelo menos um link de afiliado (Amazon ou Mercado Livre).",
         );
       }
 
@@ -266,9 +292,11 @@ export default function AdminAfiliadosPage() {
         titulo: form.titulo,
         descricao: form.descricao,
         categoria: form.categoria,
-        loja: form.loja,
+        loja: "Afiliados",
         preco: form.preco,
-        afiliado_url: form.afiliado_url,
+        afiliado1_url: form.afiliado1_url,
+        afiliado2_url: form.afiliado2_url,
+        afiliado_url: form.afiliado1_url || form.afiliado2_url,
         status: form.status,
         publicado_em: form.publicado_em,
         imagem: imagemFinal || undefined,
@@ -301,10 +329,19 @@ export default function AdminAfiliadosPage() {
     const published = item.publicado_em
       ? new Date(item.publicado_em).toISOString().slice(0, 16)
       : "";
+    const legacy = mapLegacyAffiliateUrl(item.afiliado_url);
     setSelectedId(item.id || null);
     setForm({
       ...emptyForm,
       ...item,
+      imagem: item.imagem ?? "",
+      titulo: item.titulo ?? "",
+      descricao: item.descricao ?? "",
+      status: item.status ?? "published",
+      categoria: item.categoria ?? "",
+      preco: item.preco ?? "",
+      afiliado1_url: item.afiliado1_url ?? legacy.afiliado1_url,
+      afiliado2_url: item.afiliado2_url ?? legacy.afiliado2_url,
       publicado_em: published,
       imagens: item.imagens || [],
     });
@@ -470,7 +507,7 @@ export default function AdminAfiliadosPage() {
                 <label className="text-sm text-[#9ca3af]">Imagem (URL)</label>
                 <input
                   className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                  value={form.imagem}
+                  value={form.imagem ?? ""}
                   onChange={(e) => handleChange("imagem", e.target.value)}
                   placeholder="https://...jpg"
                 />
@@ -511,7 +548,7 @@ export default function AdminAfiliadosPage() {
                 <textarea
                   className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
                   rows={3}
-                  value={form.imagens.join("\n")}
+                  value={(form.imagens ?? []).join("\n")}
                   onChange={(e) => handleChange("imagens", e.target.value)}
                   placeholder={"https://...1.jpg\nhttps://...2.jpg"}
                 />
@@ -533,7 +570,7 @@ export default function AdminAfiliadosPage() {
                 <label className="text-sm text-[#9ca3af]">Título</label>
                 <input
                   className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                  value={form.titulo}
+                  value={form.titulo ?? ""}
                   onChange={(e) => handleChange("titulo", e.target.value)}
                   placeholder="Nome do produto"
                 />
@@ -543,7 +580,7 @@ export default function AdminAfiliadosPage() {
                 <textarea
                   className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
                   rows={2}
-                  value={form.descricao}
+                  value={form.descricao ?? ""}
                   onChange={(e) => handleChange("descricao", e.target.value)}
                   placeholder="Resumo curto"
                 />
@@ -552,7 +589,7 @@ export default function AdminAfiliadosPage() {
                 <label className="text-sm text-[#9ca3af]">Categoria</label>
                 <input
                   className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                  value={form.categoria}
+                  value={form.categoria ?? ""}
                   onChange={(e) => handleChange("categoria", e.target.value)}
                   placeholder="Ex: Smartphones, Notebooks"
                   list="categoria-options"
@@ -564,19 +601,10 @@ export default function AdminAfiliadosPage() {
                 </datalist>
               </div>
               <div className="space-y-2">
-                <label className="text-sm text-[#9ca3af]">Loja</label>
-                <input
-                  className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                  value={form.loja}
-                  onChange={(e) => handleChange("loja", e.target.value)}
-                  placeholder="Nome da loja"
-                />
-              </div>
-              <div className="space-y-2">
                 <label className="text-sm text-[#9ca3af]">Preço</label>
                 <input
                   className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                  value={form.preco}
+                  value={form.preco ?? ""}
                   onChange={(e) => handleChange("preco", e.target.value)}
                   placeholder="R$ 1.299,00"
                 />
@@ -585,7 +613,7 @@ export default function AdminAfiliadosPage() {
                 <label className="text-sm text-[#9ca3af]">Status</label>
                 <select
                   className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                  value={form.status}
+                  value={form.status ?? "published"}
                   onChange={(e) => handleChange("status", e.target.value)}
                 >
                   <option value="draft">Rascunho</option>
@@ -599,7 +627,7 @@ export default function AdminAfiliadosPage() {
                   <input
                     type="datetime-local"
                     className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                    value={form.publicado_em}
+                    value={form.publicado_em ?? ""}
                     onChange={(e) =>
                       handleChange("publicado_em", e.target.value)
                     }
@@ -618,48 +646,32 @@ export default function AdminAfiliadosPage() {
             <div className="grid grid-cols-1">
               <fieldset className="border border-[#2c313c] rounded-lg p-2">
                 <legend className="px-2 text-sm text-[#9ca3af]">
-                  Link de Afiliado
+                  Links de Afiliado
                 </legend>
-                <input
-                  className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                  value={form.afiliado_url}
-                  onChange={(e) => handleChange("afiliado_url", e.target.value)}
-                  placeholder="URL de afiliado"
-                />{" "}
-                <div className="space-y-2">
+                <div className="space-y-2 mb-2">
+                  <label className="text-sm text-[#9ca3af]">Amazon</label>
+                  <input
+                    className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
+                    value={form.afiliado1_url ?? ""}
+                    onChange={(e) =>
+                      handleChange("afiliado1_url", e.target.value)
+                    }
+                    placeholder="https://www.amazon..."
+                  />
+                </div>
+                <div className="space-y-2 mb-2">
                   <label className="text-sm text-[#9ca3af]">
-                    Texto do Botão (padrão: COMPRAR)
+                    Mercado Livre
                   </label>
                   <input
                     className="w-full bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                    value={form.button_text}
+                    value={form.afiliado2_url ?? ""}
                     onChange={(e) =>
-                      handleChange("button_text", e.target.value)
+                      handleChange("afiliado2_url", e.target.value)
                     }
-                    placeholder="COMPRAR"
+                    placeholder="https://www.mercadolivre..."
                   />
                 </div>
-                <div className="space-y-2">
-                  <label className="text-sm text-[#9ca3af]">Cor do Botão</label>
-                  <div className="flex gap-3 items-center">
-                    <input
-                      type="color"
-                      className="h-10 w-20 rounded border border-[#2c313c] cursor-pointer"
-                      value={form.button_color}
-                      onChange={(e) =>
-                        handleChange("button_color", e.target.value)
-                      }
-                    />
-                    <input
-                      className="flex-1 bg-[#11151c] border border-[#2c313c] rounded-lg px-3 py-2 text-white"
-                      value={form.button_color}
-                      onChange={(e) =>
-                        handleChange("button_color", e.target.value)
-                      }
-                      placeholder="#ac3e3e"
-                    />
-                  </div>
-                </div>{" "}
               </fieldset>
             </div>
 

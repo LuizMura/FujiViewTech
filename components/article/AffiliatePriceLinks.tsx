@@ -47,7 +47,7 @@ export default function AffiliatePriceLinks({
             className="inline-flex h-12 w-[132px] items-center justify-center overflow-hidden rounded-xl bg-white shadow-md transition-all hover:opacity-90 hover:shadow-lg"
           >
             <Image
-              src="/images/mercadolivre-logo.png"
+              src="/images/mercadolivre-logo2.png"
               alt="Mercado Livre"
               width={132}
               height={40}

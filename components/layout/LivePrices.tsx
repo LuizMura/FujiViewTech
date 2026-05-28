@@ -269,7 +269,7 @@ export default function LivePrices({ clickable = true }: LivePricesProps) {
             const isCrypto = quote.kind === "crypto";
 
             return (
-              <div key={quote.key} className="rounded-xl bg-white/90 ">
+              <div key={quote.key} className="rounded-sm bg-white/90 ">
                 <div className="grid grid-cols-[1fr_auto_auto] border-b border-slate-300/80 p-1 items-center gap-4">
                   <p className="truncate text-[12px] font-bold uppercase tracking-wide text-slate-500">
                     {quote.label}

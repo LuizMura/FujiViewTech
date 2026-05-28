@@ -11,14 +11,8 @@ interface ProdutoAfiliado {
   loja?: string;
   preco: string | number;
   afiliado_url?: string;
-  afiliado1_nome: string;
-  afiliado1_url: string;
-  afiliado1_cor: string;
-  afiliado1_texto: string;
-  afiliado2_nome: string;
-  afiliado2_url: string;
-  afiliado2_cor: string;
-  afiliado2_texto: string;
+  afiliado1_url?: string;
+  afiliado2_url?: string;
   created_at?: string;
   publicado_em?: string;
   id?: string | number;
@@ -62,6 +56,19 @@ const AfiliadosCarrossel: React.FC<AfiliadosCarrosselProps> = ({
     return "R$ 0,00";
   };
 
+  const getLegacyAffiliateByDomain = (url?: string) => {
+    const value = (url || "").trim();
+    if (!value) return { amazon: "", mercadolivre: "" };
+    const lower = value.toLowerCase();
+    if (lower.includes("mercadolivre") || lower.includes("mercadolibre")) {
+      return { amazon: "", mercadolivre: value };
+    }
+    if (lower.includes("amazon")) {
+      return { amazon: value, mercadolivre: "" };
+    }
+    return { amazon: value, mercadolivre: "" };
+  };
+
   useEffect(() => {
     async function fetchAfiliados() {
       setLoading(true);
@@ -97,7 +104,7 @@ const AfiliadosCarrossel: React.FC<AfiliadosCarrosselProps> = ({
           {[1, 2, 3, 4, 5].map((n) => (
             <div
               key={n}
-              className={`flex-shrink-0 ${compact ? "w-[130px] md:w-[176px] lg:w-[176px] h-[240px]" : "w-[150px] md:w-[200px] lg:w-[200px] h-[280px]"} bg-slate-800/50 rounded-xl animate-pulse`}
+              className={`flex-shrink-0 ${compact ? "w-[min(42vw,130px)] sm:w-[140px] md:w-[176px] h-[240px]" : "w-[min(46vw,170px)] sm:w-[180px] md:w-[200px] h-[280px]"} bg-slate-800/50 rounded-xl animate-pulse`}
             />
           ))}
         </div>
@@ -115,27 +122,23 @@ const AfiliadosCarrossel: React.FC<AfiliadosCarrosselProps> = ({
   const arrowMobileSize = smallArrows ? 22 : 28;
   const arrowDesktopSize = smallArrows ? 34 : 46;
   const arrowPadding = smallArrows ? "p-1 md:p-1.5" : "p-1 md:p-2";
-  const mobileCardWidth = compact ? 130 : 150;
-  const desktopCardWidth = compact ? 176 : 200;
-  const mobileGap = compact ? 10 : 12;
-  const desktopGap = compact ? 16 : 24;
   const cardWidthClass = compact
-    ? "flex-shrink-0 w-[130px] md:w-[176px] lg:w-[176px] snap-start"
-    : "flex-shrink-0 w-[150px] md:w-[200px] lg:w-[200px] snap-start";
+    ? "flex-shrink-0 w-[min(42vw,130px)] sm:w-[140px] md:w-[176px] snap-start"
+    : "flex-shrink-0 w-[min(46vw,170px)] sm:w-[180px] md:w-[200px] snap-start";
   const cardsGapClass = compact ? "gap-[10px] md:gap-4" : "gap-3 md:gap-6";
 
   const scrollToIndex = (index: number) => {
     if (typeof window === "undefined" || !containerRef.current) return;
-    const cardWidth =
-      window.innerWidth < 768
-        ? mobileCardWidth
-        : window.innerWidth < 1024
-          ? desktopCardWidth
-          : desktopCardWidth;
-    const gap = window.innerWidth < 768 ? mobileGap : desktopGap;
+    const container = containerRef.current;
+    const firstCard = container.firstElementChild as HTMLElement | null;
+    if (!firstCard) return;
+
+    const styles = window.getComputedStyle(container);
+    const gap = parseFloat(styles.columnGap || styles.gap || "0") || 0;
+    const cardWidth = firstCard.getBoundingClientRect().width;
     const scrollPosition = index * (cardWidth + gap);
 
-    containerRef.current.scrollTo({ left: scrollPosition, behavior: "smooth" });
+    container.scrollTo({ left: scrollPosition, behavior: "smooth" });
   };
 
   const goToPrev = () => {
@@ -199,38 +202,41 @@ const AfiliadosCarrossel: React.FC<AfiliadosCarrosselProps> = ({
                 key={produto.id ?? `${produto.titulo}-${idx}`}
                 className={cardWidthClass}
               >
-                <AfiliadosCard
-                  compact={compact}
-                  imagem={produto.imagem}
-                  titulo={produto.titulo}
-                  descricao={produto.descricao}
-                  loja={produto.loja || "Loja"}
-                  preco={formatPreco(produto.preco)}
-                  afiliados={[
-                    {
-                      nome: produto.afiliado1_nome || produto.loja || "Loja",
-                      url: produto.afiliado1_url || produto.afiliado_url || "",
-                      cor: produto.afiliado1_cor,
-                      texto: produto.afiliado1_texto,
-                      logo: produto.afiliado1_nome
-                        ?.toLowerCase()
-                        .includes("amazon")
-                        ? "/images/amazon-logo.png"
-                        : undefined,
-                    },
-                    {
-                      nome: produto.afiliado2_nome,
-                      url: produto.afiliado2_url,
-                      cor: produto.afiliado2_cor,
-                      texto: produto.afiliado2_texto,
-                      logo: produto.afiliado2_nome
-                        ?.toLowerCase()
-                        .includes("mercado")
-                        ? "/images/mercadolivre-logo.png"
-                        : undefined,
-                    },
-                  ]}
-                />
+                {(() => {
+                  const legacyLinks = getLegacyAffiliateByDomain(
+                    produto.afiliado_url,
+                  );
+                  const amazonUrl = produto.afiliado1_url || legacyLinks.amazon;
+                  const mercadolivreUrl =
+                    produto.afiliado2_url || legacyLinks.mercadolivre;
+
+                  return (
+                    <AfiliadosCard
+                      compact={compact}
+                      imagem={produto.imagem}
+                      titulo={produto.titulo}
+                      descricao={produto.descricao}
+                      loja={produto.loja || "Loja"}
+                      preco={formatPreco(produto.preco)}
+                      afiliados={[
+                        {
+                          nome: "Amazon",
+                          url: amazonUrl,
+                          cor: "#f59e0b",
+                          texto: "VER NA AMAZON",
+                          logo: "/images/amazon-logo.png",
+                        },
+                        {
+                          nome: "Mercado Livre",
+                          url: mercadolivreUrl,
+                          cor: "#2563eb",
+                          texto: "VER NO MERCADO LIVRE",
+                          logo: "/images/mercadolivre-logo2.png",
+                        },
+                      ]}
+                    />
+                  );
+                })()}
               </div>
             ))}
           </div>

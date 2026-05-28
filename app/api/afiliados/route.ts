@@ -3,6 +3,42 @@ import { createAdminClient } from "@/lib/supabase/admin";
 
 const TABLE_NAME = "afiliados";
 
+const normalizeAffiliateUrls = (row: Record<string, unknown>) => {
+  const legacy = typeof row.afiliado_url === "string" ? row.afiliado_url : "";
+  const a1 =
+    typeof row.afiliado1_url === "string" && row.afiliado1_url.trim()
+      ? row.afiliado1_url
+      : "";
+  const a2 =
+    typeof row.afiliado2_url === "string" && row.afiliado2_url.trim()
+      ? row.afiliado2_url
+      : "";
+
+  if (a1 || a2) {
+    return { afiliado1_url: a1, afiliado2_url: a2 };
+  }
+
+  const lowerLegacy = legacy.toLowerCase();
+  if (
+    lowerLegacy.includes("mercadolivre") ||
+    lowerLegacy.includes("mercadolibre")
+  ) {
+    return { afiliado1_url: "", afiliado2_url: legacy };
+  }
+
+  return { afiliado1_url: legacy, afiliado2_url: "" };
+};
+
+const hasDedicatedAffiliateColumns = async (
+  supabase: ReturnType<typeof createAdminClient>,
+) => {
+  const { error } = await supabase
+    .from(TABLE_NAME)
+    .select("afiliado1_url,afiliado2_url")
+    .limit(1);
+  return !error;
+};
+
 export async function GET() {
   try {
     const supabase = createAdminClient();
@@ -31,6 +67,7 @@ export async function GET() {
     // E formata valores monetários de volta para string formatada
     const normalized = (data || []).map((row: Record<string, unknown>) => ({
       ...row,
+      ...normalizeAffiliateUrls(row),
       imagem: row.imagem || row.Imagem || null,
       button_color:
         String(row.button_color || "")
@@ -55,19 +92,25 @@ export async function GET() {
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
+    const affiliate1 = String(body.afiliado1_url || "").trim();
+    const affiliate2 = String(body.afiliado2_url || "").trim();
+    const legacyAffiliate = String(body.afiliado_url || "").trim();
+    const affiliateUrl = affiliate1 || affiliate2 || legacyAffiliate;
+
     const required = [
       "titulo",
       "descricao",
       "categoria",
       "loja",
       "preco",
-      "afiliado_url",
       "status",
     ];
     const missing = required.filter((key) => !body[key]);
-    if (missing.length) {
+    if (missing.length || !affiliateUrl) {
+      const errors = [...missing];
+      if (!affiliateUrl) errors.push("afiliado_url");
       return NextResponse.json(
-        { error: `Campos obrigatorios faltando: ${missing.join(", ")}` },
+        { error: `Campos obrigatorios faltando: ${errors.join(", ")}` },
         { status: 400 },
       );
     }
@@ -103,6 +146,8 @@ export async function POST(request: NextRequest) {
     delete rest.imagem;
     delete rest.imagens;
     delete rest.Imagem;
+    delete rest.afiliado1_url;
+    delete rest.afiliado2_url;
 
     // Converte campos numéricos que podem vir formatados como string
     const precoParsed = parsePtBRMoney(rest.preco);
@@ -116,22 +161,30 @@ export async function POST(request: NextRequest) {
       rest.receita !== undefined ? parsePtBRMoney(rest.receita) : 0;
 
     const supabase = createAdminClient();
+    const supportsDedicatedLinks = await hasDedicatedAffiliateColumns(supabase);
+
+    const record: Record<string, unknown> = {
+      ...rest,
+      preco: precoParsed,
+      imagem: imagemCapa,
+      afiliado_url: affiliateUrl,
+      button_text: body.button_text || "COMPRAR",
+      button_color: body.button_color || "#ac3e3e",
+      views: body.views ?? 0,
+      clicks: body.clicks ?? 0,
+      compras: body.compras ?? 0,
+      receita: receitaParsed ?? 0,
+      publicado_em: body.publicado_em || null,
+    };
+
+    if (supportsDedicatedLinks) {
+      record.afiliado1_url = affiliate1 || null;
+      record.afiliado2_url = affiliate2 || null;
+    }
+
     const { data, error } = await supabase
       .from(TABLE_NAME)
-      .insert([
-        {
-          ...rest,
-          preco: precoParsed,
-          imagem: imagemCapa,
-          button_text: body.button_text || "COMPRAR",
-          button_color: body.button_color || "#ac3e3e",
-          views: body.views ?? 0,
-          clicks: body.clicks ?? 0,
-          compras: body.compras ?? 0,
-          receita: receitaParsed ?? 0,
-          publicado_em: body.publicado_em || null,
-        },
-      ])
+      .insert([record])
       .select()
       .maybeSingle();
 
@@ -188,7 +241,14 @@ export async function PUT(request: NextRequest) {
     delete updateRest.imagem;
     delete updateRest.imagens;
     delete updateRest.Imagem;
+    delete updateRest.afiliado1_url;
+    delete updateRest.afiliado2_url;
     const updateRecord = update as Record<string, unknown>;
+
+    const affiliate1 = String(updateRecord.afiliado1_url || "").trim();
+    const affiliate2 = String(updateRecord.afiliado2_url || "").trim();
+    const legacyAffiliate = String(updateRecord.afiliado_url || "").trim();
+    const affiliateUrl = affiliate1 || affiliate2 || legacyAffiliate;
 
     const buttonTextInput =
       typeof updateRecord.button_text === "string"
@@ -222,17 +282,27 @@ export async function PUT(request: NextRequest) {
     }
 
     const supabase = createAdminClient();
+    const supportsDedicatedLinks = await hasDedicatedAffiliateColumns(supabase);
+
+    const updatePayload: Record<string, unknown> = {
+      ...updateRest,
+      ...(imagemCapa !== undefined ? { imagem: imagemCapa } : {}),
+      ...(affiliateUrl ? { afiliado_url: affiliateUrl } : {}),
+      button_text:
+        buttonTextInput || String(updateRest.button_text || "COMPRAR"),
+      button_color:
+        buttonColorInput || String(updateRest.button_color || "#ac3e3e"),
+      publicado_em: publishedAtInput,
+    };
+
+    if (supportsDedicatedLinks) {
+      updatePayload.afiliado1_url = affiliate1 || null;
+      updatePayload.afiliado2_url = affiliate2 || null;
+    }
+
     const { data, error } = await supabase
       .from(TABLE_NAME)
-      .update({
-        ...updateRest,
-        ...(imagemCapa !== undefined ? { imagem: imagemCapa } : {}),
-        button_text:
-          buttonTextInput || String(updateRest.button_text || "COMPRAR"),
-        button_color:
-          buttonColorInput || String(updateRest.button_color || "#ac3e3e"),
-        publicado_em: publishedAtInput,
-      })
+      .update(updatePayload)
       .eq("id", id)
       .select()
       .maybeSingle();

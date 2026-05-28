@@ -320,7 +320,7 @@ export default function AdminHomePage() {
                             logo: item.afiliado2_nome
                               ?.toLowerCase()
                               .includes("mercado")
-                              ? "/images/mercadolivre-logo.png"
+                              ? "/images/mercadolivre-logo2.png"
                               : undefined,
                             cor: item.afiliado2_cor,
                             texto: item.afiliado2_texto,
